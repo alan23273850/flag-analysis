@@ -24,6 +24,9 @@ def read_config(path="config.txt"):
 
 # --- Qiskit imports + loader shim ---
 from qiskit import QuantumCircuit
+
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 try:
     # Some 2.x installs expose a dedicated qasm2 loader
     from qiskit.qasm2 import loads as qasm2_loads  # type: ignore
