@@ -60,7 +60,7 @@ The verification includes **four steps**:
 
 1. **Syndrome correctness:** verify when no faults in the flag circuit the circuit is a syndrome extraction circuit.
 2. **Fault detection:** find gates that cause high‑weight errors → stored in `bad_location`.
-3. **Flag check:** verify faults on bad gates trigger at least one flag.
+3. **Flag check:** verify when faults on `bad_locations` cause a high weight error will trigger at least one flag.
 4. **Syndrome uniqueness:** check after a round of flag circuit and a round of no flag circuit the generalized syndrome is unique up to degenracy.
 
 Each step should output **“Success.”**
