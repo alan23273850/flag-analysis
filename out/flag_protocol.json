@@ -9,22 +9,26 @@
                 {
                     "condition": {
                         "type": "not",
-                        "operand": {
-                            "type": "equal",
-                            "left": "f_1",
-                            "right": 0
-                        }
+                        "operands": [
+                            {
+                                "type": "equal",
+                                "left": "f_1",
+                                "right": 0
+                            }
+                        ]
                     },
                     "target": "r_1_flagged"
                 },
                 {
                     "condition": {
                         "type": "not",
-                        "operand": {
-                            "type": "equal",
-                            "left": "f_1",
-                            "right": 0
-                        }
+                        "operands": [
+                            {
+                                "type": "equal",
+                                "left": "f_1",
+                                "right": 0
+                            }
+                        ]
                     },
                     "target": "r_1_not_flagged"
                 }
@@ -53,11 +57,13 @@
                 {
                     "condition": {
                         "type": "not",
-                        "operand": {
-                            "type": "equal",
-                            "left": "f_2",
-                            "right": 0
-                        }
+                        "operands": [
+                            {
+                                "type": "equal",
+                                "left": "f_2",
+                                "right": 0
+                            }
+                        ]
                     },
                     "target": "r_2_flagged"
                 },
@@ -72,11 +78,13 @@
                             },
                             {
                                 "type": "not",
-                                "operand": {
-                                    "type": "equal",
-                                    "left": "s_2",
-                                    "right": "s_1"
-                                }
+                                "operands": [
+                                    {
+                                        "type": "equal",
+                                        "left": "s_2",
+                                        "right": "s_1"
+                                    }
+                                ]
                             }
                         ]
                     },

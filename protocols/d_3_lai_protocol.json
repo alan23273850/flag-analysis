@@ -1,0 +1,72 @@
+{
+    "start_node": "root",
+    "nodes": {
+        "root": {
+            "instructions": [
+                "flagged_syndrome_1"
+            ],
+            "branches": [
+                {
+                    "condition": {
+                        "type": "and",
+                        "operands": [
+                            {
+                                "type": "equal",
+                                "left": "s_1",
+                                "right": 0
+                            },
+                            {
+                                "type": "equal",
+                                "left": "f_1",
+                                "right": 0
+                            }
+                        ]
+                    },
+                    "target": "f_1_s_1_all_zero"
+                },
+                {
+                    "condition": {
+                        "type": "not",
+                        "operands": [
+                            {
+                                "type": "and",
+                                "operands": [
+                                    {
+                                        "type": "equal",
+                                        "left": "s_1",
+                                        "right": 0
+                                    },
+                                    {
+                                        "type": "equal",
+                                        "left": "f_1",
+                                        "right": 0
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "target": "not_f_1_s_1_all_zero"
+                }
+            ]
+        },
+        "f_1_s_1_all_zero": {
+            "instructions": [],
+            "branches": []
+        },
+        "not_f_1_s_1_all_zero": {
+            "instructions": [
+                "raw_syndrome"
+            ],
+            "branches": [
+                {
+                    "condition": null,
+                    "target": "ter_2"
+                }
+            ]
+        },
+        "ter_2": {
+            "instructions": [],
+            "branches": []
+        }
+    }
+}

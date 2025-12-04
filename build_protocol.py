@@ -3,30 +3,35 @@ import os
 from typing import Optional, List, Dict
 
 class Condition:
-    def __init__(self, cond_type: str, left=None, right=None, operand=None, operands=None):
+    def __init__(self, cond_type: str, left=None, right=None,
+                 operand=None, operands=None):
         self.type = cond_type
-        self.left = left          # For binary conditions
-        self.right = right        # For binary conditions
-        self.operand = operand    # For unary conditions (like 'not')
-        self.operands = operands  # For n-ary conditions (like 'and', 'or')
+        self.left = left
+        self.right = right
+        self.operand = operand        # for unary
+        self.operands = operands      # for n-ary
 
     def to_dict(self):
         d = {"type": self.type}
+
+        # Leaf binary conditions stay the same
         if self.type in ("equal", "not_equal",
-                        "greater", "less", "greater_equal", "less_equal"):
+                         "greater", "less", "greater_equal", "less_equal"):
             d["left"] = self.left
             d["right"] = self.right
+            return d
 
-        elif self.type == "not":
-            d["operand"] = self.operand.to_dict()
+        # Unary NOT → convert to operands list
+        if self.type == "not":
+            d["operands"] = [self.operand.to_dict()]
+            return d
 
-        elif self.type in ("and", "or"):
+        # AND / OR → stays operands
+        if self.type in ("and", "or"):
             d["operands"] = [op.to_dict() for op in self.operands]
+            return d
 
-        else:
-            raise ValueError(f"Unknown condition type: {self.type}")
-
-        return d
+        raise ValueError(f"Unknown condition type: {self.type}")
 
 
 class Branch:
@@ -74,7 +79,96 @@ class Protocol:
             json.dump(self.to_dict(), f, indent=4)
         print(f"Protocol saved to {filepath}")
         
-        
+def all_paths_with_conditions_and_instructions(protocol):
+    """
+    Yields:
+      (branch_steps, condition_list, instruction_list)
+
+    where:
+      branch_steps      = [(from_node_id, Branch, to_node_id), ...]
+      condition_list    = [Condition, Condition, ...]    # one per branch that has a condition
+      instruction_list  = [str, str, ...]                # instructions along the path
+
+    - If a branch has no condition, it does NOT add to condition_list.
+    - If a path has no conditions at all, condition_list will be [].
+    """
+
+    def dfs(node_id, branch_steps, cond_list, instr_list):
+        node = protocol.nodes[node_id]
+
+        # Add this node's instructions
+        new_instr_list = instr_list + node.instructions
+
+        # Leaf node → complete path
+        if not node.branches:
+            yield branch_steps, cond_list, new_instr_list
+            return
+
+        for br in node.branches:
+            # Record this transition: from node_id to br.target
+            step = (node_id, br, br.target)
+
+            # Add this branch's condition (if any)
+            if br.condition is None:
+                new_cond_list = cond_list.copy()
+            else:
+                new_cond_list = cond_list + [br.condition]
+
+            if br.target is None:
+                # Terminal branch (no next state)
+                yield branch_steps + [step], new_cond_list, new_instr_list
+            else:
+                # Continue DFS from the target state
+                yield from dfs(
+                    br.target,
+                    branch_steps + [step],
+                    new_cond_list,
+                    new_instr_list
+                )
+
+    yield from dfs(protocol.start_node, [], [], [])
+
+def build_protocol_d_3_lai() -> Protocol:
+    protocol = Protocol(start_node="root")
+
+    condition_s_1_all_zero = Condition(cond_type="equal", left="s_1", right=0)
+    condition_f_1_all_zero = Condition(cond_type="equal", left="f_1", right=0)
+    condition_1 = Condition("and", operands=[condition_s_1_all_zero, condition_f_1_all_zero])
+    # Root node with unconditional branch to flag_measure
+    root_node = Node(
+        node_id="root",
+        instructions=["flagged_syndrome_1"],
+        branches=[Branch(target="f_1_s_1_all_zero", condition= condition_1),
+                  Branch(target="not_f_1_s_1_all_zero", condition = Condition("not", operand=condition_1))]
+    )
+    protocol.add_node(root_node)
+
+    f_1_s_1_all_zero = Node(
+        node_id="f_1_s_1_all_zero",
+        instructions=[], branches=[]
+    )
+    protocol.add_node(f_1_s_1_all_zero)
+
+    #node f_1_s_1_all_zero
+    not_f_1_s_1_all_zero = Node(
+        node_id="not_f_1_s_1_all_zero",
+        instructions=["raw_syndrome"],
+        branches=[Branch(target="ter_2")]
+    )
+    protocol.add_node(not_f_1_s_1_all_zero)
+
+
+    # Flag measurement node
+    flag_measure_node = Node(
+        node_id="ter_2",
+        instructions=[],
+        branches=[]
+    )
+    protocol.add_node(flag_measure_node)
+
+    protocol.save_to_file("./protocols/d_3_lai_protocol.json")
+
+    return protocol
 def build_protocol_d_5_lai() -> Protocol:
     protocol = Protocol(start_node="root")
 

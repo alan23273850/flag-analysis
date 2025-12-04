@@ -27,21 +27,23 @@
                 {
                     "condition": {
                         "type": "not",
-                        "operand": {
-                            "type": "and",
-                            "operands": [
-                                {
-                                    "type": "equal",
-                                    "left": "s_1",
-                                    "right": 0
-                                },
-                                {
-                                    "type": "equal",
-                                    "left": "f_1",
-                                    "right": 0
-                                }
-                            ]
-                        }
+                        "operands": [
+                            {
+                                "type": "and",
+                                "operands": [
+                                    {
+                                        "type": "equal",
+                                        "left": "s_1",
+                                        "right": 0
+                                    },
+                                    {
+                                        "type": "equal",
+                                        "left": "f_1",
+                                        "right": 0
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     "target": "not_all_zero"
                 }
@@ -67,11 +69,13 @@
                 {
                     "condition": {
                         "type": "not",
-                        "operand": {
-                            "type": "equal",
-                            "left": "f_2",
-                            "right": 0
-                        }
+                        "operands": [
+                            {
+                                "type": "equal",
+                                "left": "f_2",
+                                "right": 0
+                            }
+                        ]
                     },
                     "target": "flag_2_not_all_zero"
                 }
@@ -118,21 +122,23 @@
                 {
                     "condition": {
                         "type": "not",
-                        "operand": {
-                            "type": "and",
-                            "operands": [
-                                {
-                                    "type": "equal",
-                                    "left": "f_3",
-                                    "right": 0
-                                },
-                                {
-                                    "type": "equal",
-                                    "left": "s_3",
-                                    "right": "s_2"
-                                }
-                            ]
-                        }
+                        "operands": [
+                            {
+                                "type": "and",
+                                "operands": [
+                                    {
+                                        "type": "equal",
+                                        "left": "f_3",
+                                        "right": 0
+                                    },
+                                    {
+                                        "type": "equal",
+                                        "left": "s_3",
+                                        "right": "s_2"
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     "target": "r_3_not_all_zero"
                 }

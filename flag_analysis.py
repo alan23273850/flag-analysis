@@ -7,6 +7,16 @@ from dataclasses import dataclass
 from typing import List, Tuple, Dict, Optional
 from pathlib  import Path
 
+from circuit_op import *
+from build_protocol import *
+
+from qiskit import QuantumCircuit
+
+
+from z3 import BoolVal, Xor, Bool,simplify,substitute, And, Not,Or, PbLe, AtMost,ForAll, Implies, Exists, PbGe, AtLeast
+
+from z3 import Solver, unsat, sat
+
 def read_config(path="config.txt"):
     """Read the QASM path from a simple key=value text config."""
     config_file = Path(path)
@@ -22,21 +32,7 @@ def read_config(path="config.txt"):
 
 
 
-# --- Qiskit imports + loader shim ---
-from qiskit import QuantumCircuit
 
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-try:
-    # Some 2.x installs expose a dedicated qasm2 loader
-    from qiskit.qasm2 import loads as qasm2_loads  # type: ignore
-    _HAS_QASM2 = True
-except Exception:
-    _HAS_QASM2 = False
-
-from z3 import BoolVal, Xor, Bool,simplify,substitute, And, Not,Or, PbLe, AtMost,ForAll, Implies, Exists, PbGe, AtLeast
-
-from z3 import Solver, unsat, sat
 # ---------------------------
 # Pauli-flow data structures
 # ---------------------------
@@ -73,28 +69,6 @@ def xor_list(lst):
     for v in lst:
         acc = Xor(acc, v)
     return acc
-# ---------------------------
-# Init
-# ---------------------------
-
-def new_clean_circuit_state(n_qubits: int) -> CircuitXZ:
-    """Start with no errors anywhere: X=0, Z=0 per qubit."""
-    return CircuitXZ([QubitXZ(bfalse(), bfalse()) for _ in range(n_qubits)])
-
-
-def new_variable_circuit_state(qc: QuantumCircuit) -> CircuitXZ:
-    """
-    Initialize each qubit with named Bool variables based on qreg name + local index.
-    Produces variables like: q0_x, q0_z, ancX1_x, ancX1_z, flagZ2_x, ...
-    """
-    regmap = _regmap_indices(qc)
-    qubits: List[QubitXZ] = []
-    for i in range(qc.num_qubits):
-        regname, j = regmap[i]
-        prefix = f"{regname}{j}"
-        qubits.append(QubitXZ(x=Bool(f"{prefix}_x"), z=Bool(f"{prefix}_z")))
-    return CircuitXZ(qubits)
-
 
 
 # ---------------------------
@@ -136,157 +110,10 @@ from qiskit import QuantumCircuit, QuantumRegister
 
 
 
-def _build_bit_lookup(qc: QuantumCircuit):
-    """
-    Return dict: { QubitObject -> (register_name, local_index) }
-    Works across Qiskit 1.x/2.x because it iterates the circuit's qregs directly.
-    """
-    m = {}
-    for reg in qc.qregs:
-        # reg is a QuantumRegister; iterating gives Bit objects in order
-        for j, bit in enumerate(reg):
-            m[bit] = (reg.name, j)
-    return m
 
 
-def split_circuit_full_q_compact_flags(qc: QuantumCircuit):
-    """
-    Split `qc` by 'barrier'. In each slice:
-      - keep full data register 'q' (same size),
-      - create compact ancilla/flag regs containing only used bits for that slice,
-      - ignore 'measure' ops; no classical registers created.
-      - if the original slice ended at a barrier, append a barrier in the subcircuit.
-    Returns: List[QuantumCircuit]
-    """
-    # 1) collect ops between barriers (skip measures), and remember if a slice ended at a barrier
-    slices = []  # list of (ops, ended_by_barrier)
-    cur = []
-    for instr, qargs, cargs in qc.data:
-        if instr.name == "barrier":
-            if cur:
-                slices.append((cur, True))  # this slice ended due to a barrier
-                cur = []
-        elif instr.name == "measure":
-            continue
-        else:
-            cur.append((instr, qargs))
-    if cur:
-        slices.append((cur, False))  # last slice (no trailing barrier)
-
-    # 2) map each Qubit object -> (register_name, local_index)
-    bit_lookup = _build_bit_lookup(qc)
-
-    # 3) original data register (kept full size)
-    q_reg_orig = next((r for r in qc.qregs if r.name == "q"), None)
-    if q_reg_orig is None:
-        raise ValueError("Expected a data register named 'q'.")
-    q_size = q_reg_orig.size
-
-    subcircuits = []
-    for k, (ops, ended_by_barrier) in enumerate(slices):
-        # which anc/flag locals are used in this slice
-        used_by_reg = {"ancX": set(), "ancZ": set(), "flagX": set(), "flagZ": set()}
-
-        for instr, qargs in ops:
-            for qb in qargs:
-                rname, lidx = bit_lookup[qb]
-                if rname in used_by_reg:
-                    used_by_reg[rname].add(lidx)
-
-        # build new regs: full 'q', compact anc/flag only if used
-        q_new = QuantumRegister(q_size, "q")
-        regs = [q_new]
-        remap = {("q", j): q_new[j] for j in range(q_size)}
-
-        def add_compact_reg(reg_name):
-            idxs = sorted(used_by_reg[reg_name])
-            if not idxs:
-                return
-            R = QuantumRegister(len(idxs), reg_name)
-            regs.append(R)
-            for new_i, old_i in enumerate(idxs):
-                remap[(reg_name, old_i)] = R[new_i]
-
-        for rn in ("ancX", "ancZ", "flagX", "flagZ"):
-            add_compact_reg(rn)
-
-        # build subcircuit and append remapped ops
-        sub = QuantumCircuit(*regs, name=f"stab_{k}_fullq_compactflags")
-        for instr, qargs in ops:
-            new_qargs = []
-            for qb in qargs:
-                rname, lidx = bit_lookup[qb]
-                key = (rname, lidx)
-                if key not in remap:
-                    raise KeyError(f"Unmapped bit {rname}[{lidx}] in slice {k}")
-                new_qargs.append(remap[key])
-            sub.append(instr, new_qargs, [])
-
-        # append a barrier if the original block ended at a barrier
-        if ended_by_barrier:
-            sub.barrier(*sub.qubits)
-
-        subcircuits.append(sub)
-
-    return subcircuits
 
 
-from qiskit.qasm2 import dumps as qasm2_dumps  # for Qiskit 2.x
-
-def save_qasm_full_slices(qc, prefix="stab"):
-    """Split by barriers and save each stabilizer as a .qasm file (Qiskit 2.x compatible)."""
-    subs = split_circuit_full_q_compact_flags(qc)
-    for i, sub in enumerate(subs):
-        filename = f"{prefix}_{i}.qasm"
-        try:
-            # Preferred (Qiskit 2.x)
-            qasm_str = qasm2_dumps(sub)
-        except Exception:
-            # Fallback for Qiskit 1.x
-            qasm_str = sub.qasm()
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write(qasm_str)
-        print(f"Saved: {filename}")
-def remove_flag_gates(qasm_path: str, save_path: str = None):
-    """
-    Load a QASM file, remove all gates that act on flag qubits (flagX[...] or flagZ[...]),
-    but preserve the original `barrier` gates.
-    """
-    qc = QuantumCircuit.from_qasm_file(qasm_path)
-    new_qc = QuantumCircuit(*qc.qregs, *qc.cregs)
-
-    # Map: global index -> register name
-    regmap = {}
-    idx = 0
-    for qreg in qc.qregs:
-        for _ in range(qreg.size):
-            regmap[idx] = qreg.name.lower()
-            idx += 1
-
-    def is_flag_qubit(qbit):
-        """Check if the given Qubit belongs to a flag register."""
-        loc = qc.find_bit(qbit)
-        reg_name = regmap.get(loc.index, "")
-        return reg_name.startswith("flagx") or reg_name.startswith("flagz")
-
-    # Filter out gates acting on flag qubits, but keep barriers
-    for instr, qargs, cargs in qc.data:
-        if instr.name == "barrier":
-            # Always include barrier gates
-            new_qc.append(instr, qargs, cargs)
-        elif any(is_flag_qubit(q) for q in qargs):
-            # Skip gates that act on flag qubits
-            continue
-        else:
-            # Include all other gates
-            new_qc.append(instr, qargs, cargs)
-
-    # Optionally save the modified circuit
-    if save_path:
-        with open(save_path, "w") as f:
-            f.write(qasm2_dumps(new_qc))  # Use qasm2_dumps to generate QASM string
-
-    return new_qc
 # ---------------------------
 # Clifford update rules
 # ---------------------------
@@ -522,23 +349,35 @@ def apply_qasm_gate_into_state(state: CircuitXZ, name: str, qidxs: List[int]) ->
     else:
         raise NotImplementedError(f"Unsupported gate in Pauli-flow: {name}")
 
-def _load_qasm(qasm_path: str) -> QuantumCircuit:
+
+
+# ---------------------------
+# build states from QASM
+# ---------------------------
+
+from circuit_op import *
+
+def new_clean_circuit_state(n_qubits: int) -> CircuitXZ:
+    """Start with no errors anywhere: X=0, Z=0 per qubit."""
+    return CircuitXZ([QubitXZ(bfalse(), bfalse()) for _ in range(n_qubits)])
+
+
+def new_variable_circuit_state(qc: QuantumCircuit) -> CircuitXZ:
     """
-    Loader shim for Qiskit 2.x: try the classic from_qasm_file first;
-    if your build expects qasm2 loader, use it as a fallback.
+    Initialize each qubit with named Bool variables based on qreg name + local index.
+    Produces variables like: q0_x, q0_z, ancX1_x, ancX1_z, flagZ2_x, ...
     """
-    try:
-        return QuantumCircuit.from_qasm_file(qasm_path)
-    except Exception:
-        if _HAS_QASM2:
-            with open(qasm_path, "r", encoding="utf-8") as f:
-                txt = f.read()
-            return qasm2_loads(txt)
-        raise  # rethrow if no fallback available
+    regmap = _regmap_indices(qc)
+    qubits: List[QubitXZ] = []
+    for i in range(qc.num_qubits):
+        regname, j = regmap[i]
+        prefix = f"{regname}{j}"
+        qubits.append(QubitXZ(x=Bool(f"{prefix}_x"), z=Bool(f"{prefix}_z")))
+    return CircuitXZ(qubits)
 
 def build_state_from_qasm(qasm_path: str) -> Tuple[CircuitXZ, QuantumCircuit]:
     """Load QASM and walk the gates to produce final Pauli-flow state (no faults)."""
-    qc = _load_qasm(qasm_path)
+    qc = load_qasm(qasm_path)
     st = new_clean_circuit_state(qc.num_qubits)
     for instr, qargs, _ in qc.data:
         name = instr.name
@@ -551,7 +390,7 @@ def build_variable_state_from_qasm(qasm_path: str) -> Tuple[CircuitXZ, QuantumCi
     Load QASM, build variable-initialized Pauli-flow state, propagate gates,
     and return (state, qc, varenv) where varenv maps variable names to z3 Bools.
     """
-    qc = _load_qasm(qasm_path)
+    qc = load_qasm(qasm_path)
 
     # 1) variable-initialized state
     state = new_variable_circuit_state(qc)
@@ -573,7 +412,6 @@ def build_variable_state_from_qasm(qasm_path: str) -> Tuple[CircuitXZ, QuantumCi
 
     return state, qc, varenv
 
-
 def build_state_with_fault_after_gate(qasm_path: str, gate_index: int, fault_mode="either", fault_kind=None):
     """
     Run circuit ideally; inject a fault right AFTER gate #gate_index only.
@@ -584,7 +422,7 @@ def build_state_with_fault_after_gate(qasm_path: str, gate_index: int, fault_mod
       - (kc,kt)             -> for CNOT in mode='2q'/'either' (concrete per-wire)
     Returns: (state, qc, site_info, groups)
     """
-    qc = _load_qasm(qasm_path)
+    qc = load_qasm(qasm_path)
     state = new_clean_circuit_state(qc.num_qubits)
     groups = detect_qubit_groups(qc)
     site_info = None
@@ -640,74 +478,97 @@ def build_state_with_fault_after_gate(qasm_path: str, gate_index: int, fault_mod
     return state, qc, site_info, groups
 
 
-from copy import deepcopy
-def symbolic_propagate_state_checked(qasm_path: str, init_state, *, track_steps=False):
+def build_state_with_faults_after_gates(qasm_path: str, gate_indices: list, fault_mode="either", fault_kind=None):
     """
-    Propagate a CircuitXZ `init_state` through a Qiskit QuantumCircuit `qc`
-    using the Pauli-flow update rules in `apply_qasm_gate_into_state`.
-
-    - Verifies qubit-count match (circuit vs. state).
-    - Ignores non-evolution ops: barrier/reset/measure/id.
-    - If track_steps=True, also returns a list of (gate_index, name, qidxs, state_snapshot).
-
-    Returns:
-        final_state                    if track_steps == False
-        (final_state, step_snapshots)  if track_steps == True
-    """
-    qc = _load_qasm(qasm_path)
-    # --- consistency check ---
-    n_circ = qc.num_qubits
-    n_state = len(init_state.qubits)
-    if n_circ != n_state:
-        raise ValueError(f"Qubit count mismatch: circuit={n_circ}, state={n_state}")
-
-    # we won’t mutate caller’s state
-    state = deepcopy(init_state)
-
-    # Qiskit 2.x: map Qubit -> global index
-    def _qidx(qbit):
-        return qc.find_bit(qbit).index
-
-    snapshots = []  # (i, name, qidxs, deepcopy(state))
-
+    Run circuit ideally; inject faults right AFTER all gates in `gate_indices`.
     
-    # Walk gates
-    for i, (instr, qargs, _cargs) in enumerate(qc.data):
-        name = instr.name.lower()
-        qidxs = [_qidx(q) for q in qargs]
+    fault_mode: '1q' | '2q' | 'either'  (for 2-qubit gates)
+    fault_kind:
+      - None                -> symbolic
+      - 'I'|'X'|'Z'|'Y'     -> for 1q gates, or for CNOT in mode='1q' (applied to one wire)
+      - (kc,kt)             -> for 2q gates (concrete per-wire)
+    
+    Returns:
+      state, qc, sites_info, groups
+      where `sites_info` is a list of site_info dicts (one per injected fault)
+    """
+    qc = load_qasm(qasm_path)
+    state = new_clean_circuit_state(qc.num_qubits)
+    groups = detect_qubit_groups(qc)
+    print("groups detected:", groups)
+    sites_info = []
 
-        if name in ('barrier', 'reset', 'measure', 'id'):
-            # no evolution needed
-            continue
+    gate_indices = set(gate_indices)  # so we can check membership quickly
 
-        # delegate the actual Clifford update to your centralized function
-        apply_qasm_gate_into_state(state, name, qidxs)
+    for i, (instr, qargs, _) in enumerate(qc.data):
+        name = instr.name
+        qidxs = [_qiskit_qubit_index(qc, q) for q in qargs]
+        print(f"Processing gate {i}: {name} on qubits {qidxs}")
+        if name in ("h","s","sdg"):
+            apply_qasm_gate_into_state(state, name, qidxs)
+            if i in gate_indices:
+                info = _inject_1q_fault_after(
+                    state, qidxs[0],
+                    fault_kind=None if fault_kind is None else fault_kind,
+                    prefix=f"f_site{i}"
+                )
+                sites_info.append({
+                    "gate_index": i, "gate_name": name,
+                    "qubits": (qidxs[0],),
+                    "vars": info, "act": info["act"], "fault_mode": "1q"
+                })
 
-        if track_steps:
-            snapshots.append((i, name, tuple(qidxs), deepcopy(state)))
+        elif name in ("cx","cnot","notnot","cz"):
+            c, t = qidxs
+            if name in ("cx","cnot"):
+                apply_cnot(state, c, t)
+                #print("CNOT",c, t )
+
+            elif name == "notnot":
+                apply_notnot(state, c, t)
+            
+            elif name == "cz":
+                apply_cz(state, c, t)
+
+            if i in gate_indices:
+
+                
+                info = _inject_2q_fault_after(
+                    state, c, t,
+                    fault_kind=None if fault_kind is None else fault_kind,
+                    prefix=f"faulty_gate{i}"
+                )
+                sites_info.append({
+                    "gate_index": i, "gate_name": name,
+                    "qubits": (c, t),
+                    "vars": info, "act": info["act"], "fault_mode": fault_mode
+                })
+
+        elif name in ("barrier","id","reset","measure"):
+            
+            if i in gate_indices:
+                sites_info.append({
+                    "gate_index": i, "gate_name": name,
+                    "qubits": tuple(qidxs),
+                    "vars": {}, "act": BoolVal(False), "fault_mode": "none"
+                })
         
-        print(f"After gate {i}: {name} on qubits {qidxs}")
-        print("state:")
-        print(state.qubits[1].z)
+        else:
+            raise NotImplementedError(f"Unsupported gate: {name}")
 
-    return (state, snapshots) if track_steps else state
+        #_reset_qubit_x(state, groups.get("ancX", []))
 
+        #_reset_qubit_z(state, groups.get("ancZ", []))
 
-def _reset_qubits(state: CircuitXZ, idxs):
-    """Set (x,z) = (False, False) for each qubit index in idxs."""
-    for i in idxs:
-        state.qubits[i].x = BoolVal(False)
-        state.qubits[i].z = BoolVal(False)
+        #_reset_qubit_x(state, groups.get("flagX", []))
 
-def _reset_qubit_x(state: CircuitXZ, idxs):
-    """Set x = False for x part qubit index idx."""
-    for i in idxs:
-        state.qubits[i].x = BoolVal(False)
+        #_reset_qubit_z(state, groups.get("flagZ", []))
+      
+    if not sites_info:
+        raise IndexError(f"gate_indices {gate_indices} produced no injections (len={len(qc.data)})")
 
-def _reset_qubit_z(state: CircuitXZ, idxs):
-    """Set z = False for z part qubit index idx."""
-    for i in idxs:
-        state.qubits[i].z = BoolVal(False)
+    return state, qc, sites_info, groups
+
 
 def symbolic_propagate_with_resets(
     qc: QuantumCircuit,
@@ -809,35 +670,71 @@ def symbolic_propagate_with_resets(
 
     return (state, snapshots) if track_steps else state
 
-def build_state_with_faults_after_gates(qasm_path: str, gate_indices: list, fault_mode="either", fault_kind=None):
-    """
-    Run circuit ideally; inject faults right AFTER all gates in `gate_indices`.
+def symbolic_execution_of_state(qasm_path: str, 
+                                input_state: CircuitXZ,
+                                round: int, 
+                                *,
+                                fault_gate:list = None,
+                                track_steps: bool = False,
+                                reset_groups=("ancX", "ancZ", "flagX", "flagZ"),
+                                fault_inject : bool = False,
+                                fault_mode = "either",
+                                fault_kind = None 
+                                ):
     
-    fault_mode: '1q' | '2q' | 'either'  (for 2-qubit gates)
-    fault_kind:
-      - None                -> symbolic
-      - 'I'|'X'|'Z'|'Y'     -> for 1q gates, or for CNOT in mode='1q' (applied to one wire)
-      - (kc,kt)             -> for 2q gates (concrete per-wire)
-    
-    Returns:
-      state, qc, sites_info, groups
-      where `sites_info` is a list of site_info dicts (one per injected fault)
-    """
-    qc = _load_qasm(qasm_path)
+    qc = load_qasm(qasm_path)
+
     state = new_clean_circuit_state(qc.num_qubits)
     groups = detect_qubit_groups(qc)
-    print("groups detected:", groups)
+
+    #pass the data qubits from input_state to state
+    if round != 1:
+        for i in groups['data']:
+            state.qubits[i].x = input_state.qubits[i].x
+            state.qubits[i].z = input_state.qubits[i].z
+    ###get all the  gate indices
+    if fault_gate is None:
+        fault_gate_indices = []
+    else:
+        fault_gate_indices = get_gate_only_indices(qc)
+
+    n_circ = qc.num_qubits
+    n_state = len(input_state.qubits)
+    if n_circ != n_state:
+        raise ValueError(f"Qubit count mismatch: circuit={n_circ}, state={n_state}")
+
+
+    state = deepcopy(input_state)
+    # Build groups from register names
+    groups = detect_qubit_groups(qc)   # expects keys: 'data','ancX','ancZ','flagX','flagZ'
+    group_idxs = {g: groups.get(g, []) for g in ("data","ancX","ancZ","flagX","flagZ")}
+
+    #reset qubits in selected groups 
+    selected_reset_idxs = []
+    for g in reset_groups:
+        selected_reset_idxs.extend(group_idxs.get(g, []))
+    selected_reset_idxs = sorted(set(selected_reset_idxs))
+
+    # optional initial reset
+    if selected_reset_idxs:
+        #print("Performing initial reset on selected qubits.")
+        _reset_qubits(state, selected_reset_idxs)
+
+    # Qubit → global index (Qiskit 2.x)
+    def _qidx(qbit):
+        return qc.find_bit(qbit).index
+    
+    snapshots = []
     sites_info = []
 
-    gate_indices = set(gate_indices)  # so we can check membership quickly
-
+    ###run gates and inject faults if needed
     for i, (instr, qargs, _) in enumerate(qc.data):
         name = instr.name
         qidxs = [_qiskit_qubit_index(qc, q) for q in qargs]
         print(f"Processing gate {i}: {name} on qubits {qidxs}")
         if name in ("h","s","sdg"):
             apply_qasm_gate_into_state(state, name, qidxs)
-            if i in gate_indices:
+            if i in fault_gate_indices:
                 info = _inject_1q_fault_after(
                     state, qidxs[0],
                     fault_kind=None if fault_kind is None else fault_kind,
@@ -861,7 +758,7 @@ def build_state_with_faults_after_gates(qasm_path: str, gate_indices: list, faul
             elif name == "cz":
                 apply_cz(state, c, t)
 
-            if i in gate_indices:
+            if i in  fault_gate_indices:
 
                 
                 info = _inject_2q_fault_after(
@@ -877,7 +774,7 @@ def build_state_with_faults_after_gates(qasm_path: str, gate_indices: list, faul
 
         elif name in ("barrier","id","reset","measure"):
             
-            if i in gate_indices:
+            if i in fault_gate_indices:
                 sites_info.append({
                     "gate_index": i, "gate_name": name,
                     "qubits": tuple(qidxs),
@@ -886,19 +783,81 @@ def build_state_with_faults_after_gates(qasm_path: str, gate_indices: list, faul
         
         else:
             raise NotImplementedError(f"Unsupported gate: {name}")
+    return (state, snapshots) if track_steps else state
 
-        #_reset_qubit_x(state, groups.get("ancX", []))
 
-        #_reset_qubit_z(state, groups.get("ancZ", []))
 
-        #_reset_qubit_x(state, groups.get("flagX", []))
 
-        #_reset_qubit_z(state, groups.get("flagZ", []))
-      
-    if not sites_info:
-        raise IndexError(f"gate_indices {gate_indices} produced no injections (len={len(qc.data)})")
+from copy import deepcopy
+def symbolic_propagate_state_checked(qasm_path: str, init_state, *, track_steps=False):
+    """
+    Propagate a CircuitXZ `init_state` through a Qiskit QuantumCircuit `qc`
+    using the Pauli-flow update rules in `apply_qasm_gate_into_state`.
 
-    return state, qc, sites_info, groups
+    - Verifies qubit-count match (circuit vs. state).
+    - Ignores non-evolution ops: barrier/reset/measure/id.
+    - If track_steps=True, also returns a list of (gate_index, name, qidxs, state_snapshot).
+
+    Returns:
+        final_state                    if track_steps == False
+        (final_state, step_snapshots)  if track_steps == True
+    """
+    qc = load_qasm(qasm_path)
+    # --- consistency check ---
+    n_circ = qc.num_qubits
+    n_state = len(init_state.qubits)
+    if n_circ != n_state:
+        raise ValueError(f"Qubit count mismatch: circuit={n_circ}, state={n_state}")
+
+    # we won’t mutate caller’s state
+    state = deepcopy(init_state)
+
+    # Qiskit 2.x: map Qubit -> global index
+    def _qidx(qbit):
+        return qc.find_bit(qbit).index
+
+    snapshots = []  # (i, name, qidxs, deepcopy(state))
+
+    
+    # Walk gates
+    for i, (instr, qargs, _cargs) in enumerate(qc.data):
+        name = instr.name.lower()
+        qidxs = [_qidx(q) for q in qargs]
+
+        if name in ('barrier', 'reset', 'measure', 'id'):
+            # no evolution needed
+            continue
+
+        # delegate the actual Clifford update to your centralized function
+        apply_qasm_gate_into_state(state, name, qidxs)
+
+        if track_steps:
+            snapshots.append((i, name, tuple(qidxs), deepcopy(state)))
+        
+        print(f"After gate {i}: {name} on qubits {qidxs}")
+        print("state:")
+        print(state.qubits[1].z)
+
+    return (state, snapshots) if track_steps else state
+
+
+def _reset_qubits(state: CircuitXZ, idxs):
+    """Set (x,z) = (False, False) for each qubit index in idxs."""
+    for i in idxs:
+        state.qubits[i].x = BoolVal(False)
+        state.qubits[i].z = BoolVal(False)
+
+def _reset_qubit_x(state: CircuitXZ, idxs):
+    """Set x = False for x part qubit index idx."""
+    for i in idxs:
+        state.qubits[i].x = BoolVal(False)
+
+def _reset_qubit_z(state: CircuitXZ, idxs):
+    """Set z = False for z part qubit index idx."""
+    for i in idxs:
+        state.qubits[i].z = BoolVal(False)
+
+
 
 def build_stab_equiv_errors(E_x, E_z, stab_txt_path, prefix="g"):
     """
@@ -947,7 +906,6 @@ def build_stab_equiv_errors(E_x, E_z, stab_txt_path, prefix="g"):
 # ---------------------------
 # Outputs we care about
 # ---------------------------
-
 
 def ancillas_Z(state: CircuitXZ, anc_idxs: List[int]):
     """Syndrome bits if ancillas are measured in Z basis (flips if X on ancilla)."""
@@ -1325,7 +1283,7 @@ def make_renamer_from_symbols(symbols: list, suffix= "_p"):
     return ren
 
 # ---------------------------
-# For evakluation
+# For evaluation
 # ---------------------------
 
 from z3 import Bool, BoolVal, substitute, simplify, is_true, Z3_OP_UNINTERPRETED, is_bool
@@ -1372,7 +1330,7 @@ def eval_with_values(exprs, assignment, default_false=True):
         return _eval_one(exprs)
 
 # ---------------------------
-# Example CLI usage (optional)
+# prove for eacg stage
 # ---------------------------
 def prove_syndrome_extractions(qasm_path: str, stab_txt_path: str):
     state, qc, varenv = build_variable_state_from_qasm(qasm_path)
@@ -1712,25 +1670,6 @@ def check_generalised_syndrome_uniqueness(
     gen_syn_1 = A_1 + F_1 + raw_A_1
     gen_syn_2 = A_2 + F_2 + raw_A_2
     
-    p1 = {"faulty_gate5_z0_p1" : True, "faulty_gate5_x1_p1" : True,  "faulty_gate5_x0_p1" : True}
-    p2 = {"faulty_gate11_z0_p2" : True, "faulty_gate11_x0_p2" : True}
-    for i in range(len(A_1)) :
-        print(f"{i} Ancilla syndrome formula p1:", eval_with_values(A_1[i], p1, default_false=True) )
-
-    for i in range((len(F_1))) :
-        print(f"{i} Flag syndrome formula p1:", eval_with_values( F_1[i], p1, default_false=True) )
-
-    for i in range(len(raw_A_1)) :
-        print(f"{i} Raw Ancilla syndrome formula p1:", eval_with_values( raw_A_1[i], p1, default_false=True) )
-
-    for i in range(len(A_2)) :
-        print(f"{i} Ancilla syndrome formula p2:", eval_with_values(A_2[i], p2, default_false=True) )
-    for i in range((len(F_2))) :
-        print(f"{i} Flag syndrome formula p2:", eval_with_values( F_2[i], p2, default_false=True) )
-
-    for i in range(len(raw_A_2)) :
-        print(f"{i} Raw Ancilla syndrome formula p2:", eval_with_values( raw_A_2[i], p2, default_false=True) )
-
     
     stab_eq , gsel = exists_stab_equiv(E_x_1, E_z_1, E_x_2, E_z_2, stab_txt_path)
 
@@ -1763,6 +1702,27 @@ def check_generalised_syndrome_uniqueness(
 
         return False
     
+def prove_protocol(protocole: Protocol , circuit_path_dic: Dict,stab_txt_path: str):
+
+    config = read_config()
+   
+    stab_txt_path = Path(config["stab_txt_path"])
+    
+    for steps, conds, instrs in all_paths_with_conditions_and_instructions(build_protocol_d_3_lai()):
+        print("=== New Path ===")
+         
+        for from_id, br, to_id in steps:
+            print(f"{from_id} --({br.condition.to_dict() if br.condition else 'None'})--> {to_id}")
+        
+        print("Conditions on this path:")
+        for c in conds:
+            print("  ", c.to_dict())
+        print("Instructions on this path:", instrs)
+        print()
+    
+        
+
+
 
 
 def main():
