@@ -294,29 +294,11 @@ def _inject_1q_fault_after(state, q, fault_kind=None, prefix="f"):
         fx = BoolVal(k in ("X","Y")); fz = BoolVal(k in ("Z","Y"))
     state.qubits[q].x = Xor(state.qubits[q].x, fx)
     state.qubits[q].z = Xor(state.qubits[q].z, fz)
-    return {"fx": fx, "fz": fz, "act": Or(fx, fz)}
+    return { "vars":{ "fx": fx, "fz": fz} , "act": Or(fx, fz)}
 
 def _inject_2q_fault_after(state, q0: int, q1: int, fault_kind=None, prefix="f"):
     """
     Gate-agnostic 2-qubit Pauli injection on wires (q0, q1) *after* a 2q gate.
-    It does not depend on the specific 2q gate; it simply toggles X/Z components.
-
-    Args:
-      state: CircuitXZ (your Pauli-flow state)
-      q0, q1: qubit indices (in the circuit's global indexing)
-      fault_kind:
-        - None               -> symbolic on both wires
-        - (k0, k1)           -> concrete per-wire, each in {'I','X','Z','Y'} (case-insensitive)
-          e.g. ('Y','X') means inject Y on q0 and X on q1
-      prefix: name prefix for z3 symbols (when symbolic)
-
-    Returns:
-      info: dict with z3 literals and helpers:
-        {
-          'fx0','fz0','fx1','fz1',   # per-wire Pauli indicator bits
-          'act0','act1',             # per-wire activity (X or Z non-identity)
-          'act'                      # any activity on either wire
-        }
     """
     if fault_kind is None:
         fx0 = Bool(f"{prefix}_x0"); fz0 = Bool(f"{prefix}_z0")
@@ -327,34 +309,31 @@ def _inject_2q_fault_after(state, q0: int, q1: int, fault_kind=None, prefix="f")
         fx0 = BoolVal(k0 in ("X","Y")); fz0 = BoolVal(k0 in ("Z","Y"))
         fx1 = BoolVal(k1 in ("X","Y")); fz1 = BoolVal(k1 in ("Z","Y"))
 
-    # Inject on both wires (gate-agnostic)
+    # Apply Pauli update
     state.qubits[q0].x = Xor(state.qubits[q0].x, fx0)
     state.qubits[q0].z = Xor(state.qubits[q0].z, fz0)
     state.qubits[q1].x = Xor(state.qubits[q1].x, fx1)
     state.qubits[q1].z = Xor(state.qubits[q1].z, fz1)
 
-    act0 = Or(fx0, fz0); act1 = Or(fx1, fz1)
+    # Activity bits
+    act0 = Or(fx0, fz0)
+    act1 = Or(fx1, fz1)
+    act  = Or(act0, act1)
+
+    # NEW return structure (your requirement)
     info = {
-        "fx0": fx0, "fz0": fz0, "fx1": fx1, "fz1": fz1,
-        "act0": act0, "act1": act1,
-        "act": Or(act0, act1),
-        
+        "vars": {
+            "fx0": fx0, "fz0": fz0,
+            "fx1": fx1, "fz1": fz1,
+        },
+        "act0": act0,
+        "act1": act1,
+        "act": act,
     }
+
     return info
 
-def add_fault_mode_constraints(solver, info, fault_mode="2q", fault_kind=None):
-    """
-    Add constraints to the solver according to the declared fault_mode.
 
-    - "1q": at most one of {act_c, act_t} is true
-    - "2q": both act_c and act_t are true
-    - "either": no extra restriction
-    """
-    if fault_mode == "1q":
-        solver.add(AtMost(info["act_c"], info["act_t"], 1))
-    elif fault_mode == "2q":
-        solver.add(Or(info["act_c"], info["act_t"]))
-    # "either": do nothing
 # ---------------------------
 # QASM → Pauli-flow
 # ---------------------------
@@ -480,9 +459,12 @@ def build_state_with_fault_after_gate(qasm_path: str, gate_index: int, fault_mod
                     prefix=f"f_site{i}"
                 )
                 site_info = {
-                    "gate_index": i, "gate_name": name,
+                    "gate_index": i,
+                    "gate_name": name,
                     "qubits": (qidxs[0],),
-                    "vars": info, "act": info["act"], "fault_mode": "1q"
+                    "vars": info["vars"],
+                    "act": info["act"],
+                    "fault_mode": "1q",
                 }
 
         elif name in ("cx","cnot", "notnot", "cz"):
@@ -497,9 +479,14 @@ def build_state_with_fault_after_gate(qasm_path: str, gate_index: int, fault_mod
                     prefix=f"f_gate{i}"
                 )
                 site_info = {
-                    "gate_index": i, "gate_name": "cx",
+                    "gate_index": i,
+                    "gate_name": "cx",
                     "qubits": (c, t),
-                    "vars": info, "act": info["act"], "fault_mode": fault_mode
+                    "vars": info["vars"],
+                    "act0": info["act0"],
+                    "act1": info["act1"],
+                    "act": info["act"],
+                    "fault_mode": fault_mode,
                 }
 
         elif name in ("barrier","id","reset","measure"):
@@ -553,35 +540,37 @@ def build_state_with_faults_after_gates(qasm_path: str, gate_indices: list, faul
                     prefix=f"f_site{i}"
                 )
                 sites_info.append({
-                    "gate_index": i, "gate_name": name,
+                    "gate_index": i,
+                    "gate_name": name,
                     "qubits": (qidxs[0],),
-                    "vars": info, "act": info["act"], "fault_mode": "1q"
+                    "vars": info["vars"],
+                    "act": info["act"],
+                    "fault_mode": "1q",
                 })
 
         elif name in ("cx","cnot","notnot","cz"):
             c, t = qidxs
             if name in ("cx","cnot"):
                 apply_cnot(state, c, t)
-                #print("CNOT",c, t )
-
             elif name == "notnot":
                 apply_notnot(state, c, t)
-            
             elif name == "cz":
                 apply_cz(state, c, t)
-
             if i in gate_indices:
-
-                
                 info = _inject_2q_fault_after(
                     state, c, t,
                     fault_kind=None if fault_kind is None else fault_kind,
                     prefix=f"faulty_gate{i}"
                 )
                 sites_info.append({
-                    "gate_index": i, "gate_name": name,
+                    "gate_index": i,
+                    "gate_name": name,
                     "qubits": (c, t),
-                    "vars": info, "act": info["act"], "fault_mode": fault_mode
+                    "vars": info["vars"],
+                    "act0": info["act0"],
+                    "act1": info["act1"],
+                    "act": info["act"],
+                    "fault_mode": fault_mode,
                 })
 
         elif name in ("barrier","id","reset","measure"):
@@ -767,6 +756,7 @@ def symbolic_execution_of_state(qasm_path: str,
     for i, (instr, qargs, _) in enumerate(qc.data):
         name = instr.name
         qidxs = [_qiskit_qubit_index(qc, q) for q in qargs]
+        print("index:", i, "name:", name, "qidxs:", qidxs)
        # print(f"Processing gate {i}: {name} on qubits {qidxs}")
         if name in ("h","s","sdg"):
             apply_qasm_gate_into_state(state, name, qidxs)
@@ -777,39 +767,41 @@ def symbolic_execution_of_state(qasm_path: str,
                     prefix=f"r_{round}_f_site{i}"
                 )
                 sites_info.append({
-                    "gate_index": i, "gate_name": name,
+                    "gate_index": i,
+                    "gate_name": name,
                     "qubits": (qidxs[0],),
-                    "vars": info, "act": info["act"], "fault_mode": "1q"
+                    "vars": info["vars"],
+                    "act": info["act"],
+                    "fault_mode": "1q",
                 })
 
         elif name in ("cx","cnot","notnot","cz"):
             c, t = qidxs
             if name in ("cx","cnot"):
                 apply_cnot(state, c, t)
-                #print("CNOT",c, t )
-
             elif name == "notnot":
                 apply_notnot(state, c, t)
-            
             elif name == "cz":
                 apply_cz(state, c, t)
-
             if i in  fault_gate_indices:
-
-                
                 info = _inject_2q_fault_after(
                     state, c, t,
                     fault_kind=None if fault_kind is None else fault_kind,
                     prefix=f"r_{round}_faulty_gate{i}"
                 )
                 sites_info.append({
-                    "gate_index": i, "gate_name": name,
+                    "gate_index": i,
+                    "gate_name": name,
                     "qubits": (c, t),
-                    "vars": info, "act": info["act"], "fault_mode": fault_mode
+                    "vars": info["vars"],
+                    "act0": info["act0"],
+                    "act1": info["act1"],
+                    "act": info["act"],
+                    "fault_mode": fault_mode,
                 })
 
         elif name in ("barrier","id","reset","measure"):
-            
+            continue
             if i in fault_gate_indices:
                 sites_info.append({
                     "gate_index": i, "gate_name": name,
@@ -824,6 +816,7 @@ def symbolic_execution_of_state(qasm_path: str,
             snapshots.append((i, name, tuple(qidxs), deepcopy(state)))
         
     if fault_inject:
+      
         # groups already computed above
         ancX_idxs = group_idxs.get("ancX", [])
         ancZ_idxs = group_idxs.get("ancZ", [])
@@ -885,7 +878,69 @@ def symbolic_execution_of_state(qasm_path: str,
     return  (state,sites_info, snapshots) if track_steps else (state ,sites_info)
      
 
+####-----------------------
+# proof for uniqness
+####
+def uniqness_proof(vars :list,at_most_t_faults: list,condition :list ,  gen_syn_z3 :list, data_qubits : list,stab_txt_path: str):
 
+    """
+    Prove that for a given set of faults, there is a unique syndrome pattern.
+    Args:
+      vars: list of z3 Bool variables representing faults
+      faults: list of fault expressions (z3 Bool formulas) for data qubits
+      gen_syn_z3: list of stabilizer generator expressions (z3 Bool formulas)
+      data_qubit: list of data qubit indices
+      stab: list of stabilizers from the code (list of (Sx, Sz) tuples)
+
+      """
+    
+
+    E_x = [ data_qubit.x for data_qubit in data_qubits]
+    E_z = [ data_qubit.z for data_qubit in data_qubits]
+
+    ren_1 = make_renamer_from_symbols(vars, "_p1")
+    ren_2 = make_renamer_from_symbols(vars, "_p2")
+    condition_1 = primed_copy(condition, ren_1)
+    condition_2 = primed_copy(condition, ren_2)
+    E_x_1 = primed_copy(E_x, ren_1)
+    E_z_1 = primed_copy(E_z, ren_1)
+    E_x_2 = primed_copy(E_x, ren_2)
+    E_z_2 = primed_copy(E_z, ren_2)
+    at_most_t_faults_1 = primed_copy(at_most_t_faults, ren_1)
+    at_most_t_faults_2 = primed_copy(at_most_t_faults, ren_2)
+    gen_syn_z3_1 = primed_copy(gen_syn_z3, ren_1)
+    gen_syn_z3_2 = primed_copy(gen_syn_z3, ren_2)
+
+    stab_eq , gsel = exists_stab_equiv(E_x_1, E_z_1, E_x_2, E_z_2, stab_txt_path)
+
+    same_syn =  And( *[x == y for x, y in zip(gen_syn_z3_1, gen_syn_z3_2)] )
+
+    s = Solver()
+    s.add(same_syn, Not(Exists(gsel, stab_eq)))
+    s.add(And( *condition_1))
+    s.add(And( *condition_2))
+    s.add(at_most_t_faults_1)
+    s.add(at_most_t_faults_2)
+
+    print("Result:")
+    if s.check() == unsat :
+       
+        print("Success: every error maps to different generalised syndrome")
+
+        return True 
+    if s.check() == sat:
+        print("Failure: there exists two different errors that map to the same generalised syndrome")
+        print("The model that would cause different errors map to the same generalised syndrome:")
+        for d in s.model().decls(): 
+    
+            val = s.model()[d]
+            if str(val)  == "True": 
+                print(f"{d.name()} = {val}")
+
+        return False
+
+
+    
 
 from copy import deepcopy
 def symbolic_propagate_state_checked(qasm_path: str, init_state, *, track_steps=False):
@@ -1226,60 +1281,8 @@ def exists_stab_equiv(E1_x, E1_z, E2_x, E2_z, stab_txt_path):
         eqs.append(E2_z[i] == Xor(E1_z[i], addZ[i]))
     return And(eqs), gsel
 
-def check_gate_k_with_fault(
-    qasm_path: str,
-    gate_index: int,
-    fault_mode: str = "2q",   # '1q' or '2q' or 'either'
-    fault_kind = None,            # None | 'X'|'Z'|'Y' | (kc,kt)
-    w_min: int = 2
-):
-    """
-    Inject ONE fault after gate k with the given fault_mode/kind.
-    Return (ok, info) where ok=True if UNSAT (i.e., weight ≥ w_min for all assignments).
-    """
-    state, qc, site, groups = build_state_with_fault_after_gate(
-        qasm_path, gate_index, fault_mode=fault_mode, fault_kind=fault_kind
-    )
-    b = data_error_weight_literals(state, groups["data"])
 
-    s = Solver()
-    # Enforce the chosen fault structure if it's a CNOT site
-    add_fault_mode_constraints(s, site, fault_mode, fault_kind)
 
-    # Look for a counterexample: data-weight ≤ w_min-1
-    s.add(PbLe([(bi,1) for bi in b], w_min-1))
-
-    if s.check() == unsat:
-        return True, {"gate": qc.data[gate_index][0].name, "index": gate_index}
-    mdl = s.model()
-    # Report which wires (and which Pauli) got chosen under the model
-    if site["gate_name"] == "cx":
-        v = site["vars"]
-        ctrl = (
-            "Y" if (bool(mdl.eval(v["fxc"], True)) and bool(mdl.eval(v["fzc"], True)))
-            else ("X" if bool(mdl.eval(v["fxc"], True))
-            else ("Z" if bool(mdl.eval(v["fzc"], True)) else "I"))
-        )
-        targ = (
-            "Y" if (bool(mdl.eval(v["fxt"], True)) and bool(mdl.eval(v["fzt"], True)))
-            else ("X" if bool(mdl.eval(v["fxt"], True))
-            else ("Z" if bool(mdl.eval(v["fzt"], True)) else "I"))
-        )
-        where = f"cx c={site['qubits'][0]}, t={site['qubits'][1]}  (ctrl={ctrl}, targ={targ})"
-    else:
-        v = site["vars"]
-        k = "Y" if (bool(mdl.eval(v["fx"], True)) and bool(mdl.eval(v["fz"], True))) \
-            else ("X" if bool(mdl.eval(v["fx"], True)) else ("Z" if bool(mdl.eval(v["fz"], True)) else "I"))
-        where = f"{site['gate_name']} q={site['qubits'][0]}  ({k})"
-
-    bvals = [bool(mdl.eval(e, True)) for e in b]
-    return False, {
-        "gate": qc.data[gate_index][0].name,
-        "index": gate_index,
-        "fault": where,
-        "data_weight": sum(bvals),
-        "data_bits_true": [groups["data"][i] for i,v in enumerate(bvals) if v],
-    }
 from z3 import Solver, ForAll, Exists, Or, Xor, PbLe
 
 def forall_fault_exists_low_weight_per_gate(
@@ -1509,11 +1512,12 @@ def find_bad_locations(qasm_path: str, stab_txt_path: str,num_gates: int):
 
     for i in range(num_gates):  # Iterate over gates in the subcircuit
         
-        circuit_bad_locations = []
+       
         if qc.data[i].name  in ["barier", "measure", "reset"]:
             print(f"Gate index {i}: " , qc.data[i].name )
             continue  # Skip non-unitary gates
 
+        
         
         state, qc, site_info, groups = build_state_with_fault_after_gate(
             qasm_path,
@@ -1549,13 +1553,7 @@ def find_bad_locations(qasm_path: str, stab_txt_path: str,num_gates: int):
         #s.add(ForAll(fault_var, Implies(Or(fault_var), Exists(gsel, PbLe([(bi, 1) for bi in b], 1)))))
         s.add(ForAll(gsel, PbGe([(bi, 1) for bi in b], 2)  ) )
         s.add(Or(fault_var))  # At most one fault
-        
-
-    
-        
-        
-        
-
+   
         # Check satisfiability
         if s.check() == sat : print(f"Gate index {i}: Bad location " )
         else :print(f"Gate index {i}: Safe" )
@@ -1565,7 +1563,7 @@ def find_bad_locations(qasm_path: str, stab_txt_path: str,num_gates: int):
         
             # Store bad locations and gate numbers for the current subcircuit
             bad_locations_dict.append(i)
-
+        
     # Update the gate count for the next subcircuit
 
     # Print the results
@@ -1575,10 +1573,44 @@ def find_bad_locations(qasm_path: str, stab_txt_path: str,num_gates: int):
         print(bad_locations_dict)
     else :print("There is no bad locaiton")
 
-
+    
 
     return bad_locations_dict
+"""
 
+def find_bad_locations(qasm_path: str, stab_txt_path: str,num_gates: int):
+    results, unsat_gates = forall_fault_exists_low_weight_per_gate(
+        qasm_path,
+        stab_txt_path,
+        fault_mode="2q",
+        flag_axis="z",
+        flag_prefix="flagErr",
+    )
+
+    bad_locations_dict = [] # List to store bad locations for the current circuit
+    qc = QuantumCircuit.from_qasm_file(qasm_path)
+
+
+
+    for i in range(num_gates):  # Iterate over gates in the subcircuit
+        
+       
+        if qc.data[i].name  in ["barier", "measure", "reset"]:
+            print(f"Gate index {i}: " , qc.data[i].name )
+            continue  # Skip non-unitary gates
+
+        else:
+            bad_locations_dict.append(i)
+
+    # Print the results
+    if bad_locations_dict != []:
+
+        print("Success : index of bad locations :")
+        print(bad_locations_dict)
+    else :print("There is no bad locaiton")
+
+    return bad_locations_dict
+"""
 def check_flag_raised(qasm_path: str, stab_txt_path: str,num_gates: int, bad_locations_dict: List[int]):
     
     
@@ -1673,9 +1705,11 @@ def check_generalised_syndrome_uniqueness(
     ):
     clean_qc = remove_flag_gates(qasm_path, save_path=None)
     #print("Original gates:", len(clean_qc.data))
+    print("Bad locations being checked:", bad_locations)
     print("Processing the flag circuit")
     state, qc, sites_info, groups = build_state_with_faults_after_gates( qasm_path,bad_locations, fault_mode="2q")   
-
+    
+    
     print("#######################################")
     #print(sites_info)
     data_idxs = groups["data"]
@@ -1741,15 +1775,8 @@ def check_generalised_syndrome_uniqueness(
     F_1 = primed_copy(F, ren_1)
     F_2 = primed_copy(F, ren_2)
 
-    for a in F:
-        print("Flag syndrome formula:", simplify(a))
-    for i in range(len(F_1)) : 
-        print(f"{i}Flag syndrome formula p1:", eval_with_values(F_1[i], {"faulty_gate24_x1_p1" : True, "faulty_gate24_z0_p1" : True}, default_false=True) )
+   
     
-    for i in range(len(F_2)) : 
-        print(f"{i}Flag syndrome formula p2:", eval_with_values(F_1[i], {"faulty_gate27_z0_p2" : True}, default_false=True))
-    
-    print("Processing the no flag circuit")
 
     
 

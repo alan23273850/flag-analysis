@@ -12,12 +12,12 @@
                         "operands": [
                             {
                                 "type": "equal",
-                                "left": "s_1",
+                                "left": "s_0",
                                 "right": 0
                             },
                             {
                                 "type": "equal",
-                                "left": "f_1",
+                                "left": "f_0",
                                 "right": 0
                             }
                         ]
@@ -33,12 +33,12 @@
                                 "operands": [
                                     {
                                         "type": "equal",
-                                        "left": "s_1",
+                                        "left": "s_0",
                                         "right": 0
                                     },
                                     {
                                         "type": "equal",
-                                        "left": "f_1",
+                                        "left": "f_0",
                                         "right": 0
                                     }
                                 ]
@@ -50,7 +50,7 @@
             ]
         },
         "f_1_s_1_all_zero": {
-            "instructions": [],
+            "instructions": ["Break"],
             "branches": []
         },
         "not_f_1_s_1_all_zero": {
@@ -65,7 +65,7 @@
             ]
         },
         "ter_2": {
-            "instructions": [],
+            "instructions": ["LUT_s_0_f_0_s_1"],
             "branches": []
         }
     }
