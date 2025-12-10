@@ -65,7 +65,7 @@ def proof_protocol(protocol,
         if instr is not None  and node.branches:
             if instr not in config:
                 raise KeyError(f"Instruction '{instr}' not found in config")
-
+            
             qasm_path = config[instr]
             qc = load_qasm(qasm_path)
             gate_list = get_gate_only_indices(qc)
@@ -112,9 +112,10 @@ def proof_protocol(protocol,
             cond_dict = br.condition.to_dict() if br.condition is not None else None
 
             full_state = [s["state"] for s in cur_path if s["state"] is not None] + [state_after]
+            print("condition dict:", cond_dict)
             z3_condition = condition_to_z3(cond_dict, full_state, groups)
 
-            print("  Branch to", br.target, "if", z3_condition)
+            
             
             step = {
                 "round": round_idx,
@@ -203,10 +204,10 @@ def read_operand(x, full_state: dict , groups:Dict):
         print("read_operand:", q_type, idx)
         if q_type == 's' :
             return ([ q.z for q in state_to_raw_expr_dict(full_state[idx],groups)["ancX"] if state_to_raw_expr_dict(full_state[idx],groups)["ancX"] != [] ] 
-                    + [q.z for q in state_to_raw_expr_dict(full_state[idx], groups)["ancZ"]  if state_to_raw_expr_dict(full_state[idx],groups)["ancZ"] != []])
+                    + [q.x for q in state_to_raw_expr_dict(full_state[idx], groups)["ancZ"]  if state_to_raw_expr_dict(full_state[idx],groups)["ancZ"] != []])
          
         elif q_type == 'f' :   
-            return [ q.z for q in state_to_raw_expr_dict(full_state[idx], groups)["flagX"]] + [q.z for q in state_to_raw_expr_dict(full_state[idx], groups)["flagZ"]]
+            return [ q.z for q in state_to_raw_expr_dict(full_state[idx], groups)["flagX"]] + [q.x for q in state_to_raw_expr_dict(full_state[idx], groups)["flagZ"]]
 
     raise ValueError(f"Unsupported operand in condition: {x!r}")
 

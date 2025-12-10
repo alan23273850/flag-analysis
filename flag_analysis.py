@@ -204,6 +204,22 @@ def apply_cz(state: CircuitXZ, ctrl: int, targ: int) -> None:
     state.qubits[targ].z =  bxor(xc, zt)
 
 
+def apply_cy(state: CircuitXZ, ctrl: int, targ: int) -> None:
+    """
+    CY(c->t):
+      x_c' = x_c
+      z_c' = z_c  xor x_t xor z_t
+      x_t' = x_t xor x_c
+      z_t' = z_t xor x_c 
+    """
+    xc, zc = state.qubits[ctrl].x, state.qubits[ctrl].z
+    xt, zt = state.qubits[targ].x, state.qubits[targ].z
+    state.qubits[ctrl].x = xc
+    state.qubits[ctrl].z = bxor(bxor(xt ,  zc), zt)
+    state.qubits[targ].x = bxor(xt, xc)
+    state.qubits[targ].z =  bxor(xc, zt)
+
+
 def apply_notnot(state: CircuitXZ, ctrl: int, targ: int) -> None:
     """
     NOTNOT(c->t):
@@ -782,7 +798,11 @@ def symbolic_execution_of_state(qasm_path: str,
             elif name == "notnot":
                 apply_notnot(state, c, t)
             elif name == "cz":
-                apply_cz(state, c, t)
+                 apply_cz(state, c, t)
+            elif name == "cy":
+                apply_cy(state, c, t)
+
+               
             if i in  fault_gate_indices:
                 info = _inject_2q_fault_after(
                     state, c, t,
@@ -827,7 +847,7 @@ def symbolic_execution_of_state(qasm_path: str,
         base_idx = len(qc.data)
 
         # 1) flagZ (measured in Z) – inject Z faults
-        flagZ_vars = inject_on_flags(state, flagZ_idxs, axis="z", prefix="flagZFault_")
+        flagZ_vars = inject_on_flags(state, flagZ_idxs, axis="z", prefix=f"r_{round}_flagZFault_")
         for q, v in zip(flagZ_idxs, flagZ_vars):
             sites_info.append({
                 "gate_index": base_idx,
@@ -839,7 +859,7 @@ def symbolic_execution_of_state(qasm_path: str,
             })
 
         # 2) flagX (measured in X) – inject X faults
-        flagX_vars = inject_on_flags(state, flagX_idxs, axis="x", prefix="flagXFault_")
+        flagX_vars = inject_on_flags(state, flagX_idxs, axis="x", prefix=f"r_{round}_flagXFault_")
         for q, v in zip(flagX_idxs, flagX_vars):
             sites_info.append({
                 "gate_index": base_idx + 1,
@@ -851,7 +871,7 @@ def symbolic_execution_of_state(qasm_path: str,
             })
 
         # 3) ancZ (Z basis) – inject X faults
-        ancZ_vars = inject_on_ancillas(state, ancZ_idxs, axis="x", prefix="ancZFault_")
+        ancZ_vars = inject_on_ancillas(state, ancZ_idxs, axis="x", prefix=f"r_{round}_ancZFault_")
         for q, v in zip(ancZ_idxs, ancZ_vars):
             sites_info.append({
                 "gate_index": base_idx + 2,
@@ -863,7 +883,7 @@ def symbolic_execution_of_state(qasm_path: str,
             })
 
         # 4) ancX (X basis) – inject Z faults
-        ancX_vars = inject_on_ancillas(state, ancX_idxs, axis="z", prefix="ancXFault_")
+        ancX_vars = inject_on_ancillas(state, ancX_idxs, axis="z", prefix=f"r_{round}_ancXFault_")
         for q, v in zip(ancX_idxs, ancX_vars):
             sites_info.append({
                 "gate_index": base_idx + 3,
@@ -1109,6 +1129,33 @@ def eval_under(boolexpr, assignment: dict, varenv: dict):
         if name in varenv:
             subs.append((varenv[name], BoolVal(val)))
     return simplify(substitute(boolexpr, subs))
+
+def evaluate_state_from_raw(state_raw: dict, assignment: dict, default_false: bool = True):
+    """
+    Evaluate a raw expr dict (output of state_to_raw_expr_dict) under a variable assignment.
+
+    Args:
+        state_raw: {"data":[QubitXZ,...], "ancX":[...], ...}
+        assignment: dict like {"r_0_faulty_gate3_x0": True, "flagZFault_5_z": False}
+        default_false: if True, unassigned Bool symbols default to False.
+
+    Returns:
+        A dict with the same structure, but each qubit becomes a pair of booleans:
+            {"data":[(x_bool,z_bool), ...], "ancX":[...], ...}
+    """
+    evaluated = {}
+    for gname, qubits in state_raw.items():
+        # extract all x/z expressions
+        xs = [q.x for q in qubits]
+        zs = [q.z for q in qubits]
+
+        # reuse your existing evaluator
+        xs_val = eval_with_values(xs, assignment, default_false=default_false)
+        zs_val = eval_with_values(zs, assignment, default_false=default_false)
+
+        evaluated[gname] = list(zip(xs_val, zs_val))
+
+    return evaluated
 
 def project_data_only(expr, varenv: dict):
     """
@@ -1493,7 +1540,6 @@ def prove_syndrome_extractions(qasm_path: str, stab_txt_path: str):
       for mi in report["mismatches"]:
           print(f"  Mismatch at stabilizer index {mi}")
       return False
-
 
 
 def find_bad_locations(qasm_path: str, stab_txt_path: str,num_gates: int):

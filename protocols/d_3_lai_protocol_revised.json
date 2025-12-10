@@ -8,7 +8,7 @@
             "branches": [
                 {
                     "condition": {
-                        "type": "and",
+                        "type": "or",
                         "operands": [
                             {
                                 "type": "equal",
@@ -29,7 +29,7 @@
                         "type": "not",
                         "operands": [
                             {
-                                "type": "and",
+                                "type": "or",
                                 "operands": [
                                     {
                                         "type": "equal",
@@ -50,7 +50,7 @@
             ]
         },
         "f_0_s_0_all_zero": {
-            "instructions": ["Break"],
+            "instructions": ["LUT_s_0_f_0"],
             "branches": []
         },
         "not_f_0_s_0_all_zero": {

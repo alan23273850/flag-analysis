@@ -29,6 +29,8 @@ cx q[2], ancZ[0];
 cx flagX[0], ancZ[0];
 notnot q[3], ancZ[0];
 
+
+
 barrier q, ancX, ancZ, flagX, flagZ;
 
 // =========================

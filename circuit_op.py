@@ -152,44 +152,77 @@ def save_qasm_full_slices(qc, prefix="stab"):
             f.write(qasm_str)
         print(f"Saved: {filename}")
 
-def remove_flag_gates(qasm_path: str, save_path: str = None):
+from qiskit import QuantumCircuit, QuantumRegister  # make sure QuantumRegister is imported
+from qiskit.qasm2 import dumps as qasm2_dumps
 
+def remove_flag_gates(qasm_path: str, save_path: str = None):
     """
-    Load a QASM file, remove all gates that act on flag qubits (flagX[...] or flagZ[...]),
-    but preserve the original `barrier` gates.
+    Load a QASM file and produce a new circuit where:
+      - All flag qubit registers (flagX*, flagZ*) are removed.
+      - All non-barrier gates that act on flag qubits are removed.
+      - Barriers are kept, but their flag-qubit arguments are removed.
+
+    If a barrier only had flag qubits, it is dropped.
     """
     qc = QuantumCircuit.from_qasm_file(qasm_path)
-    new_qc = QuantumCircuit(*qc.qregs, *qc.cregs)
 
-    # Map: global index -> register name
-    regmap = {}
-    idx = 0
-    for qreg in qc.qregs:
-        for _ in range(qreg.size):
-            regmap[idx] = qreg.name.lower()
-            idx += 1
+    # Helper: which qregs are flag registers?
+    def is_flag_reg(qreg):
+        n = qreg.name.lower()
+        return n.startswith("flagx") or n.startswith("flagz")
 
+    # Keep only non-flag qregs in new circuit
+    kept_qregs = [q for q in qc.qregs if not is_flag_reg(q)]
+    new_qc = QuantumCircuit(*kept_qregs, *qc.cregs)
+
+    # Old qubit -> (reg_name, local_index)
+    bit_lookup = _build_bit_lookup(qc)
+
+    # Map reg_name -> qreg in the new circuit
+    new_reg_by_name = {qreg.name: qreg for qreg in new_qc.qregs}
+
+    # Helper: is a given original qubit a flag qubit?
     def is_flag_qubit(qbit):
-        """Check if the given Qubit belongs to a flag register."""
-        loc = qc.find_bit(qbit)
-        reg_name = regmap.get(loc.index, "")
-        return reg_name.startswith("flagx") or reg_name.startswith("flagz")
+        reg_name, _ = bit_lookup[qbit]
+        reg_name_l = reg_name.lower()
+        return reg_name_l.startswith("flagx") or reg_name_l.startswith("flagz")
 
-    # Filter out gates acting on flag qubits, but keep barriers
+    # Walk instructions in the original circuit
     for instr, qargs, cargs in qc.data:
-        if instr.name == "barrier":
-            # Always include barrier gates
-            new_qc.append(instr, qargs, cargs)
-        elif any(is_flag_qubit(q) for q in qargs):
-            # Skip gates that act on flag qubits
+        name = instr.name
+
+        if name == "barrier":
+            # Keep barriers, but strip out flag qubits
+            kept_qargs = []
+            for q in qargs:
+                if is_flag_qubit(q):
+                    continue  # drop flag qubit from barrier
+                reg_name, local_idx = bit_lookup[q]
+                new_qreg = new_reg_by_name[reg_name]
+                kept_qargs.append(new_qreg[local_idx])
+
+            # If there are remaining non-flag qubits, add a barrier on them
+            if kept_qargs:
+                new_qc.barrier(*kept_qargs)
+            # If no non-flag qubits remain, drop this barrier entirely
             continue
-        else:
-            # Include all other gates
-            new_qc.append(instr, qargs, cargs)
+
+        # For non-barrier gates: if they touch any flag qubit, drop the gate
+        if any(is_flag_qubit(q) for q in qargs):
+            continue
+
+        # Otherwise, remap qubits and keep the gate
+        new_qargs = []
+        for q in qargs:
+            reg_name, local_idx = bit_lookup[q]
+            new_qreg = new_reg_by_name[reg_name]
+            new_qargs.append(new_qreg[local_idx])
+
+        new_qc.append(instr, new_qargs, cargs)
 
     # Optionally save the modified circuit
     if save_path:
         with open(save_path, "w") as f:
-            f.write(qasm2_dumps(new_qc))  # Use qasm2_dumps to generate QASM string
+            f.write(qasm2_dumps(new_qc))
 
     return new_qc
