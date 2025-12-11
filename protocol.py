@@ -353,8 +353,6 @@ def build_protocol_d_5_lai() -> Protocol:
 
     return protocol
 
-
-
 def build_flag_protocol_chris_d_3():
     n_same =0 
     n_diff = 0 
@@ -444,4 +442,73 @@ def build_flag_protocol_chris_d_3():
     # This is a placeholder for the actual implementation
 
     protocol.save_to_file("./out/flag_protocol.json")
+    return protocol
+
+def build_low_depth_5_1_3_protocol() -> Protocol:
+    protocol = Protocol(start_node="root")
+
+
+    stab_gen = ["XZZXI", "IXZZX", "XIXZZ", "ZXIXZ"]
+    # Root node with unconditional branch to flag_measure
+    root_node = Node(
+        node_id="root",
+        instructions=[],
+        branches=[]
+    )
+
+    current_node = root_node
+    for i in range(len(stab_gen)):
+        stab = stab_gen[i]
+        condition_s_i_zero = Condition(cond_type = "equal", left=f"s_{i}", right=0)
+        condition_f_i_zero = Condition(cond_type = "equal", left=f"f_{i}", right=0)
+        condition_i_all_zero = Condition("and", operands=[condition_s_i_zero, condition_f_i_zero])
+        current_node.instructions.append(f"{stab_gen[i]}")
+        current_node.branches = [
+            Branch(target=f"{stab}_s_f_all_zero", condition= condition_i_all_zero),
+            Branch(target=f"{stab}_s_f_not_all_zero", condition = Condition("not", operand=condition_i_all_zero))
+        ]
+        protocol.add_node(current_node)
+        
+        node =  Node(
+                        node_id= f"{stab}_s_f_not_all_zero",
+                        instructions=["raw_syndrome"],
+                        branches=[Branch(target=f"ter_{i+1}")]
+                    )
+        protocol.add_node(node)
+
+
+        lut_name = "LUT_"
+        for j in range(0,i+1):
+            lut_name += f"s_{j}_f_{j}_"
+            lut_name += f"s_{i+1}"
+
+        node =  Node(
+                        node_id= f"ter_{i+1}",
+                        instructions=[lut_name],
+                        branches=[]
+                    )
+        protocol.add_node(node)
+
+
+        current_node = Node(
+            node_id=f"{stab}_s_f_all_zero",
+            instructions=[],
+            branches=[]
+        )
+
+        if i == len(stab_gen) -1:
+            print("last round")
+            current_node.branches = [Branch(target = f"ter_{i+2}", condition = None)]
+            current_node.instructions = []
+            protocol.add_node(current_node)
+
+           
+
+            ter_final = Node(node_id=f"ter_{i+2}", instructions=["Break"], branches=[])
+            protocol.add_node(ter_final)
+
+   
+   
+    protocol.save_to_file("./protocols/low_depth_5_1_3_protocol.json")
+
     return protocol

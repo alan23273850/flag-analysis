@@ -96,6 +96,7 @@ def proof_protocol(protocol,
             }
             full_path = cur_path + [step]
 
+            print("len full path:", len(full_path))
             all_paths.append(full_path)
             if instr == 'Break': 
                 return
@@ -295,6 +296,9 @@ def proof_path(path : list[dict], t : int , gen_syn : list ,all_condtion : list,
     gen_syn_z3 = []
     for type, idx in gen_syn:
         if type == 's' :
+            print("idx:", idx)
+            print("path idx:", path[idx]["state"])
+            print("state:", path[idx]["state"]["ancX"])
             syn =  [ anc.z for anc in path[idx]["state"]["ancX"]] + [ anc.x for anc in path[idx]["state"]["ancZ"]]
             gen_syn_z3 += syn 
         elif type == 'f' :

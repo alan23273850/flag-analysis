@@ -3,7 +3,7 @@
     "nodes": {
         "root": {
             "instructions": [
-                "flagged_syndrome_1"
+                "flag_syndrome"
             ],
             "branches": [
                 {
@@ -55,7 +55,7 @@
         },
         "not_all_zero": {
             "instructions": [
-                "flagged_syndrome_2"
+                "flagged_syndrome"
             ],
             "branches": [
                 {
@@ -98,7 +98,7 @@
         },
         "flag_2_all_zero": {
             "instructions": [
-                "flagged_syndrome_3"
+                "flagged_syndrome"
             ],
             "branches": [
                 {
