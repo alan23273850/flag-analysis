@@ -791,7 +791,7 @@ def symbolic_execution_of_state(qasm_path: str,
                     "fault_mode": "1q",
                 })
 
-        elif name in ("cx","cnot","notnot","cz"):
+        elif name in ("cx","cnot","notnot","cz","cy"):
             c, t = qidxs
             if name in ("cx","cnot"):
                 apply_cnot(state, c, t)

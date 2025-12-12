@@ -1,0 +1,215 @@
+{
+    "start_node": "root",
+    "nodes": {
+        "root": {
+            "instructions": [
+                "IZZXXYY"
+            ],
+            "branches": [
+                {
+                    "condition": {
+                        "type": "and",
+                        "operands": [
+                            {
+                                "type": "equal",
+                                "left": "s_0",
+                                "right": 1
+                            },
+                            {
+                                "type": "equal",
+                                "left": "f_0",
+                                "right": 0
+                            }
+                        ]
+                    },
+                    "target": "IZZXXYY_s_one_f_zero"
+                },
+                {
+                    "condition": {
+                        "type": "not",
+                        "operands": [
+                            {
+                                "type": "and",
+                                "operands": [
+                                    {
+                                        "type": "equal",
+                                        "left": "s_0",
+                                        "right": 1
+                                    },
+                                    {
+                                        "type": "equal",
+                                        "left": "f_0",
+                                        "right": 0
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "target": "IZZXXYY_not_s_one_f_zero"
+                }
+            ]
+        },
+        "IZZXXYY_not_s_one_f_zero": {
+            "instructions": [
+                "raw_syndrome"
+            ],
+            "branches": [
+                {
+                    "condition": null,
+                    "target": "ter_1"
+                }
+            ]
+        },
+        "ter_1": {
+            "instructions": [
+                "LUT_s_0_f_0_s_1"
+            ],
+            "branches": []
+        },
+        "IZZXXYY_s_one_f_zero": {
+            "instructions": [
+                "XIXYZYZ"
+            ],
+            "branches": [
+                {
+                    "condition": {
+                        "type": "and",
+                        "operands": [
+                            {
+                                "type": "equal",
+                                "left": "s_1",
+                                "right": 1
+                            },
+                            {
+                                "type": "equal",
+                                "left": "f_1",
+                                "right": 0
+                            }
+                        ]
+                    },
+                    "target": "XIXYZYZ_s_one_f_zero"
+                },
+                {
+                    "condition": {
+                        "type": "not",
+                        "operands": [
+                            {
+                                "type": "and",
+                                "operands": [
+                                    {
+                                        "type": "equal",
+                                        "left": "s_1",
+                                        "right": 1
+                                    },
+                                    {
+                                        "type": "equal",
+                                        "left": "f_1",
+                                        "right": 0
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "target": "XIXYZYZ_not_s_one_f_zero"
+                }
+            ]
+        },
+        "XIXYZYZ_not_s_one_f_zero": {
+            "instructions": [
+                "raw_syndrome"
+            ],
+            "branches": [
+                {
+                    "condition": null,
+                    "target": "ter_2"
+                }
+            ]
+        },
+        "ter_2": {
+            "instructions": [
+                "LUT_s_0_f_0_s_1_f_1_s_2"
+            ],
+            "branches": []
+        },
+        "XIXYZYZ_s_one_f_zero": {
+            "instructions": [
+                "ZXYYXZI"
+            ],
+            "branches": [
+                {
+                    "condition": {
+                        "type": "and",
+                        "operands": [
+                            {
+                                "type": "equal",
+                                "left": "s_2",
+                                "right": 1
+                            },
+                            {
+                                "type": "equal",
+                                "left": "f_2",
+                                "right": 0
+                            }
+                        ]
+                    },
+                    "target": "ZXYYXZI_s_one_f_zero"
+                },
+                {
+                    "condition": {
+                        "type": "not",
+                        "operands": [
+                            {
+                                "type": "and",
+                                "operands": [
+                                    {
+                                        "type": "equal",
+                                        "left": "s_2",
+                                        "right": 1
+                                    },
+                                    {
+                                        "type": "equal",
+                                        "left": "f_2",
+                                        "right": 0
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "target": "ZXYYXZI_not_s_one_f_zero"
+                }
+            ]
+        },
+        "ZXYYXZI_not_s_one_f_zero": {
+            "instructions": [
+                "raw_syndrome"
+            ],
+            "branches": [
+                {
+                    "condition": null,
+                    "target": "ter_3"
+                }
+            ]
+        },
+        "ter_3": {
+            "instructions": [
+                "LUT_s_0_f_0_s_1_f_1_s_2_f_2_s_3"
+            ],
+            "branches": []
+        },
+        "ZXYYXZI_s_one_f_zero": {
+            "instructions": [],
+            "branches": [
+                {
+                    "condition": null,
+                    "target": "ter_4"
+                }
+            ]
+        },
+        "ter_4": {
+            "instructions": [
+                "Break"
+            ],
+            "branches": []
+        }
+    }
+}

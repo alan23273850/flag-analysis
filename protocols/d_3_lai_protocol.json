@@ -12,17 +12,17 @@
                         "operands": [
                             {
                                 "type": "equal",
-                                "left": "s_0",
+                                "left": "s_1",
                                 "right": 0
                             },
                             {
                                 "type": "equal",
-                                "left": "f_0",
+                                "left": "f_1",
                                 "right": 0
                             }
                         ]
                     },
-                    "target": "f_0_s_0_all_zero"
+                    "target": "f_1_s_1_all_zero"
                 },
                 {
                     "condition": {
@@ -33,27 +33,27 @@
                                 "operands": [
                                     {
                                         "type": "equal",
-                                        "left": "s_0",
+                                        "left": "s_1",
                                         "right": 0
                                     },
                                     {
                                         "type": "equal",
-                                        "left": "f_0",
+                                        "left": "f_1",
                                         "right": 0
                                     }
                                 ]
                             }
                         ]
                     },
-                    "target": "not_f_0_s_0_all_zero"
+                    "target": "not_f_1_s_1_all_zero"
                 }
             ]
         },
-        "f_0_s_0_all_zero": {
-            "instructions": ["Break"],
+        "f_1_s_1_all_zero": {
+            "instructions": [],
             "branches": []
         },
-        "not_f_0_s_0_all_zero": {
+        "not_f_1_s_1_all_zero": {
             "instructions": [
                 "raw_syndrome"
             ],
@@ -65,7 +65,7 @@
             ]
         },
         "ter_2": {
-            "instructions": ["LUT_s_0_f_0_s_1"],
+            "instructions": [],
             "branches": []
         }
     }

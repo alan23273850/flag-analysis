@@ -14,13 +14,15 @@ qreg flagZ[1];      // flags measured in Z (paired with X-type stabs)
 // Stabilizer 1 : ( X I X Y Z Y Z )
 // ancilla = ancX[0] (X basis), flag = flagZ[0] (Z basis)
 // =========================
-cx  ancX[0], q[0];
-cx  ancX[0], flagZ[0];
-cz  ancX[0], q[2];
-cy  ancX[0], q[3];
 cz  ancX[0], q[4];
-cy  ancX[0], q[5];
 cx  ancX[0], flagZ[0];
 cz  ancX[0], q[6];
+cx  ancX[0], q[0];
+cx  ancX[0], flagZ[0];
+cy  ancX[0], q[5];
+
+cx  ancX[0], q[2];
+
+cy  ancX[0], q[3];
 
 barrier;
