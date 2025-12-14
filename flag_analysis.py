@@ -1184,6 +1184,41 @@ def evaluate_state_from_raw(state_raw: dict, assignment: dict, default_false: bo
 
     return evaluated
 
+
+def qubits_to_pauli_string(state_eval):
+    """
+    Convert an evaluated state into Pauli strings.
+
+    state_eval: output of eval_path_final_state
+      {
+        "data": [{"x":bool,"z":bool}, ...],
+        "ancX": [...],
+        ...
+      }
+
+    returns:
+      {
+        "data": "IXYZ...",
+        "ancX": "...",
+        ...
+      }
+    """
+
+    def pauli(x, z):
+        if not x and not z:
+            return "I"
+        if x and not z:
+            return "X"
+        if not x and z:
+            return "Z"
+        return "Y"
+
+    out = {}
+    for group, qubits in state_eval.items():
+        out[group] = "".join(pauli(q["x"], q["z"]) for q in qubits)
+
+    return out
+
 def project_data_only(expr, varenv: dict):
     """
     Substitute anc/flag variables to False, keep all data variables symbolic.
@@ -1585,6 +1620,36 @@ def eval_with_values(exprs, assignment, default_false=True):
     else:
         return _eval_one(exprs)
 
+
+
+def eval_state_dict_with_values(state_dict, assignment, default_false=True):
+    """
+    state_dict: {"data":[QubitXZ,...], "ancX":[...], ...}
+    returns:    {"data":[{"x":bool,"z":bool}, ...], ...}
+    """
+    out = {}
+    for group, qubits in state_dict.items():
+        out[group] = []
+        for q in qubits:
+            out[group].append({
+                "x": eval_with_values(q.x, assignment, default_false=default_false),
+                "z": eval_with_values(q.z, assignment, default_false=default_false),
+            })
+    return out
+
+def eval_path_all_states(path, assignment, default_false=True):
+    out = []
+    for step in path:
+        st = step.get("state", None)
+        if st is None:
+            continue
+        out.append({
+            "round": step.get("round"),
+            "node": step.get("node"),
+            "instruction": step.get("instruction"),
+            "state": eval_state_dict_with_values(st, assignment, default_false=default_false),
+        })
+    return out
 # ---------------------------
 # prove for eacg stage
 # ---------------------------

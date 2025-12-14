@@ -12,17 +12,17 @@
                         "operands": [
                             {
                                 "type": "equal",
-                                "left": "s_1",
+                                "left": "s_0",
                                 "right": 0
                             },
                             {
                                 "type": "equal",
-                                "left": "f_1",
+                                "left": "f_0",
                                 "right": 0
                             }
                         ]
                     },
-                    "target": "f_1_s_1_all_zero"
+                    "target": "f_0_s_0_all_zero"
                 },
                 {
                     "condition": {
@@ -33,36 +33,42 @@
                                 "operands": [
                                     {
                                         "type": "equal",
-                                        "left": "s_1",
+                                        "left": "s_0",
                                         "right": 0
                                     },
                                     {
                                         "type": "equal",
-                                        "left": "f_1",
+                                        "left": "f_0",
                                         "right": 0
                                     }
                                 ]
                             }
                         ]
                     },
-                    "target": "not_f_1_s_1_all_zero"
+                    "target": "not_f_0_s_0_all_zero"
                 }
             ]
         },
-        "f_1_s_1_all_zero": {
+        "f_0_s_0_all_zero": {
             "instructions": [],
             "branches": []
         },
-        "not_f_1_s_1_all_zero": {
+        "not_f_0_s_0_all_zero": {
             "instructions": [
                 "raw_syndrome"
             ],
             "branches": [
                 {
                     "condition": null,
-                    "target": "ter_2"
+                    "target": "ter_1"
                 }
             ]
+        },
+        "ter_1": {
+            "instructions": [
+                "LUT_s_0_f_0_s_1"
+            ],
+            "branches": []
         },
         "ter_2": {
             "instructions": [],

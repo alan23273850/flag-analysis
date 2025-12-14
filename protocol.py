@@ -235,32 +235,39 @@ def all_paths_with_conditions_and_instructions(protocol):
 def build_protocol_d_3_lai() -> Protocol:
     protocol = Protocol(start_node="root")
 
-    condition_s_1_all_zero = Condition(cond_type="equal", left="s_1", right=0)
-    condition_f_1_all_zero = Condition(cond_type="equal", left="f_1", right=0)
-    condition_1 = Condition("and", operands=[condition_s_1_all_zero, condition_f_1_all_zero])
+    condition_s_0_all_zero = Condition(cond_type="equal", left="s_0", right=0)
+    condition_f_0_all_zero = Condition(cond_type="equal", left="f_0", right=0)
+    condition_0 = Condition("and", operands=[condition_s_0_all_zero, condition_f_0_all_zero])
     # Root node with unconditional branch to flag_measure
     root_node = Node(
         node_id="root",
         instructions=["flag_syndrome"],
-        branches=[Branch(target="f_1_s_1_all_zero", condition= condition_1),
-                  Branch(target="not_f_1_s_1_all_zero", condition = Condition("not", operand=condition_1))]
+        branches=[Branch(target="f_0_s_0_all_zero", condition= condition_0),
+                  Branch(target="not_f_0_s_0_all_zero", condition = Condition("not", operand=condition_0))]
     )
     protocol.add_node(root_node)
 
-    f_1_s_1_all_zero = Node(
-        node_id="f_1_s_1_all_zero",
+    f_0_s_0_all_zero = Node(
+        node_id="f_0_s_0_all_zero",
         instructions=[], branches=[]
     )
-    protocol.add_node(f_1_s_1_all_zero)
+    protocol.add_node(f_0_s_0_all_zero)
 
     #node f_1_s_1_all_zero
-    not_f_1_s_1_all_zero = Node(
-        node_id="not_f_1_s_1_all_zero",
+    not_f_0_s_0_all_zero = Node(
+        node_id="not_f_0_s_0_all_zero",
         instructions=["raw_syndrome"],
-        branches=[Branch(target="ter_2")]
+        branches=[Branch(target="ter_1")]
     )
-    protocol.add_node(not_f_1_s_1_all_zero)
+    protocol.add_node(not_f_0_s_0_all_zero)
 
+    # Add the missing ter_1 node
+    ter_1_node = Node(
+        node_id="ter_1",
+        instructions=["LUT_s_0_f_0_s_1"],
+        branches=[]
+    )
+    protocol.add_node(ter_1_node)
 
     # Flag measurement node
     flag_measure_node = Node(
@@ -278,76 +285,87 @@ def build_protocol_d_5_lai() -> Protocol:
 
 
 
-    #condition s_1 == 0 
-    condition_s_1_all_zero = Condition(
-        cond_type="equal",
-        left="s_1",
-        right=0
-    )
-    
+    #condition s_0 == 0 
+    condition_s_0_all_zero = Condition( cond_type="equal",left="s_0", right=0)
     #condition flag are all zero
-    condition_f_1_all_zero = Condition(cond_type="equal", left="f_1", right=0)
+    condition_f_0_all_zero = Condition(cond_type="equal", left="f_0", right=0)
     
-    condition_1 = Condition("and", operands=[condition_s_1_all_zero, condition_f_1_all_zero])
+    condition_0 = Condition("and", operands=[condition_s_0_all_zero, condition_f_0_all_zero])
     
 
     # Root node with unconditional branch to flag_measure
     root_node = Node(
         node_id="root",
         instructions=["flag_syndrome"],
-        branches=[Branch(target="all_zero", condition= condition_1),
-                  Branch(target="not_all_zero", condition = Condition("not", operand=condition_1))]
+        branches=[Branch(target="s_0_f_0_all_zero", condition= condition_0),
+                  Branch(target="s_0_f_0_not_all_zero", condition = Condition("not", operand=condition_0))]
     )
 
     protocol.add_node(root_node)
 
 
     #node all zero in first round
-    round_1_all_zero = Node("all_zero",[], [])
+    round_0_all_zero = Node("s_0_f_0_all_zero",["Break"], [])
 
-    protocol.add_node(round_1_all_zero)
+    protocol.add_node(round_0_all_zero)
     
 
-    condition_2 = Condition("equal", left="f_2", right=0)
-    #node not all zero in first round
-    round_1_not_all_zero = Node(node_id="not_all_zero" ,instructions=["flagged_syndrome"],branches=[Branch(target="flag_2_all_zero", condition = condition_2),
-                  Branch(target = "flag_2_not_all_zero", condition = Condition("not", operand=condition_2))])
-    
-    protocol.add_node(round_1_not_all_zero)
+    condition_1 = Condition("equal", left="f_1", right=0)
 
-    flag_2_not_all_zero = Node("flag_2_not_all_zero", ["raw_syndrome"], [Branch(target = "ter_1" )])
-    protocol.add_node(flag_2_not_all_zero)
+    s_0_f_0_not_all_zero = Node(
+        node_id="s_0_f_0_not_all_zero",
+        instructions=["flag_syndrome"],
+        branches= [Branch(target="f_1_all_zero", condition= condition_1),
+                   Branch(target="f_1_not_all_zero", condition = Condition("not", operand=condition_1))]
+    )
+    protocol.add_node(s_0_f_0_not_all_zero)
 
-    ter_1 = Node("ter_1", [], [])
-
-    protocol.add_node(ter_1)
-
-    condition_f_3 = Condition("equal", left="f_3", right=0)
-    condition_s_3 = Condition("equal", left="s_3", right="s_2")
-    condition_3 = Condition("and", operands=[condition_f_3, condition_s_3])
-
-    flag_2_all_zero = Node("flag_2_all_zero", instructions=["flagged_syndrome"], branches=[Branch(target= "r_3_all_zero", condition= condition_3),
-                  Branch(target="r_3_not_all_zero", condition = Condition("not", operand=condition_3))])
-    
-    protocol.add_node(flag_2_all_zero)
-
-    r_3_not_all_zero = Node("r_3_not_all_zero", ["raw_syndrome"], [Branch(target = "ter_3" )])
-    protocol.add_node(r_3_not_all_zero)
-
-    r_3_not_all_zero = Node("r_3_all_zero", ["raw_syndrome"], [Branch(target = "ter_2" )])
-
-    protocol.add_node(r_3_not_all_zero)
-    ter_2 = Node("ter_2", [], [])
-    protocol.add_node(ter_2)
 
     
+    
 
-    ter_3 = Node("ter_3", [], [])
-    protocol.add_node(ter_3)
+     #node f_1_not_all_zero
+    condition_s_1_all_zero = Condition(cond_type="equal", left="s_1", right=0)
+    condition_f_1_all_zero = Condition(cond_type="equal", left="f_1", right=0)
+    condition_s_1_s_2_equal = Condition(cond_type="equal", left="s_1", right="s_2")
+    condition_f_1_all_zero_and_s_1_s_2_equal = Condition("and", operands=[condition_f_1_all_zero, condition_s_1_s_2_equal])
+    condition_f_1_all_zero_and_s_1_s_2_equal_and_s_1_all_zero = Condition("and", operands=[condition_f_1_all_zero_and_s_1_s_2_equal, condition_s_1_all_zero])
+    
+    condition_not_f_1_all_zero_and_s_1_s_2_equal_and_s_1_all_zero = Condition("not", operand= condition_f_1_all_zero_and_s_1_s_2_equal_and_s_1_all_zero)
+    
+
+    f_1_not_all_zero = Node(
+        node_id="f_1_not_all_zero",
+        instructions=["raw_syndrome"],
+        branches=[Branch(target="ter_1")])
+    protocol.add_node(f_1_not_all_zero)
+    
+    f_1_all_zero = Node(
+        node_id="f_1_all_zero",
+        instructions=["flag_syndrome"],
+        branches=[Branch(target="f_2_all_zero_and_s_1_s_2_equal", condition= condition_f_1_all_zero_and_s_1_s_2_equal_and_s_1_all_zero),
+                  Branch(target="not_f_2_all_zero_s_1_s_2_equal", condition= condition_not_f_1_all_zero_and_s_1_s_2_equal_and_s_1_all_zero)]
+    )
+    protocol.add_node(f_1_all_zero)    
 
 
+
+    node = Node(node_id="ter_1", instructions=["LUT_s_0_f_0_s_1_f_1_s_2"], branches=[])
+    protocol.add_node(node)
+   
+    node = Node("f_2_all_zero_and_s_1_s_2_equal", [],[Branch(target="ter_2")])
+    protocol.add_node(node)
+
+    node = Node("ter_2", ["LUT_s_0_f_0_s_1_f_1_s_2_f_2"],[])
+    protocol.add_node(node)
+
+    node = Node("not_f_2_all_zero_s_1_s_2_equal", ["raw_syndrome"],[Branch(target="ter_3")])
+    protocol.add_node(node)
+    node = Node("ter_3", ["LUT_s_0_f_0_s_1_f_1_s_2_f_2_s_3"],[])
+    protocol.add_node(node)
     protocol.save_to_file("./protocols/d_5_lai_protocol.json")
 
+    node = Node
     
 
 
