@@ -498,7 +498,7 @@ def build_flag_protocol_chris_d_3():
     protocol.save_to_file("./out/flag_protocol.json")
     return protocol
 
-def build_low_depth_5_1_3_protocol() -> Protocol:
+def build_origin_5_1_3_protocol() -> Protocol:
     protocol = Protocol(start_node="root")
 
 
@@ -563,7 +563,7 @@ def build_low_depth_5_1_3_protocol() -> Protocol:
 
    
    
-    protocol.save_to_file("./protocols/low_depth_5_1_3_protocol.json")
+    protocol.save_to_file("./protocols/origin_5_1_3_protocol.json")
 
     return protocol
 
@@ -578,16 +578,59 @@ def build_low_depth_7_1_3_w_6_protocol():
         branches=[]
     )
 
-    current_node = root_node
-    for i in range(len(stab_gen)):
+    condition_s_i_one = Condition(cond_type = "equal", left=f"s_0", right=True)
+    condition_s_i_zero = Condition(cond_type = "equal", left=f"s_0", right=False)
+    condition_f_i_zero = Condition(cond_type = "equal", left=f"f_0", right= False)
+
+    condition_not_s_one_f_zero = Condition("and", operands=[condition_s_i_one, condition_f_i_zero])
+
+
+    root_node.instructions.append(f"{stab_gen[0]}")
+    root_node.branches = [
+        Branch(target=f"{stab_gen[0]}_s_one_f_zero", condition= Condition("and", operands=[condition_s_i_one, condition_f_i_zero])),
+        Branch(target=f"{stab_gen[0]}_not_f_zero", condition = Condition("not", operand= condition_f_i_zero)),
+        Branch(target=f"{stab_gen[0]}_all_zero" , condition = Condition("and", operands=[condition_s_i_zero, condition_f_i_zero]))
+    ]
+    protocol.add_node(root_node)
+
+    node = Node(
+        node_id=f"{stab_gen[0]}_all_zero",
+        instructions=["Break"],
+        branches=[]
+    )
+    protocol.add_node(node)
+
+    node =  Node(
+                        node_id= f"{stab_gen[0]}_not_f_zero",
+                        instructions=["raw_syndrome"],
+                        branches=[Branch(target=f"ter_1")]
+                    )
+    protocol.add_node(node)
+    ter_1 = Node(
+        node_id="ter_1",
+        instructions=["LUT_s_0_f_0_s_1"],
+        branches=[]
+    )
+    protocol.add_node(ter_1)
+
+
+
+    current_node = Node(f'{stab_gen[0]}_s_one_f_zero', [], [])
+
+
+
+
+    for i in range(1,len(stab_gen)):
         stab = stab_gen[i]
-        condition_s_i_zero = Condition(cond_type = "equal", left=f"s_{i}", right=True)
+        condition_s_i_one = Condition(cond_type = "equal", left=f"s_{i}", right=True)
         condition_f_i_zero = Condition(cond_type = "equal", left=f"f_{i}", right= False)
-        condition_i_all_zero = Condition("and", operands=[condition_s_i_zero, condition_f_i_zero])
+        condition_not_s_one_f_zero = Condition("and", operands=[condition_s_i_one, condition_f_i_zero])
         current_node.instructions.append(f"{stab_gen[i]}")
         current_node.branches = [
-            Branch(target=f"{stab}_s_one_f_zero", condition= condition_i_all_zero),
-            Branch(target=f"{stab}_not_s_one_f_zero", condition = Condition("not", operand=condition_i_all_zero))
+            Branch(target=f"{stab}_s_one_f_zero", condition= Condition("and", operands=[condition_s_i_one, condition_f_i_zero])),
+            Branch(target=f"{stab}_not_s_one_f_zero", condition = Condition("not", operand= condition_not_s_one_f_zero)),
+            
+            
         ]
         protocol.add_node(current_node)
         
@@ -755,7 +798,7 @@ def build_5_1_3_low_depth_protocol():
 
 
     root_node = Node(
-        node_id="root",
+        node_id=f"root",
         instructions=[],
         branches=[]
     )
@@ -771,14 +814,14 @@ def build_5_1_3_low_depth_protocol():
 
         current_node.instructions.append(f"{stab}_flag")
         current_node.branches = [
-            Branch(target=f"r_{gen.index(stab)}_{stab}_s_f_all_zero", condition= condition_i_all_zero),
-            Branch(target=f"r_{gen.index(stab)}_{stab}_s_not_zero_f_zero", condition= condition_and_s_i_not_zero_f_zero),
-            Branch(target=f"r_{gen.index(stab)}_{stab}_f_not_zero", condition= condition_f_i_not_zero)
+            Branch(target=f"r_{gen.index(stab)+1}_{stab}_s_f_all_zero", condition= condition_i_all_zero),
+            Branch(target=f"r_{gen.index(stab)+1}_{stab}_s_not_zero_f_zero", condition= condition_and_s_i_not_zero_f_zero),
+            Branch(target=f"r_{gen.index(stab)+1}_{stab}_f_not_zero", condition= condition_f_i_not_zero)
         ]
         protocol.add_node(current_node)
 
         node = Node(
-                        node_id= f"r_{gen.index(stab)}_{stab}_s_not_zero_f_zero",
+                        node_id= f"r_{gen.index(stab)+1}_{stab}_s_not_zero_f_zero",
                         instructions=["raw_syndrome"],
                         branches=[Branch(target=f"ter_{gen.index(stab)*3}")]
                     )
@@ -791,7 +834,7 @@ def build_5_1_3_low_depth_protocol():
         protocol.add_node(node)
 
         node = Node(
-                        node_id= f"r_{gen.index(stab)}_{stab}_f_not_zero",
+                        node_id= f"r_{gen.index(stab)+1}_{stab}_f_not_zero",
                         instructions=[f"{stab}_raw"],
                         branches=[Branch(target=f"after_r_{gen.index(stab)+1}_{stab}_raw",condition= None)]
                     )
@@ -833,7 +876,7 @@ def build_5_1_3_low_depth_protocol():
         protocol.add_node(node)
 
 
-        current_node = Node(node_id=f"r_{gen.index(stab)}_{stab}_s_f_all_zero",
+        current_node = Node(node_id=f"r_{gen.index(stab)+1}_{stab}_s_f_all_zero",
             instructions=[],
             branches=[]
         )

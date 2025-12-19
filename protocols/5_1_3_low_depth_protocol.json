@@ -22,7 +22,7 @@
                             }
                         ]
                     },
-                    "target": "r_0_XZZXI_s_f_all_zero"
+                    "target": "r_1_XZZXI_s_f_all_zero"
                 },
                 {
                     "condition": {
@@ -45,7 +45,7 @@
                             }
                         ]
                     },
-                    "target": "r_0_XZZXI_s_not_zero_f_zero"
+                    "target": "r_1_XZZXI_s_not_zero_f_zero"
                 },
                 {
                     "condition": {
@@ -58,11 +58,11 @@
                             }
                         ]
                     },
-                    "target": "r_0_XZZXI_f_not_zero"
+                    "target": "r_1_XZZXI_f_not_zero"
                 }
             ]
         },
-        "r_0_XZZXI_s_not_zero_f_zero": {
+        "r_1_XZZXI_s_not_zero_f_zero": {
             "instructions": [
                 "raw_syndrome"
             ],
@@ -79,7 +79,7 @@
             ],
             "branches": []
         },
-        "r_0_XZZXI_f_not_zero": {
+        "r_1_XZZXI_f_not_zero": {
             "instructions": [
                 "XZZXI_raw"
             ],
@@ -152,7 +152,7 @@
             ],
             "branches": []
         },
-        "r_0_XZZXI_s_f_all_zero": {
+        "r_1_XZZXI_s_f_all_zero": {
             "instructions": [
                 "IXZZX_flag"
             ],
@@ -173,7 +173,7 @@
                             }
                         ]
                     },
-                    "target": "r_1_IXZZX_s_f_all_zero"
+                    "target": "r_2_IXZZX_s_f_all_zero"
                 },
                 {
                     "condition": {
@@ -196,7 +196,7 @@
                             }
                         ]
                     },
-                    "target": "r_1_IXZZX_s_not_zero_f_zero"
+                    "target": "r_2_IXZZX_s_not_zero_f_zero"
                 },
                 {
                     "condition": {
@@ -209,11 +209,11 @@
                             }
                         ]
                     },
-                    "target": "r_1_IXZZX_f_not_zero"
+                    "target": "r_2_IXZZX_f_not_zero"
                 }
             ]
         },
-        "r_1_IXZZX_s_not_zero_f_zero": {
+        "r_2_IXZZX_s_not_zero_f_zero": {
             "instructions": [
                 "raw_syndrome"
             ],
@@ -230,7 +230,7 @@
             ],
             "branches": []
         },
-        "r_1_IXZZX_f_not_zero": {
+        "r_2_IXZZX_f_not_zero": {
             "instructions": [
                 "IXZZX_raw"
             ],
@@ -303,7 +303,7 @@
             ],
             "branches": []
         },
-        "r_1_IXZZX_s_f_all_zero": {
+        "r_2_IXZZX_s_f_all_zero": {
             "instructions": [
                 "XIXZZ_flag"
             ],
@@ -324,7 +324,7 @@
                             }
                         ]
                     },
-                    "target": "r_2_XIXZZ_s_f_all_zero"
+                    "target": "r_3_XIXZZ_s_f_all_zero"
                 },
                 {
                     "condition": {
@@ -347,7 +347,7 @@
                             }
                         ]
                     },
-                    "target": "r_2_XIXZZ_s_not_zero_f_zero"
+                    "target": "r_3_XIXZZ_s_not_zero_f_zero"
                 },
                 {
                     "condition": {
@@ -360,11 +360,11 @@
                             }
                         ]
                     },
-                    "target": "r_2_XIXZZ_f_not_zero"
+                    "target": "r_3_XIXZZ_f_not_zero"
                 }
             ]
         },
-        "r_2_XIXZZ_s_not_zero_f_zero": {
+        "r_3_XIXZZ_s_not_zero_f_zero": {
             "instructions": [
                 "raw_syndrome"
             ],
@@ -381,7 +381,7 @@
             ],
             "branches": []
         },
-        "r_2_XIXZZ_f_not_zero": {
+        "r_3_XIXZZ_f_not_zero": {
             "instructions": [
                 "XIXZZ_raw"
             ],
@@ -454,7 +454,7 @@
             ],
             "branches": []
         },
-        "r_2_XIXZZ_s_f_all_zero": {
+        "r_3_XIXZZ_s_f_all_zero": {
             "instructions": [
                 "ZXIXZ_flag"
             ],
@@ -475,7 +475,7 @@
                             }
                         ]
                     },
-                    "target": "r_3_ZXIXZ_s_f_all_zero"
+                    "target": "r_4_ZXIXZ_s_f_all_zero"
                 },
                 {
                     "condition": {
@@ -498,7 +498,7 @@
                             }
                         ]
                     },
-                    "target": "r_3_ZXIXZ_s_not_zero_f_zero"
+                    "target": "r_4_ZXIXZ_s_not_zero_f_zero"
                 },
                 {
                     "condition": {
@@ -511,11 +511,11 @@
                             }
                         ]
                     },
-                    "target": "r_3_ZXIXZ_f_not_zero"
+                    "target": "r_4_ZXIXZ_f_not_zero"
                 }
             ]
         },
-        "r_3_ZXIXZ_s_not_zero_f_zero": {
+        "r_4_ZXIXZ_s_not_zero_f_zero": {
             "instructions": [
                 "raw_syndrome"
             ],
@@ -532,7 +532,7 @@
             ],
             "branches": []
         },
-        "r_3_ZXIXZ_f_not_zero": {
+        "r_4_ZXIXZ_f_not_zero": {
             "instructions": [
                 "ZXIXZ_raw"
             ],
@@ -605,7 +605,7 @@
             ],
             "branches": []
         },
-        "r_3_ZXIXZ_s_f_all_zero": {
+        "r_4_ZXIXZ_s_f_all_zero": {
             "instructions": [],
             "branches": [
                 {

@@ -230,6 +230,10 @@ def remove_flag_gates(qasm_path: str, save_path: str = None):
 
 from pathlib import Path
 
+from pathlib import Path
+
+from pathlib import Path
+
 def paulistring_to_qasm(pauli: str,
                         anc_name: str = "ancX",
                         anc_idx: int = 0,
@@ -237,9 +241,9 @@ def paulistring_to_qasm(pauli: str,
                         barrier_after: bool = True,
                         save_path: str | None = None) -> str:
     """
-    Generate OPENQASM 2.0 that couples one ancilla to each data qubit according
-    to a Pauli string (I/X/Y/Z). Uses cx/cy/cz with the ancilla as the first operand.
-    Optionally saves the output to `save_path`.
+    Order interactions so that cy gates sit in the middle of the circuit
+    (e.g. for 4 total gates with 2 Y's: positions 2&3).
+    Keeps qubit indices intact; preserves relative order within Y and non-Y groups.
     """
     pauli = pauli.strip().upper()
     n = len(pauli)
@@ -248,10 +252,9 @@ def paulistring_to_qasm(pauli: str,
     if any(c not in "IXYZ" for c in pauli):
         raise ValueError(f"pauli string must use only I/X/Y/Z, got: {pauli}")
 
-    gate_for = {"X": "cx", "Y": "cy", "Z": "cz"}  # I is skipped
+    gate_for = {"X": "cx", "Y": "cy", "Z": "cz"}  # I skipped
 
-    lines = []
-    lines += [
+    lines = [
         "OPENQASM 2.0;",
         'include "qelib1.inc";',
         "",
@@ -264,11 +267,20 @@ def paulistring_to_qasm(pauli: str,
         "// =========================",
     ]
 
-    for i, p in enumerate(pauli):
-        if p == "I":
-            continue
-        g = gate_for[p]
-        lines.append(f"{g}  {anc_name}[{anc_idx}], {data_name}[{i}];")
+    # natural order by qubit index
+    ops = [(p, i) for i, p in enumerate(pauli) if p != "I"]
+    y_ops = [(p, i) for (p, i) in ops if p == "Y"]
+    non_y_ops = [(p, i) for (p, i) in ops if p != "Y"]
+
+    k = len(ops)
+    m = len(y_ops)
+
+    # place the block of Y ops centered
+    start = (k - m) // 2
+    ordered_ops = non_y_ops[:start] + y_ops + non_y_ops[start:]
+
+    for p, i in ordered_ops:
+        lines.append(f"{gate_for[p]}  {anc_name}[{anc_idx}], {data_name}[{i}];")
 
     if barrier_after:
         lines.append("")
