@@ -322,12 +322,40 @@ def proof_protocol_boolean(protocol,
             # 2. All ancilla and flag formulas in each round
             anc_flag_per_round = []
             for step_info in full_path:
+                # Extract ancilla formulas (syndrome measurements)
+                ancX_list = step_info["state"].get("ancX", [])
+                ancZ_list = step_info["state"].get("ancZ", [])
+                flagX_list = step_info["state"].get("flagX", [])
+                flagZ_list = step_info["state"].get("flagZ", [])
+                
+                # For ancX: measure in Z basis (use .z)
+                ancX_formulas = [q.z for q in ancX_list]
+                
+                # For ancZ: measure in X basis (use .x)
+                ancZ_formulas = [q.x for q in ancZ_list]
+                
+                # For flagX: measure in Z basis (use .z), handle nested lists
+                flagX_formulas = []
+                for item in flagX_list:
+                    if isinstance(item, list):
+                        flagX_formulas.append([q.z for q in item])
+                    else:
+                        flagX_formulas.append(item.z)
+                
+                # For flagZ: measure in X basis (use .x), handle nested lists
+                flagZ_formulas = []
+                for item in flagZ_list:
+                    if isinstance(item, list):
+                        flagZ_formulas.append([q.x for q in item])
+                    else:
+                        flagZ_formulas.append(item.x)
+                
                 round_anc_flag = {
                     "round": step_info["round"],
-                    "ancX": step_info["state"].get("ancX", []),
-                    "ancZ": step_info["state"].get("ancZ", []),
-                    "flagX": step_info["state"].get("flagX", []),
-                    "flagZ": step_info["state"].get("flagZ", [])
+                    "ancX_formulas": ancX_formulas,  # Z-basis measurements
+                    "ancZ_formulas": ancZ_formulas,  # X-basis measurements
+                    "flagX_formulas": flagX_formulas,  # Z-basis measurements (may be nested)
+                    "flagZ_formulas": flagZ_formulas   # X-basis measurements (may be nested)
                 }
                 anc_flag_per_round.append(round_anc_flag)
             
@@ -418,10 +446,40 @@ def proof_protocol_boolean(protocol,
         print(f"\n2. Ancilla & Flag Formulas per Round ({len(path_data['anc_flag_per_round'])} rounds):")
         for round_data in path_data['anc_flag_per_round']:
             print(f"   Round {round_data['round']}:")
-            print(f"     ancX: {len(round_data['ancX'])} qubits")
-            print(f"     ancZ: {len(round_data['ancZ'])} qubits")
-            print(f"     flagX: {len(round_data['flagX'])} groups/qubits")
-            print(f"     flagZ: {len(round_data['flagZ'])} groups/qubits")
+            
+            # Print ancX formulas (Z-basis syndrome measurements)
+            ancX_formulas = round_data['ancX_formulas']
+            print(f"     ancX (Z-basis): {len(ancX_formulas)} measurements")
+            for idx, formula in enumerate(ancX_formulas):
+                print(f"       ancX[{idx}]: {formula}")
+            
+            # Print ancZ formulas (X-basis syndrome measurements)
+            ancZ_formulas = round_data['ancZ_formulas']
+            print(f"     ancZ (X-basis): {len(ancZ_formulas)} measurements")
+            for idx, formula in enumerate(ancZ_formulas):
+                print(f"       ancZ[{idx}]: {formula}")
+            
+            # Print flagX formulas (Z-basis flag measurements)
+            flagX_formulas = round_data['flagX_formulas']
+            print(f"     flagX (Z-basis): {len(flagX_formulas)} groups/measurements")
+            for idx, formula in enumerate(flagX_formulas):
+                if isinstance(formula, list):
+                    print(f"       flagX[{idx}] (group of {len(formula)}):")
+                    for sub_idx, sub_formula in enumerate(formula):
+                        print(f"         [{sub_idx}]: {sub_formula}")
+                else:
+                    print(f"       flagX[{idx}]: {formula}")
+            
+            # Print flagZ formulas (X-basis flag measurements)
+            flagZ_formulas = round_data['flagZ_formulas']
+            print(f"     flagZ (X-basis): {len(flagZ_formulas)} groups/measurements")
+            for idx, formula in enumerate(flagZ_formulas):
+                if isinstance(formula, list):
+                    print(f"       flagZ[{idx}] (group of {len(formula)}):")
+                    for sub_idx, sub_formula in enumerate(formula):
+                        print(f"         [{sub_idx}]: {sub_formula}")
+                else:
+                    print(f"       flagZ[{idx}]: {formula}")
         
         # Print path conditions
         print(f"\n3. Path Conditions ({len(path_data['conditions'])} conditions):")
