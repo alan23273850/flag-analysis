@@ -57,7 +57,7 @@ def proof_protocol(protocol,
             cur_groups,         # dict or None
             cur_path: List[Dict]):
         
-        #if len(all_paths) == 9 :  return  # stop exploring more branches
+        #if len(all_paths) == 2 :  return  # stop exploring more branches
 
         node = protocol[node_id]
 
@@ -174,9 +174,7 @@ def proof_protocol(protocol,
                 
                 print("len all paths:", len(all_paths))
                 
-                if len(all_paths) >= 9 :
-                    
-                    proof_path(full_path, t, gen_syn, all_condition, config['stab_txt_path'], config['log_txt_path'])
+                proof_path(full_path, t, gen_syn, all_condition, config['stab_txt_path'], config['log_txt_path'])
                 
                 return 
             else:
@@ -219,6 +217,220 @@ def proof_protocol(protocol,
     
     dfs(0, start_node, init_state, None, [])
     return all_paths
+
+
+
+def proof_protocol_boolean(protocol,
+                  start_node: str,
+                  init_state,
+                  config: Dict,
+                  t: int):
+
+    all_paths = []
+    all_path_data = []  # Store collected data for each path
+
+    def dfs(round_idx: int,
+            node_id: str,
+            cur_state,          # CircuitXZ
+            cur_groups,         # dict or None
+            cur_path: List[Dict]):
+        
+        #if len(all_paths) == 2 :  return  # stop exploring more branches
+
+        node = protocol[node_id]
+
+        # -------------------------------
+        # Execute instruction (if exists)
+        # -------------------------------
+        instr = node.instructions[0] if node.instructions else None
+        print("Current node:", node_id, "Instruction:", instr)
+        state_after = cur_state
+        site_info = []
+        groups =  cur_groups
+
+        if instr is not None and node.branches:
+            # This is a circuit instruction (e.g. flag_syndrome, raw_syndrome)
+            if instr not in config:
+                raise KeyError(f"Instruction '{instr}' not found in config")
+
+            qasm_path = config[instr]
+            qc = load_qasm(qasm_path)
+            gate_list = get_gate_only_indices(qc)
+            groups = detect_qubit_groups(qc)   # new groups for this circuit
+
+            print("round:", round_idx, "node:", node_id, "instr:", instr)
+
+            
+            state_after, site_info = symbolic_execution_of_state(
+                qasm_path,
+                cur_state,
+                round_idx,
+                fault_gate=gate_list,
+                track_steps=False
+            )
+            '''
+            for i, q in enumerate(state_after.qubits):
+              #print(f"  q[{i}]: X = {q.x}, Z = {q.z}")
+            '''           
+
+        # -------------------------------
+        # Build dict-view of state_after
+        # -------------------------------
+        if groups is not None:
+
+            state_dict = state_to_raw_expr_dict(state_after, groups)
+
+        elif instr is None or instr == 'Break' or instr.startswith("LUT_"): 
+            print("in condition round:", round_idx, "node:", node_id, "instr:", instr)
+            # Break instruction with no anc/flag structure; keep only data as a list
+            #print("state after:", state_after)
+            state_dict = state_to_raw_expr_dict(state_after, groups)
+       
+        else:
+            # no anc/flag structure yet; keep only data as a list
+            state_dict = state_to_raw_expr_dict(state_after, groups)
+
+        if f'{instr}' + '_flag_group' in config:
+            import json 
+            with open(config[f'{instr}' + '_flag_group'], "r") as f:
+                flag_group= json.load(f)
+
+            state_dict['flagX'] = [[state_dict.copy()['flagX'][i] for i in g ] for g in flag_group['flagX']]  
+            state_dict['flagZ'] = [[state_dict.copy()['flagZ'][i] for i in g ] for g in flag_group['flagZ']]  
+
+        # -------------------------------
+        # Leaf node (no branches)
+        # -------------------------------
+        if not node.branches:
+            step = {
+                "round": round_idx,
+                "node": node_id,
+                "next": None,
+                "instruction": instr,
+                "condition": None,
+                "state": state_dict,   # always dict
+                "site_info": site_info
+            }
+            full_path = cur_path + [step]
+            
+            all_paths.append(full_path)
+            
+            # Collect the three pieces of information for this path
+            # 1. Last round data qubit formulas
+            last_data = full_path[-1]["state"]["data"]
+            
+            # 2. All ancilla and flag formulas in each round
+            anc_flag_per_round = []
+            for step_info in full_path:
+                round_anc_flag = {
+                    "round": step_info["round"],
+                    "ancX": step_info["state"].get("ancX", []),
+                    "ancZ": step_info["state"].get("ancZ", []),
+                    "flagX": step_info["state"].get("flagX", []),
+                    "flagZ": step_info["state"].get("flagZ", [])
+                }
+                anc_flag_per_round.append(round_anc_flag)
+            
+            # 3. All conditions along the path
+            path_conditions = [
+                s["condition"] for s in full_path
+                if s["condition"] is not None
+            ]
+            
+            # Store collected data
+            path_data = {
+                "last_data": last_data,
+                "anc_flag_per_round": anc_flag_per_round,
+                "conditions": path_conditions
+            }
+            all_path_data.append(path_data)
+           
+            # Leaf behavior
+            if instr == 'Break':
+                return
+            elif instr and instr.startswith("LUT_"):  # FIX: Added null check
+                print("LUT", instr)
+                gen_syn = parse_lut_instr(instr)
+                print("gen_syn:", gen_syn)
+                
+                print("len all paths:", len(all_paths))
+                
+                # Print collected data for this path
+                print(f"Path {len(all_paths)} data collected:")
+                print(f"  - Last data qubits: {len(last_data)} qubits")
+                print(f"  - Rounds with anc/flag: {len(anc_flag_per_round)}")
+                print(f"  - Path conditions: {len(path_conditions)}")
+                
+                return 
+            else:
+                # leaf with some other instruction, but nothing to prove
+                return
+
+        # -------------------------------
+        # Branching
+        # -------------------------------
+        for br in node.branches:
+            cond_dict = br.condition.to_dict() if br.condition is not None else None
+
+            # all states in full_state are dicts now
+            full_state = [s["state"] for s in cur_path] + [state_dict]
+            z3_condition = condition_to_z3(cond_dict, full_state, groups)
+
+            step = {
+                "round": round_idx,
+                "node": node_id,
+                "next": br.target,
+                "instruction": instr,
+                "condition": z3_condition,
+                "state": state_dict,       # dict
+                "site_info": site_info
+            }
+            next_groups = data_only_groups_from_state_dict(state_dict)
+
+            dfs(
+                round_idx + 1,
+                br.target,
+                state_after,   # still CircuitXZ
+                next_groups,        # carry the same groups forward
+                cur_path + [step]
+            )
+
+    
+    # initial call: no groups yet, clean data state
+    
+
+    
+    dfs(0, start_node, init_state, None, [])
+    
+    # Print all collected path data
+    print("\n" + "="*80)
+    print(f"COLLECTED DATA FROM {len(all_path_data)} PATHS")
+    print("="*80)
+    for i, path_data in enumerate(all_path_data):
+        print(f"\n--- PATH {i+1} ---")
+        
+        # Print last round data qubits
+        print(f"\n1. Last Round Data Qubits ({len(path_data['last_data'])} qubits):")
+        for idx, dq in enumerate(path_data['last_data']):
+            print(f"   Data[{idx}]: X={dq.x}, Z={dq.z}")
+        
+        # Print ancilla and flag formulas for each round
+        print(f"\n2. Ancilla & Flag Formulas per Round ({len(path_data['anc_flag_per_round'])} rounds):")
+        for round_data in path_data['anc_flag_per_round']:
+            print(f"   Round {round_data['round']}:")
+            print(f"     ancX: {len(round_data['ancX'])} qubits")
+            print(f"     ancZ: {len(round_data['ancZ'])} qubits")
+            print(f"     flagX: {len(round_data['flagX'])} groups/qubits")
+            print(f"     flagZ: {len(round_data['flagZ'])} groups/qubits")
+        
+        # Print path conditions
+        print(f"\n3. Path Conditions ({len(path_data['conditions'])} conditions):")
+        for cond_idx, cond in enumerate(path_data['conditions']):
+            print(f"   Condition {cond_idx}: {cond}")
+    
+    print("\n" + "="*80)
+    
+    return all_paths, all_path_data
 from z3 import BoolVal, And, Or, Not
 
 # -----------------------------
@@ -516,6 +728,8 @@ def proof_path(path : list[dict], t : int , gen_syn : list ,all_condtion : list,
         elif type == "f":
             flg = [q.z for q in flagX] + [q.x for q in flagZ]
             gen_syn_z3 += flg
+
+    
     #    print("gen_syn_z3:", gen_syn_z3)
     at_most_t_faults = [PbEq( [(f,1) for f in faults ], t)]
 
