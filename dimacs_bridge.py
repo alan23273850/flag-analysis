@@ -278,9 +278,73 @@ def eval_z3_bool(expr: BoolRef, assignment: Dict[BoolRef, bool], default_false: 
     return is_true(simplify(substitute(expr, subs)))
 
 
+def simplify_boolformula(bf):
+    from boolformula import Literal, And, Or, Xor
+    """Simplify BoolFormula by unwrapping single-child And/Or nodes."""
+    if isinstance(bf, Literal):
+        return bf
+    elif isinstance(bf, And):
+        children = [simplify_boolformula(c) for c in bf.children]
+        # Flatten nested Ands
+        flat_children = []
+        for c in children:
+            if isinstance(c, And):
+                flat_children.extend(c.children)
+            else:
+                flat_children.append(c)
+        if len(flat_children) == 1:
+            return flat_children[0]
+        return And(flat_children)
+    elif isinstance(bf, Or):
+        children = [simplify_boolformula(c) for c in bf.children]
+        # Flatten nested Ors
+        flat_children = []
+        for c in children:
+            if isinstance(c, Or):
+                flat_children.extend(c.children)
+            else:
+                flat_children.append(c)
+        if len(flat_children) == 1:
+            return flat_children[0]
+        return Or(flat_children)
+    elif isinstance(bf, Xor):
+        children = [simplify_boolformula(c) for c in bf.children]
+        if len(children) == 1:
+            return children[0]
+        return Xor(children)
+    return bf
+
+def formula_to_dimacs_string(
+    phi: BoolRef,
+    var_to_id: Dict[BoolRef, int],
+    *,
+    use_pb2bv: bool = True,
+    use_card2bv: bool = False,
+) -> str:
+    """
+    Convert a single Z3 Bool formula to a DIMACS CNF string.
+    Tries native extended DIMACS (with XOR lines) first.
+    If it contains unsupported nesting (like OR of XORs), it falls back to a 
+    pure mathematical CNF expansion (without any auxiliary variables/Tseitin transformation).
+    """
+    from boolformula import z3_to_boolformula, to_extended_dimacs, to_pure_dimacs
+    bf = z3_to_boolformula(phi, var_to_id)
+    bf = simplify_boolformula(bf)
+    # Both to_extended_dimacs and to_pure_dimacs need the max variable ID used
+    max_id = max(var_to_id.values()) if var_to_id else 0
+    
+    try:
+        return to_extended_dimacs(bf, max_id)
+    except ValueError as e:
+        # Fall back to pure mathematical CNF expansion (no auxiliary variables)
+        return to_pure_dimacs(bf, max_id)
+
+
 __all__ = [
     "collect_bool_symbols",
     "to_cnf_clauses",
+    "formula_to_dimacs_string",
+    "formula_to_blif_string",
     "build_dimacs",
     "parse_dimacs_model",
     "model_to_assignment",
@@ -584,4 +648,102 @@ def model_to_z3_true_vars(model_lits, var_map):
                 true_vars[v.decl().name()] = True
 
     return true_vars
+
+
+def formula_to_blif_string(phi: "BoolRef", var_to_id: Dict["BoolRef", int]) -> str:
+    """
+    Convert a single Z3 Bool formula to a BLIF format string.
+    This avoids the exponential blowup of pure CNF because we can define intermediate gates.
+    """
+    from boolformula import z3_to_boolformula, Literal, And, Or, Xor
+    from dimacs_bridge import simplify_boolformula
+    bf = z3_to_boolformula(phi, var_to_id)
+    bf = simplify_boolformula(bf)
+    
+    lines = []
+    lines.append(".model formula")
+    
+    if not var_to_id:
+        lines.append(".inputs dummy_in")
+    else:
+        # Get sorted variables by id to keep it deterministic
+        sorted_vars = sorted(var_to_id.items(), key=lambda x: x[1])
+        inputs = [f"v{vid}" for var, vid in sorted_vars]
+        lines.append(".inputs " + " ".join(inputs))
+    
+    lines.append(".outputs out")
+    
+    node_counter = 0
+    def new_node():
+        nonlocal node_counter
+        node_counter += 1
+        return f"n{node_counter}"
+
+    def build(node) -> str:
+        if isinstance(node, Literal):
+            if node.lit > 0:
+                return f"v{node.lit}"
+            else:
+                out = new_node()
+                lines.append(f".names v{-node.lit} {out}")
+                lines.append("0 1")
+                return out
+        elif isinstance(node, And):
+            if not node.children:
+                out = new_node()
+                lines.append(f".names {out}")
+                lines.append("1")
+                return out
+            child_outs = [build(c) for c in node.children]
+            out = new_node()
+            lines.append(f".names {' '.join(child_outs)} {out}")
+            lines.append("1" * len(child_outs) + " 1")
+            return out
+        elif isinstance(node, Or):
+            if not node.children:
+                out = new_node()
+                lines.append(f".names {out}")
+                return out
+            child_outs = [build(c) for c in node.children]
+            out = new_node()
+            lines.append(f".names {' '.join(child_outs)} {out}")
+            for i in range(len(child_outs)):
+                row = ["-"] * len(child_outs)
+                row[i] = "1"
+                lines.append("".join(row) + " 1")
+            return out
+        elif isinstance(node, Xor):
+            if not node.children:
+                out = new_node()
+                lines.append(f".names {out}")
+                return out
+            child_outs = [build(c) for c in node.children]
+            
+            # Cascade XORs into 2-input XOR gates to avoid 2^(N-1) table blowup
+            def cascade_xor(inputs):
+                if len(inputs) == 1:
+                    return inputs[0]
+                if len(inputs) == 2:
+                    out = new_node()
+                    lines.append(f".names {inputs[0]} {inputs[1]} {out}")
+                    lines.append("10 1")
+                    lines.append("01 1")
+                    return out
+                mid = len(inputs) // 2
+                left = cascade_xor(inputs[:mid])
+                right = cascade_xor(inputs[mid:])
+                out = new_node()
+                lines.append(f".names {left} {right} {out}")
+                lines.append("10 1")
+                lines.append("01 1")
+                return out
+                
+            return cascade_xor(child_outs)
+        raise ValueError(f"Unknown node {type(node)}")
+
+    final_out = build(bf)
+    lines.append(f".names {final_out} out")
+    lines.append("1 1")
+    lines.append(".end\n")
+    return "\n".join(lines)
 

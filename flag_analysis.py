@@ -9,6 +9,7 @@ from pathlib  import Path
 
 
 from dimacs_bridge import build_dimacs, resolve_cryptominisat_binary, run_cryptominisat, model_to_z3_assignment, pretty_print_z3_assignment, pretty_print_true_z3_vars
+from boolformula import formula_to_boolformula_str
 
 from circuit_op import *
 from protocol import *
@@ -1681,7 +1682,8 @@ def check_ancillas_match_symplectic_ordered(qasm_path: str,
     ancillas = (ancX + ancZ) if order == "X-then-Z" else (ancZ + ancX)
     print(f"Total ancillas considered: {len(ancillas)}")
     for a in ancillas:
-        print("Ancilla formula:", a)
+        print("Ancilla formula (boolformula_t):", formula_to_boolformula_str(a))
+        print("Ancilla formula (z3):", a)
     # Stabilizer anticommute formulas from txt (exact line order)
     gens = load_symplectic_txt(stab_txt_path)
     stabs = [anticomm_formula(Sx, Sz, varenv) for (Sx, Sz) in gens]
@@ -2103,7 +2105,8 @@ def prove_syndrome_extractions(qasm_path: str, stab_txt_path: str):
     stab_exprs = [anticomm_formula(Sx, Sz, varenv) for Sx,Sz in stabs]
 
     for i, e in enumerate(stab_exprs):
-        print(f"Stabilizer {i} formula:", e)
+        print(f"Stabilizer {i} formula (boolformula_t):", formula_to_boolformula_str(e))
+        print(f"Stabilizer {i} formula (z3):", e)
 
     report = check_ancillas_match_symplectic_ordered(
     qasm_path,

@@ -15,8 +15,11 @@ from z3 import Solver, unsat, sat
 from flag_analysis import *
 from circuit_op import *
 from protocol import *
+from boolformula import formula_to_boolformula_str
+from dimacs_bridge import collect_bool_symbols, formula_to_dimacs_string
 
 from copy import deepcopy
+from pathlib import Path
 
 
 from dataclasses import dataclass
@@ -224,7 +227,8 @@ def proof_protocol_boolean(protocol,
                   start_node: str,
                   init_state,
                   config: Dict,
-                  t: int):
+                  t: int,
+                  cnf_output_dir: Optional[str] = None):
 
     all_paths = []
     all_path_data = []  # Store collected data for each path
@@ -432,22 +436,95 @@ def proof_protocol_boolean(protocol,
     
     dfs(0, start_node, init_state, None, [])
     
+    def _export_path_blif(path_data: dict, path_index: int, var_to_id: dict, base_dir: Path) -> None:
+        """Write per-path BLIF files: path_N/Xi.blif, Zi.blif, round_M/ancX.blif, ancZ.blif, conditionK.blif."""
+        path_dir = base_dir / f"path_{path_index}"
+        path_dir.mkdir(parents=True, exist_ok=True)
+        def write_blif(path, phi):
+            try:
+                from dimacs_bridge import formula_to_blif_string
+                path.write_text(formula_to_blif_string(phi, var_to_id), encoding="utf-8")
+            except Exception as e:
+                path.write_text(f"# Failed to convert to BLIF: {e}\n", encoding="utf-8")
+
+        try:
+            for idx, dq in enumerate(path_data["last_data"]):
+                write_blif(path_dir / f"dataX{idx}.blif", dq.x)
+                write_blif(path_dir / f"dataZ{idx}.blif", dq.z)
+            for round_data in path_data["anc_flag_per_round"]:
+                round_dir = path_dir / f"round_{round_data['round']}"
+                round_dir.mkdir(parents=True, exist_ok=True)
+                
+                for idx, phi in enumerate(round_data["ancX_formulas"]):
+                    write_blif(round_dir / f"ancX{idx}.blif", phi)
+                for idx, phi in enumerate(round_data["ancZ_formulas"]):
+                    write_blif(round_dir / f"ancZ{idx}.blif", phi)
+                    
+                for idx, item in enumerate(round_data["flagX_formulas"]):
+                    phi = And(*item) if isinstance(item, list) else item
+                    write_blif(round_dir / f"flagX{idx}.blif", phi)
+                for idx, item in enumerate(round_data["flagZ_formulas"]):
+                    phi = And(*item) if isinstance(item, list) else item
+                    write_blif(round_dir / f"flagZ{idx}.blif", phi)
+                    
+            for cond_idx, cond in enumerate(path_data["conditions"]):
+                write_blif(path_dir / f"condition{cond_idx}.blif", cond)
+        except OSError as e:
+            print(f"   [Warning] Could not write BLIF output for path {path_index}: {e}")
+    
+    def path_data_var_to_id(path_data):
+        """Collect all Z3 bool variables in this path and map to ids 1,2,3,... (sorted by name)."""
+        symbols = set()
+        for f in path_data["faults"]:
+            symbols |= collect_bool_symbols(f)
+        for dq in path_data["last_data"]:
+            symbols |= collect_bool_symbols(dq.x)
+            symbols |= collect_bool_symbols(dq.z)
+        for round_data in path_data["anc_flag_per_round"]:
+            for formula in round_data["ancX_formulas"]:
+                symbols |= collect_bool_symbols(formula)
+            for formula in round_data["ancZ_formulas"]:
+                symbols |= collect_bool_symbols(formula)
+            for formula in round_data["flagX_formulas"]:
+                if isinstance(formula, list):
+                    for sub in formula:
+                        symbols |= collect_bool_symbols(sub)
+                else:
+                    symbols |= collect_bool_symbols(formula)
+            for formula in round_data["flagZ_formulas"]:
+                if isinstance(formula, list):
+                    for sub in formula:
+                        symbols |= collect_bool_symbols(sub)
+                else:
+                    symbols |= collect_bool_symbols(formula)
+        for cond in path_data["conditions"]:
+            symbols |= collect_bool_symbols(cond)
+        sorted_vars = sorted(symbols, key=lambda s: s.decl().name())
+        return {v: (i + 1) for i, v in enumerate(sorted_vars)}
+    
     # Print all collected path data
     print("\n" + "="*80)
     print(f"COLLECTED DATA FROM {len(all_path_data)} PATHS")
     print("="*80)
     for i, path_data in enumerate(all_path_data):
         print(f"\n--- PATH {i+1} ---")
-        print(f"\n0. Fault variables (count = {len(path_data['faults'])}):")
+        var_to_id = path_data_var_to_id(path_data)
+        print(f"\n0. Fault variables (count = {len(path_data['faults'])}); variable -> id mapping:")
+        for v in sorted(var_to_id.keys(), key=lambda s: s.decl().name()):
+            print(f"   {v.decl().name()} -> {var_to_id[v]}")
+        print(f"   (fault expressions: {len(path_data['faults'])} items)")
         for f_idx, f in enumerate(path_data["faults"]):
             print(f"   f[{f_idx}]: {f}")
         
-        # Print last round data qubits
+        # Print last round data qubits (both boolformula_t and z3), using path var_to_id
         print(f"\n1. Last Round Data Qubits ({len(path_data['last_data'])} qubits):")
         for idx, dq in enumerate(path_data['last_data']):
-            print(f"   Data[{idx}]: X={dq.x}, Z={dq.z}")
+            print(f"   Data[{idx}] X (boolformula_t):", formula_to_boolformula_str(dq.x, var_to_id))
+            print(f"   Data[{idx}] X (z3):", dq.x)
+            print(f"   Data[{idx}] Z (boolformula_t):", formula_to_boolformula_str(dq.z, var_to_id))
+            print(f"   Data[{idx}] Z (z3):", dq.z)
         
-        # Print ancilla and flag formulas for each round
+        # Print ancilla and flag formulas for each round (boolformula_t-style)
         print(f"\n2. Ancilla & Flag Formulas per Round ({len(path_data['anc_flag_per_round'])} rounds):")
         for round_data in path_data['anc_flag_per_round']:
             print(f"   Round {round_data['round']}:")
@@ -456,13 +533,15 @@ def proof_protocol_boolean(protocol,
             ancX_formulas = round_data['ancX_formulas']
             print(f"     ancX (Z-basis): {len(ancX_formulas)} measurements")
             for idx, formula in enumerate(ancX_formulas):
-                print(f"       ancX[{idx}]: {formula}")
+                print(f"       ancX[{idx}] (boolformula_t):", formula_to_boolformula_str(formula, var_to_id))
+                print(f"       ancX[{idx}] (z3):", formula)
             
             # Print ancZ formulas (X-basis syndrome measurements)
             ancZ_formulas = round_data['ancZ_formulas']
             print(f"     ancZ (X-basis): {len(ancZ_formulas)} measurements")
             for idx, formula in enumerate(ancZ_formulas):
-                print(f"       ancZ[{idx}]: {formula}")
+                print(f"       ancZ[{idx}] (boolformula_t):", formula_to_boolformula_str(formula, var_to_id))
+                print(f"       ancZ[{idx}] (z3):", formula)
             
             # Print flagX formulas (Z-basis flag measurements)
             flagX_formulas = round_data['flagX_formulas']
@@ -471,9 +550,11 @@ def proof_protocol_boolean(protocol,
                 if isinstance(formula, list):
                     print(f"       flagX[{idx}] (group of {len(formula)}):")
                     for sub_idx, sub_formula in enumerate(formula):
-                        print(f"         [{sub_idx}]: {sub_formula}")
+                        print(f"         [{sub_idx}] (boolformula_t):", formula_to_boolformula_str(sub_formula, var_to_id))
+                        print(f"         [{sub_idx}] (z3):", sub_formula)
                 else:
-                    print(f"       flagX[{idx}]: {formula}")
+                    print(f"       flagX[{idx}] (boolformula_t):", formula_to_boolformula_str(formula, var_to_id))
+                    print(f"       flagX[{idx}] (z3):", formula)
             
             # Print flagZ formulas (X-basis flag measurements)
             flagZ_formulas = round_data['flagZ_formulas']
@@ -482,14 +563,21 @@ def proof_protocol_boolean(protocol,
                 if isinstance(formula, list):
                     print(f"       flagZ[{idx}] (group of {len(formula)}):")
                     for sub_idx, sub_formula in enumerate(formula):
-                        print(f"         [{sub_idx}]: {sub_formula}")
+                        print(f"         [{sub_idx}] (boolformula_t):", formula_to_boolformula_str(sub_formula, var_to_id))
+                        print(f"         [{sub_idx}] (z3):", sub_formula)
                 else:
-                    print(f"       flagZ[{idx}]: {formula}")
+                    print(f"       flagZ[{idx}] (boolformula_t):", formula_to_boolformula_str(formula, var_to_id))
+                    print(f"       flagZ[{idx}] (z3):", formula)
         
-        # Print path conditions
+        # Print path conditions (both formats), using path var_to_id
         print(f"\n3. Path Conditions ({len(path_data['conditions'])} conditions):")
         for cond_idx, cond in enumerate(path_data['conditions']):
-            print(f"   Condition {cond_idx}: {cond}")
+            print(f"   Condition {cond_idx} (boolformula_t):", formula_to_boolformula_str(cond, var_to_id))
+            print(f"   Condition {cond_idx} (z3):", cond)
+        
+        # Export BLIF files per path (if blif_output_dir is set)
+        if cnf_output_dir:
+            _export_path_blif(path_data, i + 1, var_to_id, Path(cnf_output_dir))
     
     print("\n" + "="*80)
     
