@@ -586,7 +586,7 @@ def build_flag_protocol_chris_d_3():
     # Add nodes and branches as per the flag protocol structure
     # This is a placeholder for the actual implementation
 
-    protocol.save_to_file("/Users/wuboris/Desktop/flag verification/protocols/chris_d_3_flag_protocol.json")
+    protocol.save_to_file("protocols/chris_d_3_flag_protocol.json")
     return protocol
 
 def build_origin_5_1_3_protocol() -> Protocol:
