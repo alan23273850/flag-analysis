@@ -5,3 +5,7 @@ __pycache__/
 
 *.ipynb
 !boolean_learning.ipynb
+abc/
+
+# Generated outputs
+output_\[\[5,1,3\]\]_origin/

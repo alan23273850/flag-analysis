@@ -440,35 +440,65 @@ def proof_protocol_boolean(protocol,
         """Write per-path BLIF files: path_N/Xi.blif, Zi.blif, round_M/ancX.blif, ancZ.blif, conditionK.blif."""
         path_dir = base_dir / f"path_{path_index}"
         path_dir.mkdir(parents=True, exist_ok=True)
-        def write_blif(path, phi):
+        # Write var_names.txt: one line per id (1..max_id), original Z3 variable name for v1, v2, ...
+        try:
+            id_to_name = {i: v.decl().name() for v, i in var_to_id.items()}
+            max_id = max(var_to_id.values()) if var_to_id else 0
+            with open(path_dir / "var_names.txt", "w", encoding="utf-8") as f:
+                for i in range(1, max_id + 1):
+                    f.write(id_to_name.get(i, f"v{i}") + "\n")
+        except OSError:
+            pass
+        def write_blif_smt2(base_path: Path, phi):
+            """Write both .blif and .smt2 for the same formula (no option, always both)."""
             try:
                 from dimacs_bridge import formula_to_blif_string
-                path.write_text(formula_to_blif_string(phi, var_to_id), encoding="utf-8")
+                base_path.with_suffix(".blif").write_text(formula_to_blif_string(phi, var_to_id), encoding="utf-8")
             except Exception as e:
-                path.write_text(f"# Failed to convert to BLIF: {e}\n", encoding="utf-8")
+                base_path.with_suffix(".blif").write_text(f"# Failed to convert to BLIF: {e}\n", encoding="utf-8")
+            try:
+                flat = simplify(phi)
+                s = Solver()
+                s.add(flat)
+                base_path.with_suffix(".smt2").write_text(s.to_smt2(), encoding="utf-8")
+            except Exception:
+                pass
 
         try:
             for idx, dq in enumerate(path_data["last_data"]):
-                write_blif(path_dir / f"dataX{idx}.blif", dq.x)
-                write_blif(path_dir / f"dataZ{idx}.blif", dq.z)
+                write_blif_smt2(path_dir / f"dataX{idx}", dq.x)
+                write_blif_smt2(path_dir / f"dataZ{idx}", dq.z)
             for round_data in path_data["anc_flag_per_round"]:
                 round_dir = path_dir / f"round_{round_data['round']}"
                 round_dir.mkdir(parents=True, exist_ok=True)
-                
                 for idx, phi in enumerate(round_data["ancX_formulas"]):
-                    write_blif(round_dir / f"ancX{idx}.blif", phi)
+                    write_blif_smt2(round_dir / f"ancX{idx}", phi)
                 for idx, phi in enumerate(round_data["ancZ_formulas"]):
-                    write_blif(round_dir / f"ancZ{idx}.blif", phi)
-                    
+                    write_blif_smt2(round_dir / f"ancZ{idx}", phi)
                 for idx, item in enumerate(round_data["flagX_formulas"]):
                     phi = And(*item) if isinstance(item, list) else item
-                    write_blif(round_dir / f"flagX{idx}.blif", phi)
+                    write_blif_smt2(round_dir / f"flagX{idx}", phi)
                 for idx, item in enumerate(round_data["flagZ_formulas"]):
                     phi = And(*item) if isinstance(item, list) else item
-                    write_blif(round_dir / f"flagZ{idx}.blif", phi)
-                    
+                    write_blif_smt2(round_dir / f"flagZ{idx}", phi)
             for cond_idx, cond in enumerate(path_data["conditions"]):
-                write_blif(path_dir / f"condition{cond_idx}.blif", cond)
+                write_blif_smt2(path_dir / f"condition{cond_idx + 1}", cond)
+            # Merged: condition.blif, condition.smt2 = And(all) + fault constraint
+            full_cond = None
+            if path_data["conditions"]:
+                full_cond = And(*path_data["conditions"]) if len(path_data["conditions"]) > 1 else path_data["conditions"][0]
+                faults = path_data.get("faults", [])
+                if faults:
+                    at_least_one = Or(*faults)
+                    at_most_one = And(
+                        *[
+                            Not(And(faults[i], faults[j]))
+                            for i in range(len(faults))
+                            for j in range(i + 1, len(faults))
+                        ]
+                    )
+                    full_cond = And(full_cond, And(at_least_one, at_most_one))
+                write_blif_smt2(path_dir / "condition", full_cond)
         except OSError as e:
             print(f"   [Warning] Could not write BLIF output for path {path_index}: {e}")
     

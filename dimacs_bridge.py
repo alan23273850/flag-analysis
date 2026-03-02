@@ -653,7 +653,9 @@ def model_to_z3_true_vars(model_lits, var_map):
 def formula_to_blif_string(phi: "BoolRef", var_to_id: Dict["BoolRef", int]) -> str:
     """
     Convert a single Z3 Bool formula to a BLIF format string.
-    This avoids the exponential blowup of pure CNF because we can define intermediate gates.
+    Semantics: .inputs v1 v2 ... vN with v_i = variable with var_to_id id i (sorted by id).
+    Same assignment to v1..vN must give the same result as evaluating phi in Z3.
+    Uses AND/OR/XOR and .names "0 1" for NOT (input 0 -> output 1).
     """
     from boolformula import z3_to_boolformula, Literal, And, Or, Xor
     from dimacs_bridge import simplify_boolformula
