@@ -48,8 +48,10 @@ try:
         is_false,
     )
     _Z3_AVAILABLE = True
-except ImportError:
+    _Z3_IMPORT_ERROR = ""
+except (ImportError, ModuleNotFoundError) as e:
     _Z3_AVAILABLE = False
+    _Z3_IMPORT_ERROR = str(e)
 
 # --- Config from argv ---
 _PROJECT_ROOT = Path(__file__).resolve().parent
@@ -729,6 +731,10 @@ if __name__ == "__main__":
         def flush(self):
             self.stream.flush()
             self.buf.flush()
+
+    if not _Z3_AVAILABLE:
+        print(f"Error: z3-solver is required but not installed.\n  {_Z3_IMPORT_ERROR or 'No module named \"z3\"'}\n  Install with: pip install z3-solver", file=sys.stderr)
+        sys.exit(1)
 
     orig_stdout = sys.stdout
     sys.stdout = TeeWriter(orig_stdout, buf)
