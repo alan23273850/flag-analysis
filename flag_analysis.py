@@ -795,7 +795,7 @@ def symbolic_execution_of_state(qasm_path: str,
     for i, (instr, qargs, _) in enumerate(qc.data):
         name = instr.name
         qidxs = [_qiskit_qubit_index(qc, q) for q in qargs]
-        print("index:", i, "name:", name, "qidxs:", qidxs)
+        # print("index:", i, "name:", name, "qidxs:", qidxs)
        # print(f"Processing gate {i}: {name} on qubits {qidxs}")
         if name in ("h","s","sdg"):
             apply_qasm_gate_into_state(state, name, qidxs)

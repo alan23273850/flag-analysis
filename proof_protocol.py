@@ -243,7 +243,7 @@ def proof_protocol_boolean(protocol,
         # Execute instruction (if exists)
         # -------------------------------
         instr = node.instructions[0] if node.instructions else None
-        print("Current node:", node_id, "Instruction:", instr)
+        # print("Current node:", node_id, "Instruction:", instr)
         state_after = cur_state
         site_info = []
         groups =  cur_groups
@@ -258,7 +258,7 @@ def proof_protocol_boolean(protocol,
             gate_list = get_gate_only_indices(qc)
             groups = detect_qubit_groups(qc)   # new groups for this circuit
 
-            print("round:", round_idx, "node:", node_id, "instr:", instr)
+            # print("round:", round_idx, "node:", node_id, "instr:", instr)
 
             
             state_after, site_info = symbolic_execution_of_state(
@@ -281,7 +281,7 @@ def proof_protocol_boolean(protocol,
             state_dict = state_to_raw_expr_dict(state_after, groups)
 
         elif instr is None or instr == 'Break' or instr.startswith("LUT_"): 
-            print("in condition round:", round_idx, "node:", node_id, "instr:", instr)
+            # print("in condition round:", round_idx, "node:", node_id, "instr:", instr)
             # Break instruction with no anc/flag structure; keep only data as a list
             #print("state after:", state_after)
             state_dict = state_to_raw_expr_dict(state_after, groups)
@@ -379,17 +379,17 @@ def proof_protocol_boolean(protocol,
             if instr == 'Break':
                 return
             elif instr and instr.startswith("LUT_"):  # FIX: Added null check
-                print("LUT", instr)
+                # print("LUT", instr)
                 gen_syn = parse_lut_instr(instr)
-                print("gen_syn:", gen_syn)
+                # print("gen_syn:", gen_syn)
                 
-                print("len all paths:", len(all_paths))
+                # print("len all paths:", len(all_paths))
                 
                 # Print collected data for this path
-                print(f"Path {len(all_paths)} data collected:")
-                print(f"  - Last data qubits: {len(last_data)} qubits")
-                print(f"  - Rounds with anc/flag: {len(anc_flag_per_round)}")
-                print(f"  - Path conditions: {len(path_conditions)}")
+                # print(f"Path {len(all_paths)} data collected:")
+                # print(f"  - Last data qubits: {len(last_data)} qubits")
+                # print(f"  - Rounds with anc/flag: {len(anc_flag_per_round)}")
+                # print(f"  - Path conditions: {len(path_conditions)}")
                 
                 return 
             else:
