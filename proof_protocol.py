@@ -43,6 +43,56 @@ from typing import Dict, List
 
 from typing import Dict, List
 
+def to_human_readable(expr):
+    """將 Z3 布林方程式轉換為傳統數學邏輯符號，並智慧省略多餘括號"""
+    if is_const(expr):
+        return str(expr)
+        
+    kind = expr.decl().kind()
+    children = expr.children()
+    
+    # 內部輔助函數：由父節點判斷是否要幫子節點加括號
+    def format_child(child, parent_kind):
+        if is_const(child):
+            return to_human_readable(child)
+            
+        child_kind = child.decl().kind()
+        
+        # NOT 節點自己有處理邏輯，直接回傳
+        if child_kind == Z3_OP_NOT:
+            return to_human_readable(child)
+            
+        # 如果子節點的運算子跟父節點一樣 (例如 AND 裡面包 AND)，就不加括號
+        if child_kind == parent_kind and child_kind in (Z3_OP_AND, Z3_OP_OR, Z3_OP_XOR):
+            return to_human_readable(child)
+            
+        # 其他情況 (例如 OR 裡面包 AND)，才需要把子節點括起來
+        return f"({to_human_readable(child)})"
+
+    # --- 主要運算子處理 ---
+    if kind == Z3_OP_NOT:
+        child = children[0]
+        # NOT 的子節點如果是單一變數或另一個 NOT，不加括號
+        if is_const(child) or child.decl().kind() == Z3_OP_NOT:
+            return f"¬{to_human_readable(child)}"
+        else:
+            return f"¬({to_human_readable(child)})"
+            
+    elif kind == Z3_OP_AND:
+        return " ∧ ".join(format_child(c, kind) for c in children)
+        
+    elif kind == Z3_OP_OR:
+        return " ∨ ".join(format_child(c, kind) for c in children)
+        
+    elif kind == Z3_OP_XOR:
+        return " ⊕ ".join(format_child(c, kind) for c in children)
+        
+    elif kind == Z3_OP_EQ:
+        return f"{format_child(children[0], kind)} ↔ {format_child(children[1], kind)}"
+        
+    else:
+        return str(expr)
+
 def proof_protocol(protocol,
                   start_node: str,
                   init_state,
@@ -437,6 +487,7 @@ def proof_protocol_boolean(protocol,
     print(f"COLLECTED DATA FROM {len(all_path_data)} PATHS")
     print("="*80)
     for i, path_data in enumerate(all_path_data):
+        if i == 0: continue # 1 <= i <= 4
         print(f"\n--- PATH {i+1} ---")
         print(f"\n0. Fault variables (count = {len(path_data['faults'])}):")
         for f_idx, f in enumerate(path_data["faults"]):
@@ -490,6 +541,290 @@ def proof_protocol_boolean(protocol,
         print(f"\n3. Path Conditions ({len(path_data['conditions'])} conditions):")
         for cond_idx, cond in enumerate(path_data['conditions']):
             print(f"   Condition {cond_idx}: {cond}")
+
+        # We want to learn the decoder in this section.
+        print(f"\n4. Decoder Boolean formulas (from truth table, DNF):")
+        solver = Solver()
+        #############################
+
+        # Build fresh Boolean variables for every fault in
+        # path_data['faults'], and constrain them equal to
+        # the original formulas.
+        fault_bools = []
+        for fault_idx, fault in enumerate(path_data["faults"]):
+            fresh = Bool(f"fault_{fault_idx}")
+            solver.add(fresh == fault)
+            fault_bools.append(fresh)
+
+        # Require that **exactly one** fault occurs (i.e. among all
+        # fault_bools, there is one and only one that is True).
+        # If there are no faults, we leave the solver unconstrained here.
+        if len(fault_bools) == 1:
+            solver.add(fault_bools[0])
+        elif len(fault_bools) > 1:
+            # Sum of fault_bools treated as 0/1 must equal 1.
+            solver.add(PbEq([(b, 1) for b in fault_bools], 1))
+
+        # For each condition in path_data["conditions"], create a fresh
+        # Boolean variable condition_i and equate it to that condition.
+        condition_bools = []
+        for cond_idx, cond in enumerate(path_data["conditions"]):
+            c = Bool(f"condition_{cond_idx}")
+            solver.add(c == cond)
+            condition_bools.append(c)
+
+        # conditionAll is true iff all condition_i are true.
+        conditionAll = Bool("conditionAll")
+        if condition_bools:
+            if len(condition_bools) == 1:
+                solver.add(conditionAll == condition_bools[0])
+            else:
+                solver.add(conditionAll == And(*condition_bools))
+            solver.add(conditionAll)
+
+        # For each final data qubit in path_data["last_data"], create
+        # fresh variables data{i}_x and data{i}_z for its X/Z formulas.
+        # Then create corresponding decoder variables dec{i}_x, dec{i}_z,
+        # and fixed variables fixed{i}_x, fixed{i}_z such that
+        # fixed{i}_x == Xor(data{i}_x, dec{i}_x) and similarly for Z.
+        n_data = len(path_data["last_data"])
+        decoder_vars = []
+        for data_idx, dq in enumerate(path_data["last_data"]):
+            dx = Bool(f"data{data_idx}_x")
+            dz = Bool(f"data{data_idx}_z")
+            solver.add(dx == dq.x)
+            solver.add(dz == dq.z)
+
+            decx = Bool(f"dec{data_idx}_x")
+            decz = Bool(f"dec{data_idx}_z")
+            decoder_vars.extend([decx, decz])
+
+            fixedx = Bool(f"fixed{data_idx}_x")
+            fixedz = Bool(f"fixed{data_idx}_z")
+
+            solver.add(fixedx == Xor(dx, decx))
+            solver.add(fixedz == Xor(dz, decz))
+
+        # Read logical operators and stabilizers from config paths.
+        # Each line has two bitstrings xs, zs. For each pair, enforce
+        # that its length matches the number of data qubits, and build
+        # a commute_i variable that is the XOR over j of
+        #   (fixed_j_x & zs[j]) XOR (fixed_j_z & xs[j]).
+        bit_pairs: list[tuple[str, str]] = []
+        for txt_key in ["log_txt_path", "stab_txt_path"]:
+            txt_path = str(config[txt_key])
+            with open(txt_path, "r") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    xs, zs = line.split()
+                    if len(xs) != n_data or len(zs) != n_data:
+                        raise ValueError(
+                            f"Length mismatch in {txt_key}: "
+                            f"len(xs)={len(xs)}, len(zs)={len(zs)}, expected {n_data}"
+                        )
+                    bit_pairs.append((xs, zs))
+
+        commute_bools = []
+        for row_idx, (xs, zs) in enumerate(bit_pairs):
+            terms = []
+            for j in range(n_data):
+                fx = Bool(f"fixed{j}_x")
+                fz = Bool(f"fixed{j}_z")
+
+                # Build (fixed_j_x & zs[j]) XOR (fixed_j_z & xs[j])
+                per_terms = []
+                if zs[j] == "1":
+                    per_terms.append(fx)
+                if xs[j] == "1":
+                    per_terms.append(fz)
+
+                if len(per_terms) == 1:
+                    terms.append(per_terms[0])
+                elif len(per_terms) == 2:
+                    terms.append(Xor(per_terms[0], per_terms[1]))
+                # if both bits are '0', this contributes nothing
+
+            if not terms:
+                row_parity = BoolVal(False)
+            elif len(terms) == 1:
+                row_parity = terms[0]
+            else:
+                acc = terms[0]
+                for t in terms[1:]:
+                    acc = Xor(acc, t)
+                row_parity = acc
+
+            commute = Bool(f"commute_{row_idx}")
+            solver.add(commute == Not(row_parity))
+            commute_bools.append(commute)
+
+        # Fresh variable that is the AND of all commute_i.
+        if commute_bools:
+            all_commute = Bool("all_commute")
+            if len(commute_bools) == 1:
+                solver.add(all_commute == commute_bools[0])
+            else:
+                solver.add(all_commute == And(*commute_bools))
+        # We will assert that all commute constraints hold later.
+
+        # Build fresh Boolean variables for every ancilla/flag formula
+        # in path_data['anc_flag_per_round'], and constrain them equal
+        # to the original formulas. Collect these measurement variables
+        # (r_...) as decoder inputs.
+        meas_vars = []
+        for round_data in sorted(path_data["anc_flag_per_round"], key=lambda x: x['round']):
+            for key in ["ancX_formulas", "ancZ_formulas", "flagX_formulas", "flagZ_formulas"]:
+                formulas = round_data.get(key, [])
+                key = key[:-len('_formulas')]
+                idx = 0
+                for f in formulas:
+                    # Handle nested groups (lists of formulas) as in flagX/flagZ
+                    if isinstance(f, list):
+                        idx2 = 0
+                        for sub_f in f:
+                            v = Bool(f"r_{round_data['round']}_{key}{idx}_{idx2}")
+                            solver.add(v == sub_f)
+                            meas_vars.append(v)
+                            idx2 += 1
+                    else:
+                        v = Bool(f"r_{round_data['round']}_{key}{idx}")
+                        solver.add(v == f)
+                        meas_vars.append(v)
+                    idx += 1
+
+        # Decoder Learning:
+        #   Build a truth table mapping the measurement variables
+        #   (meas_vars) to each decoder variable decoder{i}_x / decoder{i}_z.
+        #   Loop:
+        #     1. Call solver.check().
+        #     2. If SAT, read the model, project it to (meas_vars, decoder_vars)
+        #        and add a new row to the truth table.
+        #        Then add a blocking clause on meas_vars so that the next
+        #        model must use a different measurement pattern.
+        #     3. If UNSAT, stop; at this point the accumulated truth table
+        #        implicitly defines Boolean formulas for each decoder.
+        #   We organize it as:
+        #       decoder_tables: Dict[row_key: Tuple[bool,...],
+        #                            Dict[decoder_var, bool]]
+        decoder_tables: dict[tuple[bool, ...], dict] = {}
+
+        # At this point, solver is UNSAT under additional blocking clauses
+        # on meas_vars, and decoder_tables holds the learned truth tables.
+        # Synthesize an explicit Boolean formula for each decoder variable
+        # from the truth table (DNF: one term per row where output is True).
+        def truth_table_to_formula(dec_var, meas_vars, decoder_tables):
+            # DNF: OR over all rows where dec_var is True.
+            # For each such row_key, term = AND over j: (meas_vars[j] if row_key[j] else Not(meas_vars[j])).
+            terms = []
+            for row_key, row_entry in decoder_tables.items():
+                if row_entry[dec_var] is not True:
+                    continue
+                literals = []
+                for j, v in enumerate(meas_vars):
+                    if row_key[j]:
+                        literals.append(v)
+                    else:
+                        literals.append(Not(v))
+                terms.append(And(*literals) if literals else BoolVal(True))
+            if not terms:
+                return BoolVal(False)
+            if len(terms) == 1:
+                return terms[0]
+            return Or(*terms)
+
+        num_of_block_clauses = 0
+        while True:
+            # Construct decoder formulas from the table.
+            solver.push() ##########################################################
+            solver.add(Not(all_commute))
+            # print(decoder_tables)
+            # print('Table Size:', len(decoder_tables))
+            # print("---- start decoder formulas ----")
+            for dec_var in decoder_vars:
+                formula = truth_table_to_formula(dec_var, meas_vars, decoder_tables)
+                formula_flat = simplify(formula)
+                set_option(max_width=10000)
+                # print(f"  {dec_var}: {formula_flat}")
+                solver.add(dec_var == formula_flat)
+            # print("----- end decoder formulas -----\n")
+            ############################################
+
+            # print(solver.to_smt2())
+            res = solver.check()
+            if res == unsat:
+                solver.pop() ##########################################################
+                break
+            if res != sat:
+                print('The solver cannot solve the following smt2.')
+                print(solver.to_smt2())
+                quit()
+
+            model = solver.model()
+            solver.pop() ##########################################################
+            # Current measurement pattern (row key)
+            row_key = tuple(bool(model.eval(v)) for v in meas_vars)
+
+            # Fill table row: map each decoder output under this measurement
+            # pattern. One row_key maps to a dict {decoder_var -> bool}.
+            if row_key in decoder_tables:
+                print("The row_key should not exist in decoder_tables.")
+                quit()
+
+            # Now we want to find a feasible decoder under this row_key.
+            solver.push() ##########################################################
+            solver.add(all_commute)
+            for i, meaV in enumerate(meas_vars):
+                solver.add(meaV == BoolVal(row_key[i]))
+            res = solver.check()                
+            if res != sat:
+                print('So strange!')
+                quit()
+            model = solver.model()
+            solver.pop() ##########################################################
+
+            # Fill the decoder truth table for this row_key using the decoder
+            # assignments in the model. If any value is not decided by the model,
+            # bool(model.eval(...)) will raise, which is what we want for debugging.
+            decoder_tables[row_key] = {
+                decV: bool(model.eval(decV))
+                for decV in decoder_vars
+            }
+
+            # Block this specific measurement pattern so that the next model
+            # (if any) will have a different row_key.
+            block_clause = Or(*[                
+                v != BoolVal(row_key[i]) for i, v in enumerate(meas_vars)
+            ])
+            block_bits = "".join("1" if b else "0" for b in row_key)
+            block_var = Bool(f"block_{block_bits}")
+            solver.push()
+            solver.add(block_var == block_clause)
+            solver.add(block_var)
+            num_of_block_clauses += 1
+
+        # At this point, solver is UNSAT under additional blocking clauses
+        # on meas_vars, and decoder_tables holds the learned truth tables.
+        # We verify the learned decoders again.
+        solver.pop(num_of_block_clauses) # IMPORTANT: disable all blocking clauses.
+        solver.add(Not(all_commute))
+        for dec_var in decoder_vars:
+            formula = truth_table_to_formula(dec_var, meas_vars, decoder_tables)
+            formula_flat = simplify(formula)
+            # set_option(max_width=10000)
+            print(f"  {dec_var} = {to_human_readable(formula_flat)}")
+            solver.add(dec_var == formula_flat)
+        print('Table Size:', len(decoder_tables))
+        
+        print(f"\n5. Verified SMT formula:")
+        print(solver.to_smt2())
+        res = solver.check()
+        if res == unsat:
+            print('Verified!')
+        else:
+            print('Unverified!')
+            quit()
     
     print("\n" + "="*80)
     
