@@ -694,24 +694,81 @@ def proof_protocol_boolean(protocol,
                         meas_vars.append(v)
                     idx += 1
 
-        # Decoder Learning:
-        #   Build a truth table mapping the measurement variables
-        #   (meas_vars) to each decoder variable decoder{i}_x / decoder{i}_z.
-        #   Loop:
-        #     1. Call solver.check().
-        #     2. If SAT, read the model, project it to (meas_vars, decoder_vars)
-        #        and add a new row to the truth table.
-        #        Then add a blocking clause on meas_vars so that the next
-        #        model must use a different measurement pattern.
-        #     3. If UNSAT, stop; at this point the accumulated truth table
-        #        implicitly defines Boolean formulas for each decoder.
-        #   We organize it as:
-        #       decoder_tables: Dict[row_key: Tuple[bool,...],
-        #                            Dict[decoder_var, bool]]
-        decoder_tables: dict[tuple[bool, ...], dict] = {}
+        # Decoder Learning in C: pass SMT2 + variable name lists to C routine
+        #   decoder_learning_in_C. Set _use_c_decoder_learning to True when
+        #   libdecoder_learning.so is built and available.
+        _use_c_decoder_learning = True
+        if _use_c_decoder_learning:
+            learned_formulas_dict = {}
 
-        # At this point, solver is UNSAT under additional blocking clauses
-        # on meas_vars, and decoder_tables holds the learned truth tables.
+            import json
+            import ctypes
+            try:
+                here = os.path.dirname(os.path.abspath(__file__))
+                so_path = os.path.join(here, "bull", "trunk", "Src", "c_examples", "libdecoder_learning.so")
+                lib = ctypes.CDLL(so_path)
+                
+                # 1. 準備純字串 List
+                smt2_str = solver.to_smt2()
+                meas_var_names = [str(v) for v in meas_vars]
+                decoder_var_names = [str(v) for v in decoder_vars]
+                all_commute_name = "all_commute"
+
+                # 2. 將字串轉為 bytes 列表
+                meas_bytes = [name.encode("utf-8") for name in meas_var_names]
+                dec_bytes = [name.encode("utf-8") for name in decoder_var_names]
+
+                # 3. 建立 ctypes 的字串陣列 (char**)
+                MeasArrayType = ctypes.c_char_p * len(meas_bytes)
+                meas_c_array = MeasArrayType(*meas_bytes)
+
+                DecArrayType = ctypes.c_char_p * len(dec_bytes)
+                dec_c_array = DecArrayType(*dec_bytes)
+
+                # 4. 設定 C 函數的參數型態 (注意：多了長度參數)
+                lib.decoder_learning_in_C.argtypes = [
+                    ctypes.c_char_p,                 # smt2_str
+                    ctypes.POINTER(ctypes.c_char_p), # meas_names (char**)
+                    ctypes.c_int,                    # num_meas (陣列長度)
+                    ctypes.POINTER(ctypes.c_char_p), # decoder_names (char**)
+                    ctypes.c_int,                    # num_decoders (陣列長度)
+                    ctypes.c_char_p                  # all_commute_name
+                ]
+                lib.decoder_learning_in_C.restype = ctypes.c_void_p
+
+                # 5. 呼叫 C 函數，直接傳入陣列與長度
+                ptr = lib.decoder_learning_in_C(
+                    smt2_str.encode("utf-8"),
+                    meas_c_array,
+                    len(meas_bytes),
+                    dec_c_array,
+                    len(dec_bytes),
+                    all_commute_name.encode("utf-8")
+                )
+                
+                try:
+                    # 4. 將 void 指標轉型為 char 指標，並讀取 C 語言產生的字串
+                    result_str = ctypes.cast(ptr, ctypes.c_char_p).value.decode("utf-8")
+                    
+                    # 5. 直接在 Python 記憶體中解析 JSON
+                    c_formulas_json = json.loads(result_str)
+                    
+                    # 建立翻譯字典：{ 'r_0_ancX0': r_0_ancX0的底層宣告, ... }
+                    meas_decls = {v.decl().name(): v.decl() for v in meas_vars}
+                    # 將 SMT2 字串解析回 Z3 AST (接續你原本的邏輯)
+                    for dec_name, smt2_expr in c_formulas_json.items():
+                        parsed_ast_vector = parse_smt2_string(f"(assert {smt2_expr})", decls=meas_decls)
+                        learned_formulas_dict[dec_name] = parsed_ast_vector[0]
+                        
+                finally:
+                    # 6. 【極度重要】不論 Python 解析 JSON 是否出錯，都必須呼叫 C 釋放記憶體
+                    if ptr:
+                        lib.free_c_string(ptr)
+                        
+            except Exception as e:
+                _use_c_decoder_learning = False
+                print("decoder_learning_in_C failed, falling back to Python:", e)
+
         # Synthesize an explicit Boolean formula for each decoder variable
         # from the truth table (DNF: one term per row where output is True).
         def truth_table_to_formula(dec_var, meas_vars, decoder_tables):
@@ -734,88 +791,109 @@ def proof_protocol_boolean(protocol,
                 return terms[0]
             return Or(*terms)
 
-        num_of_block_clauses = 0
-        while True:
-            # Construct decoder formulas from the table.
-            solver.push() ##########################################################
-            solver.add(Not(all_commute))
-            # print(decoder_tables)
-            # print('Table Size:', len(decoder_tables))
-            # print("---- start decoder formulas ----")
-            for dec_var in decoder_vars:
-                formula = truth_table_to_formula(dec_var, meas_vars, decoder_tables)
-                formula_flat = simplify(formula)
-                set_option(max_width=10000)
-                # print(f"  {dec_var}: {formula_flat}")
-                solver.add(dec_var == formula_flat)
-            # print("----- end decoder formulas -----\n")
-            ############################################
+        # Decoder Learning in Python:
+        #   Build a truth table mapping the measurement variables
+        #   (meas_vars) to each decoder variable decoder{i}_x / decoder{i}_z.
+        #   Loop:
+        #     1. Call solver.check().
+        #     2. If SAT, read the model, project it to (meas_vars, decoder_vars)
+        #        and add a new row to the truth table.
+        #        Then add a blocking clause on meas_vars so that the next
+        #        model must use a different measurement pattern.
+        #     3. If UNSAT, stop; at this point the accumulated truth table
+        #        implicitly defines Boolean formulas for each decoder.
+        #   We organize it as:
+        #       decoder_tables: Dict[row_key: Tuple[bool,...],
+        #                            Dict[decoder_var, bool]]
+        if not _use_c_decoder_learning:
+            decoder_tables: dict[tuple[bool, ...], dict] = {}
+            num_of_block_clauses = 0
+            while True:
+                # Construct decoder formulas from the table.
+                solver.push() ##########################################################
+                solver.add(Not(all_commute))
+                # print(decoder_tables)
+                # print('Table Size:', len(decoder_tables))
+                # print("---- start decoder formulas ----")
+                for dec_var in decoder_vars:
+                    formula = truth_table_to_formula(dec_var, meas_vars, decoder_tables)
+                    formula_flat = simplify(formula)
+                    set_option(max_width=10000)
+                    # print(f"  {dec_var}: {formula_flat}")
+                    solver.add(dec_var == formula_flat)
+                # print("----- end decoder formulas -----\n")
+                ############################################
 
-            # print(solver.to_smt2())
-            res = solver.check()
-            if res == unsat:
+                # print(solver.to_smt2())
+                res = solver.check()
+                if res == unsat:
+                    solver.pop() ##########################################################
+                    break
+                if res != sat:
+                    print('The solver cannot solve the following smt2.')
+                    print(solver.to_smt2())
+                    quit()
+
+                model = solver.model()
                 solver.pop() ##########################################################
-                break
-            if res != sat:
-                print('The solver cannot solve the following smt2.')
-                print(solver.to_smt2())
-                quit()
+                # Current measurement pattern (row key)
+                row_key = tuple(bool(model.eval(v)) for v in meas_vars)
 
-            model = solver.model()
-            solver.pop() ##########################################################
-            # Current measurement pattern (row key)
-            row_key = tuple(bool(model.eval(v)) for v in meas_vars)
+                # Fill table row: map each decoder output under this measurement
+                # pattern. One row_key maps to a dict {decoder_var -> bool}.
+                if row_key in decoder_tables:
+                    print("The row_key should not exist in decoder_tables.")
+                    quit()
 
-            # Fill table row: map each decoder output under this measurement
-            # pattern. One row_key maps to a dict {decoder_var -> bool}.
-            if row_key in decoder_tables:
-                print("The row_key should not exist in decoder_tables.")
-                quit()
+                # Now we want to find a feasible decoder under this row_key.
+                solver.push() ##########################################################
+                solver.add(all_commute)
+                for i, meaV in enumerate(meas_vars):
+                    solver.add(meaV == BoolVal(row_key[i]))
+                res = solver.check()                
+                if res != sat:
+                    print('So strange!')
+                    quit()
+                model = solver.model()
+                solver.pop() ##########################################################
 
-            # Now we want to find a feasible decoder under this row_key.
-            solver.push() ##########################################################
-            solver.add(all_commute)
-            for i, meaV in enumerate(meas_vars):
-                solver.add(meaV == BoolVal(row_key[i]))
-            res = solver.check()                
-            if res != sat:
-                print('So strange!')
-                quit()
-            model = solver.model()
-            solver.pop() ##########################################################
+                # Fill the decoder truth table for this row_key using the decoder
+                # assignments in the model. If any value is not decided by the model,
+                # bool(model.eval(...)) will raise, which is what we want for debugging.
+                decoder_tables[row_key] = {
+                    decV: bool(model.eval(decV))
+                    for decV in decoder_vars
+                }
 
-            # Fill the decoder truth table for this row_key using the decoder
-            # assignments in the model. If any value is not decided by the model,
-            # bool(model.eval(...)) will raise, which is what we want for debugging.
-            decoder_tables[row_key] = {
-                decV: bool(model.eval(decV))
-                for decV in decoder_vars
-            }
+                # Block this specific measurement pattern so that the next model
+                # (if any) will have a different row_key.
+                block_clause = Or(*[                
+                    v != BoolVal(row_key[i]) for i, v in enumerate(meas_vars)
+                ])
+                block_bits = "".join("1" if b else "0" for b in row_key)
+                block_var = Bool(f"block_{block_bits}")
+                solver.push()
+                solver.add(block_var == block_clause)
+                solver.add(block_var)
+                num_of_block_clauses += 1
 
-            # Block this specific measurement pattern so that the next model
-            # (if any) will have a different row_key.
-            block_clause = Or(*[                
-                v != BoolVal(row_key[i]) for i, v in enumerate(meas_vars)
-            ])
-            block_bits = "".join("1" if b else "0" for b in row_key)
-            block_var = Bool(f"block_{block_bits}")
-            solver.push()
-            solver.add(block_var == block_clause)
-            solver.add(block_var)
-            num_of_block_clauses += 1
-
+            # IMPORTANT: disable all blocking clauses (only if we used Python loop).
+            solver.pop(num_of_block_clauses)
         # At this point, solver is UNSAT under additional blocking clauses
         # on meas_vars, and decoder_tables holds the learned truth tables.
-        # We verify the learned decoders again.
-        solver.pop(num_of_block_clauses) # IMPORTANT: disable all blocking clauses.
+        # We verify the learned decoders without blocking clauses again.
         solver.add(Not(all_commute))
         for dec_var in decoder_vars:
-            formula = truth_table_to_formula(dec_var, meas_vars, decoder_tables)
+            if not _use_c_decoder_learning:
+                formula = truth_table_to_formula(dec_var, meas_vars, decoder_tables)    
+            else:
+                formula = learned_formulas_dict[str(dec_var)]
             formula_flat = simplify(formula)
             # set_option(max_width=10000)
             print(f"  {dec_var} = {to_human_readable(formula_flat)}")
             solver.add(dec_var == formula_flat)
-        print('Table Size:', len(decoder_tables))
+        if not _use_c_decoder_learning:
+            print('Table Size:', len(decoder_tables))
         
         print(f"\n5. Verified SMT formula:")
         print(solver.to_smt2())
