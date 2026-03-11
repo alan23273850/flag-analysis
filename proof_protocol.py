@@ -697,7 +697,7 @@ def proof_protocol_boolean(protocol,
         # Decoder Learning in C: pass SMT2 + variable name lists to C routine
         #   decoder_learning_in_C. Set _use_c_decoder_learning to True when
         #   libdecoder_learning.so is built and available.
-        _use_c_decoder_learning = False # True
+        _use_c_decoder_learning = True
         if _use_c_decoder_learning:
             learned_formulas_dict = {}
 
