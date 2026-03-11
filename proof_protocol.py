@@ -47,25 +47,25 @@ def to_human_readable(expr):
     """將 Z3 布林方程式轉換為傳統數學邏輯符號，並智慧省略多餘括號"""
     if is_const(expr):
         return str(expr)
-        
+
     kind = expr.decl().kind()
     children = expr.children()
-    
+
     # 內部輔助函數：由父節點判斷是否要幫子節點加括號
     def format_child(child, parent_kind):
         if is_const(child):
             return to_human_readable(child)
-            
+
         child_kind = child.decl().kind()
-        
+
         # NOT 節點自己有處理邏輯，直接回傳
         if child_kind == Z3_OP_NOT:
             return to_human_readable(child)
-            
+
         # 如果子節點的運算子跟父節點一樣 (例如 AND 裡面包 AND)，就不加括號
         if child_kind == parent_kind and child_kind in (Z3_OP_AND, Z3_OP_OR, Z3_OP_XOR):
             return to_human_readable(child)
-            
+
         # 其他情況 (例如 OR 裡面包 AND)，才需要把子節點括起來
         return f"({to_human_readable(child)})"
 
@@ -77,19 +77,19 @@ def to_human_readable(expr):
             return f"¬{to_human_readable(child)}"
         else:
             return f"¬({to_human_readable(child)})"
-            
+
     elif kind == Z3_OP_AND:
         return " ∧ ".join(format_child(c, kind) for c in children)
-        
+
     elif kind == Z3_OP_OR:
         return " ∨ ".join(format_child(c, kind) for c in children)
-        
+
     elif kind == Z3_OP_XOR:
         return " ⊕ ".join(format_child(c, kind) for c in children)
-        
+
     elif kind == Z3_OP_EQ:
         return f"{format_child(children[0], kind)} ↔ {format_child(children[1], kind)}"
-        
+
     else:
         return str(expr)
 
@@ -106,7 +106,7 @@ def proof_protocol(protocol,
             cur_state,          # CircuitXZ
             cur_groups,         # dict or None
             cur_path: List[Dict]):
-        
+
         #if len(all_paths) == 2 :  return  # stop exploring more branches
 
         node = protocol[node_id]
@@ -132,7 +132,7 @@ def proof_protocol(protocol,
 
             print("round:", round_idx, "node:", node_id, "instr:", instr)
 
-            
+
             state_after, site_info = symbolic_execution_of_state(
                 qasm_path,
                 cur_state,
@@ -143,7 +143,7 @@ def proof_protocol(protocol,
             '''
             for i, q in enumerate(state_after.qubits):
               #print(f"  q[{i}]: X = {q.x}, Z = {q.z}")
-            '''           
+            '''
 
         # -------------------------------
         # Build dict-view of state_after
@@ -152,25 +152,25 @@ def proof_protocol(protocol,
 
             state_dict = state_to_raw_expr_dict(state_after, groups)
 
-        elif instr is None or instr == 'Break' or instr.startswith("LUT_"): 
+        elif instr is None or instr == 'Break' or instr.startswith("LUT_"):
             print("in condition round:", round_idx, "node:", node_id, "instr:", instr)
             # Break instruction with no anc/flag structure; keep only data as a list
             #print("state after:", state_after)
             state_dict = state_to_raw_expr_dict(state_after, groups)
-       
 
-        
+
+
         else:
             # no anc/flag structure yet; keep only data as a list
             state_dict = state_to_raw_expr_dict(state_after, groups)
 
         if f'{instr}' + '_flag_group' in config:
-            import json 
+            import json
             with open(config[f'{instr}' + '_flag_group'], "r") as f:
                 flag_group= json.load(f)
 
-            state_dict['flagX'] = [[state_dict.copy()['flagX'][i] for i in g ] for g in flag_group['flagX']]  
-            state_dict['flagZ'] = [[state_dict.copy()['flagZ'][i] for i in g ] for g in flag_group['flagZ']]  
+            state_dict['flagX'] = [[state_dict.copy()['flagX'][i] for i in g ] for g in flag_group['flagX']]
+            state_dict['flagZ'] = [[state_dict.copy()['flagZ'][i] for i in g ] for g in flag_group['flagZ']]
 
         # -------------------------------
         # Leaf node (no branches)
@@ -186,9 +186,9 @@ def proof_protocol(protocol,
                 "site_info": site_info
             }
             full_path = cur_path + [step]
-            
+
             all_paths.append(full_path)
-           
+
             # Leaf behavior
             if instr == 'Break':
                 return
@@ -206,27 +206,27 @@ def proof_protocol(protocol,
                 E_x = [dq.x for dq in full_path[-1]["state"]["data"]]
                 E_z = [dq.z for dq in full_path[-1]["state"]["data"]]
 
-                
+
                 gens, syn_measured = last_ancilla_formulas(full_path, config)
                 pred_syn = stabilizer_syndrome_from_data(E_x, E_z, gens)
 
-                
+
 
                 # enforce: measured syndrome == commutation syndrome
                 syn_constraint = And(*[
                     s_m == s_p for s_m, s_p in zip(syn_measured, pred_syn)
                 ])
 
-                
+
 
                 all_condition = all_condition + [syn_constraint]
-              
-                
+
+
                 print("len all paths:", len(all_paths))
-                
+
                 proof_path(full_path, t, gen_syn, all_condition, config['stab_txt_path'], config['log_txt_path'])
-                
-                return 
+
+                return
             else:
                 # leaf with some other instruction, but nothing to prove
                 return
@@ -260,11 +260,11 @@ def proof_protocol(protocol,
                 cur_path + [step]
             )
 
-    
-    # initial call: no groups yet, clean data state
-    
 
-    
+    # initial call: no groups yet, clean data state
+
+
+
     dfs(0, start_node, init_state, None, [])
     return all_paths
 
@@ -284,7 +284,7 @@ def proof_protocol_boolean(protocol,
             cur_state,          # CircuitXZ
             cur_groups,         # dict or None
             cur_path: List[Dict]):
-        
+
         #if len(all_paths) == 2 :  return  # stop exploring more branches
 
         node = protocol[node_id]
@@ -310,7 +310,7 @@ def proof_protocol_boolean(protocol,
 
             # print("round:", round_idx, "node:", node_id, "instr:", instr)
 
-            
+
             state_after, site_info = symbolic_execution_of_state(
                 qasm_path,
                 cur_state,
@@ -321,7 +321,7 @@ def proof_protocol_boolean(protocol,
             '''
             for i, q in enumerate(state_after.qubits):
               #print(f"  q[{i}]: X = {q.x}, Z = {q.z}")
-            '''           
+            '''
 
         # -------------------------------
         # Build dict-view of state_after
@@ -330,23 +330,23 @@ def proof_protocol_boolean(protocol,
 
             state_dict = state_to_raw_expr_dict(state_after, groups)
 
-        elif instr is None or instr == 'Break' or instr.startswith("LUT_"): 
+        elif instr is None or instr == 'Break' or instr.startswith("LUT_"):
             # print("in condition round:", round_idx, "node:", node_id, "instr:", instr)
             # Break instruction with no anc/flag structure; keep only data as a list
             #print("state after:", state_after)
             state_dict = state_to_raw_expr_dict(state_after, groups)
-       
+
         else:
             # no anc/flag structure yet; keep only data as a list
             state_dict = state_to_raw_expr_dict(state_after, groups)
 
         if f'{instr}' + '_flag_group' in config:
-            import json 
+            import json
             with open(config[f'{instr}' + '_flag_group'], "r") as f:
                 flag_group= json.load(f)
 
-            state_dict['flagX'] = [[state_dict.copy()['flagX'][i] for i in g ] for g in flag_group['flagX']]  
-            state_dict['flagZ'] = [[state_dict.copy()['flagZ'][i] for i in g ] for g in flag_group['flagZ']]  
+            state_dict['flagX'] = [[state_dict.copy()['flagX'][i] for i in g ] for g in flag_group['flagX']]
+            state_dict['flagZ'] = [[state_dict.copy()['flagZ'][i] for i in g ] for g in flag_group['flagZ']]
 
         # -------------------------------
         # Leaf node (no branches)
@@ -362,13 +362,13 @@ def proof_protocol_boolean(protocol,
                 "site_info": site_info
             }
             full_path = cur_path + [step]
-            
+
             all_paths.append(full_path)
-            
+
             # Collect the three pieces of information for this path
             # 1. Last round data qubit formulas
             last_data = full_path[-1]["state"]["data"]
-            
+
             # 2. All ancilla and flag formulas in each round
             anc_flag_per_round = []
             for step_info in full_path:
@@ -377,13 +377,13 @@ def proof_protocol_boolean(protocol,
                 ancZ_list = step_info["state"].get("ancZ", [])
                 flagX_list = step_info["state"].get("flagX", [])
                 flagZ_list = step_info["state"].get("flagZ", [])
-                
+
                 # For ancX: measure in Z basis (use .z)
                 ancX_formulas = [q.z for q in ancX_list]
-                
+
                 # For ancZ: measure in X basis (use .x)
                 ancZ_formulas = [q.x for q in ancZ_list]
-                
+
                 # For flagX: measure in Z basis (use .z), handle nested lists
                 flagX_formulas = []
                 for item in flagX_list:
@@ -391,7 +391,7 @@ def proof_protocol_boolean(protocol,
                         flagX_formulas.append([q.z for q in item])
                     else:
                         flagX_formulas.append(item.z)
-                
+
                 # For flagZ: measure in X basis (use .x), handle nested lists
                 flagZ_formulas = []
                 for item in flagZ_list:
@@ -399,7 +399,7 @@ def proof_protocol_boolean(protocol,
                         flagZ_formulas.append([q.x for q in item])
                     else:
                         flagZ_formulas.append(item.x)
-                
+
                 round_anc_flag = {
                     "round": step_info["round"],
                     "ancX_formulas": ancX_formulas,  # Z-basis measurements
@@ -408,13 +408,13 @@ def proof_protocol_boolean(protocol,
                     "flagZ_formulas": flagZ_formulas   # X-basis measurements (may be nested)
                 }
                 anc_flag_per_round.append(round_anc_flag)
-            
+
             # 3. All conditions along the path
             path_conditions = [
                 s["condition"] for s in full_path
                 if s["condition"] is not None
             ]
-            
+
             # Store collected data
             faults = [info["act"] for step in full_path for info in step["site_info"]]
             path_data = {
@@ -424,7 +424,7 @@ def proof_protocol_boolean(protocol,
                 "faults": faults
             }
             all_path_data.append(path_data)
-           
+
             # Leaf behavior
             if instr == 'Break':
                 return
@@ -432,16 +432,16 @@ def proof_protocol_boolean(protocol,
                 # print("LUT", instr)
                 gen_syn = parse_lut_instr(instr)
                 # print("gen_syn:", gen_syn)
-                
+
                 # print("len all paths:", len(all_paths))
-                
+
                 # Print collected data for this path
                 # print(f"Path {len(all_paths)} data collected:")
                 # print(f"  - Last data qubits: {len(last_data)} qubits")
                 # print(f"  - Rounds with anc/flag: {len(anc_flag_per_round)}")
                 # print(f"  - Path conditions: {len(path_conditions)}")
-                
-                return 
+
+                return
             else:
                 # leaf with some other instruction, but nothing to prove
                 return
@@ -475,13 +475,13 @@ def proof_protocol_boolean(protocol,
                 cur_path + [step]
             )
 
-    
-    # initial call: no groups yet, clean data state
-    
 
-    
+    # initial call: no groups yet, clean data state
+
+
+
     dfs(0, start_node, init_state, None, [])
-    
+
     # Print all collected path data
     print("\n" + "="*80)
     print(f"COLLECTED DATA FROM {len(all_path_data)} PATHS")
@@ -492,29 +492,29 @@ def proof_protocol_boolean(protocol,
         print(f"\n0. Fault variables (count = {len(path_data['faults'])}):")
         for f_idx, f in enumerate(path_data["faults"]):
             print(f"   f[{f_idx}]: {f}")
-        
+
         # Print last round data qubits
         print(f"\n1. Last Round Data Qubits ({len(path_data['last_data'])} qubits):")
         for idx, dq in enumerate(path_data['last_data']):
             print(f"   Data[{idx}]: X={dq.x}, Z={dq.z}")
-        
+
         # Print ancilla and flag formulas for each round
         print(f"\n2. Ancilla & Flag Formulas per Round ({len(path_data['anc_flag_per_round'])} rounds):")
         for round_data in path_data['anc_flag_per_round']:
             print(f"   Round {round_data['round']}:")
-            
+
             # Print ancX formulas (Z-basis syndrome measurements)
             ancX_formulas = round_data['ancX_formulas']
             print(f"     ancX (Z-basis): {len(ancX_formulas)} measurements")
             for idx, formula in enumerate(ancX_formulas):
                 print(f"       ancX[{idx}]: {formula}")
-            
+
             # Print ancZ formulas (X-basis syndrome measurements)
             ancZ_formulas = round_data['ancZ_formulas']
             print(f"     ancZ (X-basis): {len(ancZ_formulas)} measurements")
             for idx, formula in enumerate(ancZ_formulas):
                 print(f"       ancZ[{idx}]: {formula}")
-            
+
             # Print flagX formulas (Z-basis flag measurements)
             flagX_formulas = round_data['flagX_formulas']
             print(f"     flagX (Z-basis): {len(flagX_formulas)} groups/measurements")
@@ -525,7 +525,7 @@ def proof_protocol_boolean(protocol,
                         print(f"         [{sub_idx}]: {sub_formula}")
                 else:
                     print(f"       flagX[{idx}]: {formula}")
-            
+
             # Print flagZ formulas (X-basis flag measurements)
             flagZ_formulas = round_data['flagZ_formulas']
             print(f"     flagZ (X-basis): {len(flagZ_formulas)} groups/measurements")
@@ -536,7 +536,7 @@ def proof_protocol_boolean(protocol,
                         print(f"         [{sub_idx}]: {sub_formula}")
                 else:
                     print(f"       flagZ[{idx}]: {formula}")
-        
+
         # Print path conditions
         print(f"\n3. Path Conditions ({len(path_data['conditions'])} conditions):")
         for cond_idx, cond in enumerate(path_data['conditions']):
@@ -697,7 +697,7 @@ def proof_protocol_boolean(protocol,
         # Decoder Learning in C: pass SMT2 + variable name lists to C routine
         #   decoder_learning_in_C. Set _use_c_decoder_learning to True when
         #   libdecoder_learning.so is built and available.
-        _use_c_decoder_learning = True
+        _use_c_decoder_learning = False # True
         if _use_c_decoder_learning:
             learned_formulas_dict = {}
 
@@ -707,7 +707,7 @@ def proof_protocol_boolean(protocol,
                 here = os.path.dirname(os.path.abspath(__file__))
                 so_path = os.path.join(here, "bull", "trunk", "Src", "c_examples", "libdecoder_learning.so")
                 lib = ctypes.CDLL(so_path)
-                
+
                 # 1. 準備純字串 List
                 smt2_str = solver.to_smt2()
                 meas_var_names = [str(v) for v in meas_vars]
@@ -745,29 +745,30 @@ def proof_protocol_boolean(protocol,
                     len(dec_bytes),
                     all_commute_name.encode("utf-8")
                 )
-                
+
                 try:
                     # 4. 將 void 指標轉型為 char 指標，並讀取 C 語言產生的字串
                     result_str = ctypes.cast(ptr, ctypes.c_char_p).value.decode("utf-8")
-                    
+
                     # 5. 直接在 Python 記憶體中解析 JSON
                     c_formulas_json = json.loads(result_str)
-                    
+
                     # 建立翻譯字典：{ 'r_0_ancX0': r_0_ancX0的底層宣告, ... }
                     meas_decls = {v.decl().name(): v.decl() for v in meas_vars}
                     # 將 SMT2 字串解析回 Z3 AST (接續你原本的邏輯)
                     for dec_name, smt2_expr in c_formulas_json.items():
                         parsed_ast_vector = parse_smt2_string(f"(assert {smt2_expr})", decls=meas_decls)
                         learned_formulas_dict[dec_name] = parsed_ast_vector[0]
-                        
+
                 finally:
                     # 6. 【極度重要】不論 Python 解析 JSON 是否出錯，都必須呼叫 C 釋放記憶體
                     if ptr:
                         lib.free_c_string(ptr)
-                        
+
             except Exception as e:
                 _use_c_decoder_learning = False
-                print("decoder_learning_in_C failed, falling back to Python:", e)
+                print("decoder_learning_in_C failed", e)
+                quit()
 
         # Synthesize an explicit Boolean formula for each decoder variable
         # from the truth table (DNF: one term per row where output is True).
@@ -807,7 +808,7 @@ def proof_protocol_boolean(protocol,
         #                            Dict[decoder_var, bool]]
         if not _use_c_decoder_learning:
             decoder_tables: dict[tuple[bool, ...], dict] = {}
-            num_of_block_clauses = 0
+
             while True:
                 # Construct decoder formulas from the table.
                 solver.push() ##########################################################
@@ -850,7 +851,7 @@ def proof_protocol_boolean(protocol,
                 solver.add(all_commute)
                 for i, meaV in enumerate(meas_vars):
                     solver.add(meaV == BoolVal(row_key[i]))
-                res = solver.check()                
+                res = solver.check()
                 if res != sat:
                     print('So strange!')
                     quit()
@@ -865,27 +866,13 @@ def proof_protocol_boolean(protocol,
                     for decV in decoder_vars
                 }
 
-                # Block this specific measurement pattern so that the next model
-                # (if any) will have a different row_key.
-                block_clause = Or(*[                
-                    v != BoolVal(row_key[i]) for i, v in enumerate(meas_vars)
-                ])
-                block_bits = "".join("1" if b else "0" for b in row_key)
-                block_var = Bool(f"block_{block_bits}")
-                solver.push()
-                solver.add(block_var == block_clause)
-                solver.add(block_var)
-                num_of_block_clauses += 1
-
-            # IMPORTANT: disable all blocking clauses (only if we used Python loop).
-            solver.pop(num_of_block_clauses)
         # At this point, solver is UNSAT under additional blocking clauses
         # on meas_vars, and decoder_tables holds the learned truth tables.
         # We verify the learned decoders without blocking clauses again.
         solver.add(Not(all_commute))
         for dec_var in decoder_vars:
             if not _use_c_decoder_learning:
-                formula = truth_table_to_formula(dec_var, meas_vars, decoder_tables)    
+                formula = truth_table_to_formula(dec_var, meas_vars, decoder_tables)
             else:
                 formula = learned_formulas_dict[str(dec_var)]
             formula_flat = simplify(formula)
@@ -894,7 +881,7 @@ def proof_protocol_boolean(protocol,
             solver.add(dec_var == formula_flat)
         if not _use_c_decoder_learning:
             print('Table Size:', len(decoder_tables))
-        
+
         print(f"\n5. Verified SMT formula:")
         print(solver.to_smt2())
         res = solver.check()
@@ -903,9 +890,9 @@ def proof_protocol_boolean(protocol,
         else:
             print('Unverified!')
             quit()
-    
+
     print("\n" + "="*80)
-    
+
     return all_paths, all_path_data
 from z3 import BoolVal, And, Or, Not
 
@@ -937,8 +924,8 @@ def read_state_variable(q_type: str, index: int, state: dict, groups : Dict):
     """
 
     state =  state_to_raw_expr_dict(state, groups)
-    
-    
+
+
     if q_type == "s":
         syn = [ q.z for q in state["ancX"]] + [q.z for q in state["ancZ"]]
         if index < 0 or index >= len(syn):
@@ -946,7 +933,7 @@ def read_state_variable(q_type: str, index: int, state: dict, groups : Dict):
         return syn[index]
 
     if q_type == "f":
-       
+
         flags = [ q.z for q in state["flagX"]] + [q.z for q in state["flagZ"]]
         if index < 0 or index >= len(flags):
             raise IndexError(f"f_{index} out of range (len flag = {len(flags)})")
@@ -1001,25 +988,25 @@ def read_operand(x, full_state , group):
             syn_bits = [q.z for q in ancX_list] + [q.x for q in ancZ_list]
             if not syn_bits:
                 raise IndexError(f"s_{round_idx} refers to round {round_idx}, but no syndrome bits found in that round")
-            
+
             # Return the OR of all syndrome bits (this represents "any syndrome fired")
-            
+
             return syn_bits
 
         elif kind == "f"  :
 
-          
-            
+
+
             flag_bits = [[q.z for q in (g if isinstance(g, list) else [g])]  for g in flagX_list ] + \
                         [[q.x for q in (g if isinstance(g, list) else [g])]  for g in flagZ_list ]
-            
-        
-            # flagX.z followed by flagZ.x - take all flag bits from this round  
+
+
+            # flagX.z followed by flagZ.x - take all flag bits from this round
             if not flag_bits:
                 raise IndexError(f"f_{round_idx} refers to round {round_idx}, but no flag bits found in that round")
-            
+
             # Return the OR of all flag bits (this represents "any flag fired")
-            
+
             return flag_bits
 
         else:
@@ -1040,7 +1027,7 @@ def parse_lut_instr(name: str):
         raise ValueError(f"Bad LUT format: {name}")
 
     pairs = []
-    
+
     for kind, idx_str in zip(tokens[0::2], tokens[1::2]):
         if kind not in ("s", "f"):
             raise ValueError(f"Unknown LUT kind '{kind}' in {name}")
@@ -1078,7 +1065,7 @@ def condition_to_z3(cond: dict | None, full_state: dict, groups:Dict) -> Bool:
       - {"type":"equal",     "left":..., "right":...}
       - {"type":"not_equal", "left":..., "right":...}
     """
-    
+
     if cond is None:
         return BoolVal(True)  # no condition → always true
 
@@ -1099,7 +1086,7 @@ def condition_to_z3(cond: dict | None, full_state: dict, groups:Dict) -> Bool:
         R = read_operand(cond["right"], full_state, groups)
 
         # Normalize Python bools to Z3
-        
+
 
         # --- list vs bool (e.g. s_0 == 0) ---
         if isinstance(L, list) and isinstance(R, bool):
@@ -1111,7 +1098,7 @@ def condition_to_z3(cond: dict | None, full_state: dict, groups:Dict) -> Bool:
             else:
                 # every bit in L must be false
                 return And(*[li == BoolVal(False) for li in L])
-               
+
         if isinstance(R, list) and isinstance(L, bool):
             R = [x for sub in (R if isinstance(R, list) else [R])
          for x in (sub if isinstance(sub, list) else [sub])]
@@ -1127,24 +1114,24 @@ def condition_to_z3(cond: dict | None, full_state: dict, groups:Dict) -> Bool:
                 raise ValueError(f"Negative integer in equality: {R}")
             if R > len(L):
                 raise ValueError(f"Integer in equality exceeds list length: {R} > {len(L)}")
-            
+
             else:
                 from z3 import PbEq
                 return PbEq([(Or(li), 1) for li in L], R)
-            
+
         if isinstance(R, list) and isinstance(L, int):
             if L < 0:
                 raise ValueError(f"Negative integer in equality: {L}")
             if L > len(R):
                 raise ValueError(f"Integer in equality exceeds list length: {L} > {len(R)}")
-            
+
             else:
                 from z3 import PbEq
                 return PbEq([(Or(ri), 1) for ri in R], L)
-      
-        
 
-        
+
+
+
 
         # --- list vs list: pairwise equality ---
         if isinstance(L, list) and isinstance(R, list):
@@ -1181,7 +1168,7 @@ def proof_path(path : list[dict], t : int , gen_syn : list ,all_condtion : list,
 
     The resulting formula is the AND of all step conditions.
     """
-    
+
     vars = [v for step in path for info in step["site_info"]  for v in info["vars"].values()]
     faults =  [info["act"] for step in path for info in step["site_info"]]
     gen_syn_z3 = []
@@ -1205,11 +1192,11 @@ def proof_path(path : list[dict], t : int , gen_syn : list ,all_condtion : list,
             flg = [q.z for q in flagX] + [q.x for q in flagZ]
             gen_syn_z3 += flg
 
-    
+
     #    print("gen_syn_z3:", gen_syn_z3)
     at_most_t_faults = [PbEq( [(f,1) for f in faults ], t)]
 
-    
+
 
 
 
@@ -1217,14 +1204,14 @@ def proof_path(path : list[dict], t : int , gen_syn : list ,all_condtion : list,
     #return uniqness_proof(vars, at_most_t_faults,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
    # return  uniqueness_build_goal(vars, at_most_t_faults,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
     #return uniqueness_solve_with_cryptominisat(vars, at_most_t_faults,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
-    
+
     status, model_lits, out = uniqueness_solve_with_cryptominisat(vars, at_most_t_faults,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
-    
-    
-    
+
+
+
     return 0
-    
+
     # Add fault constraints if needed
-    
+
 
     return simplify(path_formula)
