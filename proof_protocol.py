@@ -870,15 +870,27 @@ def proof_protocol_boolean(protocol,
         # on meas_vars, and decoder_tables holds the learned truth tables.
         # We verify the learned decoders without blocking clauses again.
         solver.add(Not(all_commute))
-        for dec_var in decoder_vars:
-            if not _use_c_decoder_learning:
-                formula = truth_table_to_formula(dec_var, meas_vars, decoder_tables)
-            else:
-                formula = learned_formulas_dict[str(dec_var)]
-            formula_flat = simplify(formula)
-            # set_option(max_width=10000)
-            print(f"  {dec_var} = {to_human_readable(formula_flat)}")
-            solver.add(dec_var == formula_flat)
+        # Write decoder formulas for this path (machine-readable for Python)
+        decoder_basename = f"decoder_C_{i}.txt" if _use_c_decoder_learning else f"decoder_Python_{i}.txt"
+        decoder_out_path = Path(__file__).parent / decoder_basename
+        with open(decoder_out_path, "w", encoding="utf-8") as dec_file:
+            # Format for Python: line1 = meas_var_names (comma-sep); then per line: dec_name TAB sexpr.
+            # Rebuild formula_flat: decls = {name: Bool(name) for name in meas_names}; add dec names to decls;
+            # parsed = parse_smt2_string("(assert (= " + dec_name + " " + sexpr + "))", decls=decls); formula_flat = parsed[0].children()[1]
+            dec_file.write("# decoder path " + str(i) + ": meas_var_names then dec_name\\tsexpr per line (parse (assert (= name sexpr)) with decls)\n")
+            dec_file.write("meas_var_names:\t" + ",".join(str(v) for v in meas_vars) + "\n")
+            # Each following line: decoder_var_name TAB formula_flat.sexpr()
+            # To reconstruct: parse_smt2_string("(assert (= " + dec_name + " " + sexpr + "))", decls=decls)
+            # then take the right-hand side of the equality as formula_flat.
+            for dec_var in decoder_vars:
+                if not _use_c_decoder_learning:
+                    formula = truth_table_to_formula(dec_var, meas_vars, decoder_tables)
+                else:
+                    formula = learned_formulas_dict[str(dec_var)]
+                formula_flat = simplify(formula)
+                dec_file.write(f"{dec_var}\t{formula_flat.sexpr()}\n")
+                solver.add(dec_var == formula_flat)
+        print(f"  Decoder formulas written to {decoder_out_path}")
         if not _use_c_decoder_learning:
             print('Table Size:', len(decoder_tables))
 
