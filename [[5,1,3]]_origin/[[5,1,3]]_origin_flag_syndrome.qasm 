@@ -48,7 +48,7 @@ cx ancX[0] , q[2];
 
 
 // =========================
-// Stabilizer 4 :  XIXZZ
+// Stabilizer 4 :  ZXIXZ
 // ancilla = ancZ[0] (Z basis), flag = flagX[0] (X basis)
 // =========================
 cx  ancX[0] ,q[1];
