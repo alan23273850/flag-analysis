@@ -129,7 +129,7 @@ def _run_second_subround(first_state: CircuitXZ, first_qc: QuantumCircuit, raw_q
     return s_bits
 
 
-def run_protocol_once() -> List[LutRecord]:
+def run_protocol_once() -> LutRecord | None:
     flag_qc = QuantumCircuit.from_qasm_file(str(FLAG_QASM))
     raw_qc = QuantumCircuit.from_qasm_file(str(RAW_QASM))
 
@@ -143,8 +143,6 @@ def run_protocol_once() -> List[LutRecord]:
         raise ValueError(f"Flag circuit gate count {n_gates} cannot be split into 4 stabilizers.")
     gates_per_stab = n_gates // 4
 
-    lut_records: List[LutRecord] = []
-
     for stab_i in range(4):
         start = stab_i * gates_per_stab
         end = (stab_i + 1) * gates_per_stab
@@ -157,36 +155,32 @@ def run_protocol_once() -> List[LutRecord]:
         if not (s == 0 and f == 0):
             second_s = _run_second_subround(first_state, flag_qc, raw_qc)
             bitstring6 = f"{s}{f}{''.join(str(b) for b in second_s)}"
-            lut_records.append(
-                LutRecord(
-                    first_stabilizer_index=stab_i,
-                    first_s=s,
-                    first_f=f,
-                    second_s_bits=second_s,
-                    bitstring6=bitstring6,
-                )
-            )
             # Once second subround is triggered, protocol terminates at LUT.
-            return lut_records
+            return LutRecord(
+                first_stabilizer_index=stab_i,
+                first_s=s,
+                first_f=f,
+                second_s_bits=second_s,
+                bitstring6=bitstring6,
+            )
 
     # If all first-subround checks are [0,0], there is no LUT output.
-    return lut_records
+    return None
 
 
 def main() -> None:
-    records = run_protocol_once()
-    if not records:
+    rec = run_protocol_once()
+    if rec is None:
         print("End of protocol with no LUT output.")
         return
 
-    print("LUT records:")
-    for rec in records:
-        print(
-            f"first_stab={rec.first_stabilizer_index} "
-            f"(s,f)=({rec.first_s},{rec.first_f}) "
-            f"second_s={rec.second_s_bits} "
-            f"6bit={rec.bitstring6}"
-        )
+    print("LUT record:")
+    print(
+        f"first_stab={rec.first_stabilizer_index} "
+        f"(s,f)=({rec.first_s},{rec.first_f}) "
+        f"second_s={rec.second_s_bits} "
+        f"6bit={rec.bitstring6}"
+    )
 
 
 if __name__ == "__main__":
