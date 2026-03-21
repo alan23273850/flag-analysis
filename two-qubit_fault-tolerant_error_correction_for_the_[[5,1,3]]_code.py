@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 import random
 
 from z3 import BoolVal, is_true, simplify
 
 from qiskit import QuantumCircuit
 
+from decoder_commute_verify import decoder_file_index, verify_decoder_commute
 from flag_analysis import (
     CircuitXZ,
     apply_qasm_gate_into_state,
@@ -19,6 +20,9 @@ from flag_analysis import (
 
 FLAG_QASM = Path("./[[5,1,3]]_origin/[[5,1,3]]_origin_flag_syndrome.qasm ")
 RAW_QASM = Path("./[[5,1,3]]_origin/raw_[[5,1,3]]_origin_flag_syndrome.qasm")
+ORIGIN_DIR = Path("./[[5,1,3]]_origin")
+STAB_TXT = ORIGIN_DIR / "[[5,1,3]]_origin.txt"
+LOG_TXT = ORIGIN_DIR / "[[5,1,3]]_log_op.txt"
 TWO_QUBIT_FAULT_P = 5e-2
 
 
@@ -129,7 +133,16 @@ def _run_second_subround(first_state: CircuitXZ, first_qc: QuantumCircuit, raw_q
     return s_bits
 
 
-def run_protocol_once() -> LutRecord | None:
+def _data_xz_lists(state: CircuitXZ, qc: QuantumCircuit) -> Tuple[List[bool], List[bool]]:
+    groups = detect_qubit_groups(qc)
+    data_idxs = sorted(groups["data"])
+    return (
+        [bool(_to_bit(state.qubits[i].x)) for i in data_idxs],
+        [bool(_to_bit(state.qubits[i].z)) for i in data_idxs],
+    )
+
+
+def run_protocol_once() -> Tuple[Optional[LutRecord], Optional[List[bool]], Optional[List[bool]]]:
     flag_qc = QuantumCircuit.from_qasm_file(str(FLAG_QASM))
     raw_qc = QuantumCircuit.from_qasm_file(str(RAW_QASM))
 
@@ -156,20 +169,25 @@ def run_protocol_once() -> LutRecord | None:
             second_s = _run_second_subround(first_state, flag_qc, raw_qc)
             bitstring6 = f"{s}{f}{''.join(str(b) for b in second_s)}"
             # Once second subround is triggered, protocol terminates at LUT.
-            return LutRecord(
-                first_stabilizer_index=stab_i,
-                first_s=s,
-                first_f=f,
-                second_s_bits=second_s,
-                bitstring6=bitstring6,
+            dx, dz = _data_xz_lists(first_state, flag_qc)
+            return (
+                LutRecord(
+                    first_stabilizer_index=stab_i,
+                    first_s=s,
+                    first_f=f,
+                    second_s_bits=second_s,
+                    bitstring6=bitstring6,
+                ),
+                dx,
+                dz,
             )
 
     # If all first-subround checks are [0,0], there is no LUT output.
-    return None
+    return None, None, None
 
 
 def main() -> None:
-    rec = run_protocol_once()
+    rec, data_x, data_z = run_protocol_once()
     if rec is None:
         print("End of protocol with no LUT output.")
         return
@@ -181,6 +199,19 @@ def main() -> None:
         f"second_s={rec.second_s_bits} "
         f"6bit={rec.bitstring6}"
     )
+
+    dec_idx = decoder_file_index(rec.first_stabilizer_index)
+    dec_path = Path(f"./decoder_C_{dec_idx}.txt")
+    ok, _dec_vals = verify_decoder_commute(
+        first_stabilizer_index=rec.first_stabilizer_index,
+        bitstring6=rec.bitstring6,
+        data_x=data_x or [],
+        data_z=data_z or [],
+        decoder_c_path=dec_path,
+        log_path=LOG_TXT,
+        stab_path=STAB_TXT,
+    )
+    print(f"decoder_C_{dec_idx}.txt commute check (fixed vs log+stab): {'PASS' if ok else 'FAIL'}")
 
 
 if __name__ == "__main__":
