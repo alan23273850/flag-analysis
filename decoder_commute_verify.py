@@ -98,17 +98,20 @@ def _eval_dec_formula(
     return bool(is_true(val))
 
 
+def _load_pairs_from_file(path: Path) -> List[Tuple[str, str]]:
+    pairs: List[Tuple[str, str]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        xs, zs = line.split()
+        pairs.append((xs, zs))
+    return pairs
+
+
 def load_log_then_stab_pairs(log_path: Path, stab_path: Path) -> List[Tuple[str, str]]:
     """Same order as proof_protocol proof: log lines then stab lines."""
-    pairs: List[Tuple[str, str]] = []
-    for p in (log_path, stab_path):
-        for line in p.read_text(encoding="utf-8").splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            xs, zs = line.split()
-            pairs.append((xs, zs))
-    return pairs
+    return _load_pairs_from_file(log_path) + _load_pairs_from_file(stab_path)
 
 
 def fixed_commutes_with_all_generators(
@@ -168,3 +171,121 @@ def verify_decoder_commute(
     pairs = load_log_then_stab_pairs(log_path, stab_path)
     ok = fixed_commutes_with_all_generators(fixed_x, fixed_z, pairs)
     return ok, dec_vals
+
+
+def symplectic_inner_product_parity(
+    fixed_x: List[bool], fixed_z: List[bool], xs: str, zs: str
+) -> bool:
+    """
+    Symplectic inner product <fixed, (xs,zs)> mod 2.
+    True => anticommute with that generator; False => commute.
+    """
+    n = len(fixed_x)
+    acc = False
+    for j in range(n):
+        if zs[j] == "1":
+            acc ^= fixed_x[j]
+        if xs[j] == "1":
+            acc ^= fixed_z[j]
+    return acc
+
+
+def format_decoder_commute_fail_report(
+    *,
+    first_stabilizer_index: int,
+    bitstring6: str,
+    data_x: List[bool],
+    data_z: List[bool],
+    decoder_c_path: Path,
+    log_path: Path,
+    stab_path: Path,
+    fault_detail_lines: Optional[List[str]] = None,
+    smt_fault_block: Optional[str] = None,
+    stopped_after_first_fail: bool = False,
+) -> str:
+    """
+    Human-readable report when decoder commute FAILs (same checks as verify_decoder_commute).
+    fault_detail_lines: optional lines (no leading indent) under "fault (2q gate injection...)".
+    """
+    meas_names, dec_formulas = parse_decoder_c_file(decoder_c_path)
+    assign = measurement_assignment_from_bitstring6(first_stabilizer_index, bitstring6)
+    for m in meas_names:
+        if m not in assign:
+            raise KeyError(
+                f"Decoder expects meas var {m!r} but assignment builder has no key "
+                f"(first_stab={first_stabilizer_index})"
+            )
+    dec_vals: Dict[str, bool] = {}
+    for dec_name, sexpr in sorted(dec_formulas.items()):
+        dec_vals[dec_name] = _eval_dec_formula(dec_name, sexpr, meas_names, assign)
+
+    n_data = len(data_x)
+    if len(data_z) != n_data:
+        raise ValueError("data_x and data_z length mismatch")
+    fixed_x: List[bool] = []
+    fixed_z: List[bool] = []
+    for j in range(n_data):
+        decx = dec_vals.get(f"dec{j}_x", False)
+        decz = dec_vals.get(f"dec{j}_z", False)
+        fixed_x.append(data_x[j] ^ decx)
+        fixed_z.append(data_z[j] ^ decz)
+
+    log_pairs = _load_pairs_from_file(log_path)
+    stab_pairs = _load_pairs_from_file(stab_path)
+
+    dec_x_list = [int(dec_vals.get(f"dec{j}_x", False)) for j in range(n_data)]
+    dec_z_list = [int(dec_vals.get(f"dec{j}_z", False)) for j in range(n_data)]
+    d_x_list = [int(x) for x in data_x]
+    d_z_list = [int(z) for z in data_z]
+    fx_list = [int(x) for x in fixed_x]
+    fz_list = [int(z) for z in fixed_z]
+
+    lines: List[str] = []
+    lines.append(f"decoder FAIL  file={decoder_c_path.name}")
+    lines.append(f"  first_stabilizer_index={first_stabilizer_index}  bitstring6={bitstring6}")
+
+    if fault_detail_lines:
+        lines.append("  fault (2q gate injection for this DFS path):")
+        for ln in fault_detail_lines:
+            lines.append(f"    {ln}")
+
+    lines.append("  meas vars (order as in decoder_C_*.txt), one per line:")
+    for m in meas_names:
+        lines.append(f"    {m} = {int(assign[m])}")
+    lines.append(f"  dec_x = {dec_x_list}")
+    lines.append(f"  dec_z = {dec_z_list}")
+    lines.append(f"  data_x = {d_x_list}")
+    lines.append(f"  data_z = {d_z_list}")
+    lines.append(f"  fixed_x (list) = {fx_list}  fixed_z (list) = {fz_list}")
+
+    lines.append(
+        "  commute vs generators (log_txt lines then stab_txt lines; "
+        "commute_ok True => Pauli commutes):"
+    )
+    for i, (xs, zs) in enumerate(log_pairs):
+        ac = symplectic_inner_product_parity(fixed_x, fixed_z, xs, zs)
+        ip = int(ac)
+        ok_g = not ac
+        kind = "anticommute" if ac else "commute"
+        lines.append(
+            f"    log[{i}] ({xs} {zs}): inner_parity={ip}  {kind}  ok={int(ok_g)}"
+        )
+    for i, (xs, zs) in enumerate(stab_pairs):
+        ac = symplectic_inner_product_parity(fixed_x, fixed_z, xs, zs)
+        ip = int(ac)
+        ok_g = not ac
+        kind = "anticommute" if ac else "commute"
+        lines.append(
+            f"    stab[{i}] ({xs} {zs}): inner_parity={ip}  {kind}  ok={int(ok_g)}"
+        )
+
+    if smt_fault_block:
+        lines.append("")
+        lines.append("  SMT fault asserts (paste after declare-fun block in output_C.txt):")
+        for sl in smt_fault_block.splitlines():
+            lines.append(f"    {sl}")
+
+    if stopped_after_first_fail:
+        lines.append("Stopped after first decoder commute FAIL (partial enumeration).")
+
+    return "\n".join(lines)
