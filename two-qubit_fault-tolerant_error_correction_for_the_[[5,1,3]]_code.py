@@ -35,6 +35,17 @@ class LutRecord:
     bitstring6: str
 
 
+@dataclass
+class FaultEvent:
+    phase: str
+    stab_or_seg: int
+    gate_index: int
+    gate_name: str
+    ctrl: int
+    targ: int
+    flips: Tuple[bool, bool, bool, bool]
+
+
 def _to_bit(expr) -> int:
     if isinstance(expr, bool):
         return int(expr)
@@ -51,13 +62,43 @@ def _build_reg_index_map(qc: QuantumCircuit) -> Dict[Tuple[str, int], int]:
     return idx_map
 
 
-def _run_gate_slice(qc: QuantumCircuit, state: CircuitXZ, start: int, end: int) -> None:
-    for instr, qargs, _ in qc.data[start:end]:
+def _qidx_to_name(qc: QuantumCircuit, qidx: int) -> str:
+    for qreg in qc.qregs:
+        for j, bit in enumerate(qreg):
+            if qc.find_bit(bit).index == qidx:
+                return f"{qreg.name}[{j}]"
+    return f"q[{qidx}]"
+
+
+def _run_gate_slice(
+    qc: QuantumCircuit,
+    state: CircuitXZ,
+    start: int,
+    end: int,
+    *,
+    phase: str,
+    stab_or_seg: int,
+    fault_events: List[FaultEvent],
+) -> None:
+    for gidx in range(start, end):
+        instr, qargs, _ = qc.data[gidx]
         name = instr.name
         qidxs = [qc.find_bit(q).index for q in qargs]
         apply_qasm_gate_into_state(state, name, qidxs)
         if name in ("cx", "cnot", "cz"):
-            _inject_two_qubit_stochastic_fault(state, qidxs[0], qidxs[1], p=TWO_QUBIT_FAULT_P)
+            flips = _inject_two_qubit_stochastic_fault(state, qidxs[0], qidxs[1], p=TWO_QUBIT_FAULT_P)
+            if flips is not None:
+                fault_events.append(
+                    FaultEvent(
+                        phase=phase,
+                        stab_or_seg=stab_or_seg,
+                        gate_index=gidx,
+                        gate_name=name,
+                        ctrl=qidxs[0],
+                        targ=qidxs[1],
+                        flips=flips,
+                    )
+                )
 
 
 def _flip_qubit_xz(state: CircuitXZ, qidx: int, flip_x: bool, flip_z: bool) -> None:
@@ -69,7 +110,9 @@ def _flip_qubit_xz(state: CircuitXZ, qidx: int, flip_x: bool, flip_z: bool) -> N
         state.qubits[qidx].z = BoolVal(not z_now)
 
 
-def _inject_two_qubit_stochastic_fault(state: CircuitXZ, ctrl: int, targ: int, p: float = 1e-4) -> None:
+def _inject_two_qubit_stochastic_fault(
+    state: CircuitXZ, ctrl: int, targ: int, p: float = 1e-4
+) -> Optional[Tuple[bool, bool, bool, bool]]:
     """
     Two-qubit stochastic Pauli-like fault after each CX/CZ gate.
 
@@ -78,7 +121,7 @@ def _inject_two_qubit_stochastic_fault(state: CircuitXZ, ctrl: int, targ: int, p
       over control/target x/z flips.
     """
     if random.random() >= p:
-        return
+        return None
 
     # Each tuple: (flip_cx, flip_cz, flip_tx, flip_tz), excluding all-False.
     events = [(a, b, c, d) for a in (False, True)
@@ -89,6 +132,7 @@ def _inject_two_qubit_stochastic_fault(state: CircuitXZ, ctrl: int, targ: int, p
     flip_cx, flip_cz, flip_tx, flip_tz = random.choice(events)
     _flip_qubit_xz(state, ctrl, flip_cx, flip_cz)
     _flip_qubit_xz(state, targ, flip_tx, flip_tz)
+    return (flip_cx, flip_cz, flip_tx, flip_tz)
 
 
 def _copy_data_error_only(src_state: CircuitXZ, src_qc: QuantumCircuit, dst_qc: QuantumCircuit) -> CircuitXZ:
@@ -107,7 +151,12 @@ def _copy_data_error_only(src_state: CircuitXZ, src_qc: QuantumCircuit, dst_qc: 
     return dst_state
 
 
-def _run_second_subround(first_state: CircuitXZ, first_qc: QuantumCircuit, raw_qc: QuantumCircuit) -> List[int]:
+def _run_second_subround(
+    first_state: CircuitXZ,
+    first_qc: QuantumCircuit,
+    raw_qc: QuantumCircuit,
+    fault_events: List[FaultEvent],
+) -> List[int]:
     # Second subround ancillas are treated as fresh ancillas.
     # Data errors must carry over from first subround.
     second_state = _copy_data_error_only(first_state, first_qc, raw_qc)
@@ -128,7 +177,15 @@ def _run_second_subround(first_state: CircuitXZ, first_qc: QuantumCircuit, raw_q
 
         start = i * gates_per_stab
         end = (i + 1) * gates_per_stab
-        _run_gate_slice(raw_qc, second_state, start, end)
+        _run_gate_slice(
+            raw_qc,
+            second_state,
+            start,
+            end,
+            phase="second_subround",
+            stab_or_seg=i,
+            fault_events=fault_events,
+        )
         s_bits.append(_to_bit(second_state.qubits[raw_anc[i]].z))
     return s_bits
 
@@ -142,11 +199,12 @@ def _data_xz_lists(state: CircuitXZ, qc: QuantumCircuit) -> Tuple[List[bool], Li
     )
 
 
-def run_protocol_once() -> Tuple[Optional[LutRecord], Optional[List[bool]], Optional[List[bool]]]:
+def run_protocol_once() -> Tuple[Optional[LutRecord], Optional[List[bool]], Optional[List[bool]], List[FaultEvent]]:
     flag_qc = QuantumCircuit.from_qasm_file(str(FLAG_QASM))
     raw_qc = QuantumCircuit.from_qasm_file(str(RAW_QASM))
 
     first_state = new_clean_circuit_state(flag_qc.num_qubits)
+    fault_events: List[FaultEvent] = []
     idx = _build_reg_index_map(flag_qc)
     anc_s_idx = idx[("ancX", 0)]
     flag_f_idx = idx[("flagZ", 0)]
@@ -159,14 +217,22 @@ def run_protocol_once() -> Tuple[Optional[LutRecord], Optional[List[bool]], Opti
     for stab_i in range(4):
         start = stab_i * gates_per_stab
         end = (stab_i + 1) * gates_per_stab
-        _run_gate_slice(flag_qc, first_state, start, end)
+        _run_gate_slice(
+            flag_qc,
+            first_state,
+            start,
+            end,
+            phase="first_subround",
+            stab_or_seg=stab_i,
+            fault_events=fault_events,
+        )
 
         s = _to_bit(first_state.qubits[anc_s_idx].z)
         f = _to_bit(first_state.qubits[flag_f_idx].x)
 
         # Enter second subround only when [s,f] != [0,0].
         if not (s == 0 and f == 0):
-            second_s = _run_second_subround(first_state, flag_qc, raw_qc)
+            second_s = _run_second_subround(first_state, flag_qc, raw_qc, fault_events)
             bitstring6 = f"{s}{f}{''.join(str(b) for b in second_s)}"
             # Once second subround is triggered, protocol terminates at LUT.
             dx, dz = _data_xz_lists(first_state, flag_qc)
@@ -180,14 +246,30 @@ def run_protocol_once() -> Tuple[Optional[LutRecord], Optional[List[bool]], Opti
                 ),
                 dx,
                 dz,
+                fault_events,
             )
 
     # If all first-subround checks are [0,0], there is no LUT output.
-    return None, None, None
+    return None, None, None, fault_events
 
 
 def main() -> None:
-    rec, data_x, data_z = run_protocol_once()
+    rec, data_x, data_z, fault_events = run_protocol_once()
+    flag_qc = QuantumCircuit.from_qasm_file(str(FLAG_QASM))
+    raw_qc = QuantumCircuit.from_qasm_file(str(RAW_QASM))
+    print("Injected 2q faults:")
+    if not fault_events:
+        print("  (none)")
+    else:
+        for i, ev in enumerate(fault_events):
+            qc = flag_qc if ev.phase == "first_subround" else raw_qc
+            c_name = _qidx_to_name(qc, ev.ctrl)
+            t_name = _qidx_to_name(qc, ev.targ)
+            fx, fz, tx, tz = ev.flips
+            print(
+                f"  [{i}] phase={ev.phase} stab/seg={ev.stab_or_seg} gate_idx={ev.gate_index} "
+                f"{ev.gate_name} {c_name},{t_name} flips=({int(fx)},{int(fz)})({int(tx)},{int(tz)})"
+            )
     if rec is None:
         print("End of protocol with no LUT output.")
         return
