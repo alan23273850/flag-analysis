@@ -23,7 +23,9 @@ RAW_QASM = Path("./[[5,1,3]]_origin/raw_[[5,1,3]]_origin_flag_syndrome.qasm")
 ORIGIN_DIR = Path("./[[5,1,3]]_origin")
 STAB_TXT = ORIGIN_DIR / "[[5,1,3]]_origin.txt"
 LOG_TXT = ORIGIN_DIR / "[[5,1,3]]_log_op.txt"
-TWO_QUBIT_FAULT_P = 5e-2
+TWO_QUBIT_FAULT_P = 1e-2
+IDLE_GAMMA = 1e-2        # 0 <= gamma <= 1
+MEAS_BETA = 1.0         # 1 <= beta <= 10
 
 
 @dataclass
@@ -37,13 +39,8 @@ class LutRecord:
 
 @dataclass
 class FaultEvent:
-    phase: str
-    stab_or_seg: int
-    gate_index: int
-    gate_name: str
-    ctrl: int
-    targ: int
-    flips: Tuple[bool, bool, bool, bool]
+    kind: str
+    message: str
 
 
 def _to_bit(expr) -> int:
@@ -70,35 +67,142 @@ def _qidx_to_name(qc: QuantumCircuit, qidx: int) -> str:
     return f"q[{qidx}]"
 
 
+def _apply_pauli_on_qubit(state: CircuitXZ, qidx: int, pauli: str) -> None:
+    """Apply single-qubit Pauli to tracked (x,z) error bits."""
+    p = pauli.upper()
+    if p == "X":
+        _flip_qubit_xz(state, qidx, True, False)
+    elif p == "Z":
+        _flip_qubit_xz(state, qidx, False, True)
+    elif p == "Y":
+        _flip_qubit_xz(state, qidx, True, True)
+    else:
+        raise ValueError(f"Unsupported Pauli: {pauli}")
+
+
+def _sample_single_qubit_depolarizing_pauli() -> str:
+    # Uniform over X/Y/Z
+    return random.choice(("X", "Y", "Z"))
+
+
+def _append_event(fault_events: List[FaultEvent], kind: str, message: str) -> None:
+    fault_events.append(FaultEvent(kind=kind, message=message))
+
+
+def _maybe_inject_prep_error(
+    *,
+    state: CircuitXZ,
+    qidx: int,
+    axis: str,  # "x" or "z"
+    base_p: float,
+    phase: str,
+    stab_or_seg: int,
+    label: str,
+    fault_events: List[FaultEvent],
+) -> None:
+    """
+    Ancilla preparation error:
+      trigger prob = 2p/3
+      - axis 'x' => flip X
+      - axis 'z' => flip Z
+    """
+    trigger_p = min(1.0, (2.0 * base_p) / 3.0)
+    if random.random() >= trigger_p:
+        return
+    if axis == "x":
+        _flip_qubit_xz(state, qidx, True, False)
+        flips = "(1,0)"
+    elif axis == "z":
+        _flip_qubit_xz(state, qidx, False, True)
+        flips = "(0,1)"
+    else:
+        raise ValueError("axis must be 'x' or 'z'")
+    _append_event(
+        fault_events,
+        "prep",
+        f"phase={phase}, stabilizer={stab_or_seg}, qubit={label}, flips={flips}",
+    )
+
+
+def _maybe_inject_single_qubit_depolarizing(
+    *,
+    state: CircuitXZ,
+    qidx: int,
+    trigger_p: float,
+    phase: str,
+    reason: str,
+    label: str,
+    fault_events: List[FaultEvent],
+) -> None:
+    """Inject 1q depolarizing error with trigger_p, then X/Y/Z uniformly."""
+    p = min(1.0, trigger_p)
+    if random.random() >= p:
+        return
+    pauli = _sample_single_qubit_depolarizing_pauli()
+    _apply_pauli_on_qubit(state, qidx, pauli)
+    if pauli == "X":
+        flips = "(1,0)"
+    elif pauli == "Z":
+        flips = "(0,1)"
+    else:
+        flips = "(1,1)"
+    _append_event(
+        fault_events,
+        reason,
+        f"phase={phase}, qubit={label}, flips={flips}",
+    )
+
+
 def _run_gate_slice(
     qc: QuantumCircuit,
     state: CircuitXZ,
     start: int,
     end: int,
     *,
+    base_p: float,
+    gamma: float,
     phase: str,
     stab_or_seg: int,
     fault_events: List[FaultEvent],
 ) -> None:
+    # Idle noise only applies to qubits that actually participate in this slice.
+    participating_qubits: set[int] = set()
+    for instr, qargs, _ in qc.data[start:end]:
+        _ = instr
+        participating_qubits.update(qc.find_bit(q).index for q in qargs)
+
     for gidx in range(start, end):
         instr, qargs, _ = qc.data[gidx]
         name = instr.name
         qidxs = [qc.find_bit(q).index for q in qargs]
         apply_qasm_gate_into_state(state, name, qidxs)
         if name in ("cx", "cnot", "cz"):
-            flips = _inject_two_qubit_stochastic_fault(state, qidxs[0], qidxs[1], p=TWO_QUBIT_FAULT_P)
+            flips = _inject_two_qubit_stochastic_fault(state, qidxs[0], qidxs[1], p=base_p)
             if flips is not None:
-                fault_events.append(
-                    FaultEvent(
-                        phase=phase,
-                        stab_or_seg=stab_or_seg,
-                        gate_index=gidx,
-                        gate_name=name,
-                        ctrl=qidxs[0],
-                        targ=qidxs[1],
-                        flips=flips,
-                    )
+                fc, fz, tx, tz = flips
+                ctrl_name = _qidx_to_name(qc, qidxs[0])
+                targ_name = _qidx_to_name(qc, qidxs[1])
+                _append_event(
+                    fault_events,
+                    "2q_gate",
+                    f"phase={phase}, stabilizer={stab_or_seg}, gate_idx={gidx}, gate={name}, "
+                    f"qubits={ctrl_name},{targ_name}, at=after_gate, flips=({int(fc)},{int(fz)})({int(tx)},{int(tz)})",
                 )
+
+        # Idle errors: one time step per processed gate, on qubits not touched by this gate.
+        active = set(qidxs)
+        for qi in participating_qubits:
+            if qi in active:
+                continue
+            _maybe_inject_single_qubit_depolarizing(
+                state=state,
+                qidx=qi,
+                trigger_p=gamma * base_p,
+                phase=f"{phase}, gate_idx={gidx}, at=after_gate",
+                reason="idle",
+                label=_qidx_to_name(qc, qi),
+                fault_events=fault_events,
+            )
 
 
 def _flip_qubit_xz(state: CircuitXZ, qidx: int, flip_x: bool, flip_z: bool) -> None:
@@ -156,6 +260,10 @@ def _run_second_subround(
     first_qc: QuantumCircuit,
     raw_qc: QuantumCircuit,
     fault_events: List[FaultEvent],
+    *,
+    base_p: float,
+    gamma: float,
+    beta: float,
 ) -> List[int]:
     # Second subround ancillas are treated as fresh ancillas.
     # Data errors must carry over from first subround.
@@ -171,19 +279,41 @@ def _run_second_subround(
 
     s_bits: List[int] = []
     for i in range(4):
+        start = i * gates_per_stab
+        end = (i + 1) * gates_per_stab
         # Explicitly initialize each second-subround ancX[i] as a fresh ancilla.
         second_state.qubits[raw_anc[i]].x = BoolVal(False)
         second_state.qubits[raw_anc[i]].z = BoolVal(False)
-
-        start = i * gates_per_stab
-        end = (i + 1) * gates_per_stab
+        # Prep error on |+>/|-> ancX => flip Z with prob 2p/3
+        _maybe_inject_prep_error(
+            state=second_state,
+            qidx=raw_anc[i],
+            axis="z",
+            base_p=base_p,
+        phase=f"second_subround at=before_gate_idx={start}",
+            stab_or_seg=i,
+            label=f"ancX[{i}]",
+            fault_events=fault_events,
+        )
         _run_gate_slice(
             raw_qc,
             second_state,
             start,
             end,
+            base_p=base_p,
+            gamma=gamma,
             phase="second_subround",
             stab_or_seg=i,
+            fault_events=fault_events,
+        )
+        # Measurement error before reading ancX[i] in Z-basis
+        _maybe_inject_single_qubit_depolarizing(
+            state=second_state,
+            qidx=raw_anc[i],
+            trigger_p=beta * base_p,
+            phase=f"second_subround seg={i} at=before_readout_after_gate_idx={end - 1}",
+            reason="meas",
+            label=f"ancX[{i}] (Z-basis readout)",
             fault_events=fault_events,
         )
         s_bits.append(_to_bit(second_state.qubits[raw_anc[i]].z))
@@ -200,6 +330,11 @@ def _data_xz_lists(state: CircuitXZ, qc: QuantumCircuit) -> Tuple[List[bool], Li
 
 
 def run_protocol_once() -> Tuple[Optional[LutRecord], Optional[List[bool]], Optional[List[bool]], List[FaultEvent]]:
+    if not (0.0 <= IDLE_GAMMA <= 1.0):
+        raise ValueError(f"IDLE_GAMMA must be in [0,1], got {IDLE_GAMMA}")
+    if not (1.0 <= MEAS_BETA <= 10.0):
+        raise ValueError(f"MEAS_BETA must be in [1,10], got {MEAS_BETA}")
+
     flag_qc = QuantumCircuit.from_qasm_file(str(FLAG_QASM))
     raw_qc = QuantumCircuit.from_qasm_file(str(RAW_QASM))
 
@@ -208,6 +343,29 @@ def run_protocol_once() -> Tuple[Optional[LutRecord], Optional[List[bool]], Opti
     idx = _build_reg_index_map(flag_qc)
     anc_s_idx = idx[("ancX", 0)]
     flag_f_idx = idx[("flagZ", 0)]
+    # First subround initial ancilla prep errors:
+    # ancX[0] is |+>/|-> => prep error toggles Z with prob 2p/3
+    _maybe_inject_prep_error(
+        state=first_state,
+        qidx=anc_s_idx,
+        axis="z",
+        base_p=TWO_QUBIT_FAULT_P,
+        phase="first_subround at=before_gate_idx=0",
+        stab_or_seg=0,
+        label="ancX[0]",
+        fault_events=fault_events,
+    )
+    # flagZ[0] is |0>/|1> => prep error toggles X with prob 2p/3
+    _maybe_inject_prep_error(
+        state=first_state,
+        qidx=flag_f_idx,
+        axis="x",
+        base_p=TWO_QUBIT_FAULT_P,
+        phase="first_subround at=before_gate_idx=0",
+        stab_or_seg=0,
+        label="flagZ[0]",
+        fault_events=fault_events,
+    )
 
     n_gates = len(flag_qc.data)
     if n_gates % 4 != 0:
@@ -222,17 +380,46 @@ def run_protocol_once() -> Tuple[Optional[LutRecord], Optional[List[bool]], Opti
             first_state,
             start,
             end,
+            base_p=TWO_QUBIT_FAULT_P,
+            gamma=IDLE_GAMMA,
             phase="first_subround",
             stab_or_seg=stab_i,
             fault_events=fault_events,
         )
 
+        # Measurement errors before first-subround readout
+        _maybe_inject_single_qubit_depolarizing(
+            state=first_state,
+            qidx=anc_s_idx,
+            trigger_p=MEAS_BETA * TWO_QUBIT_FAULT_P,
+            phase=f"first_subround stab/seg={stab_i} at=before_readout",
+            reason="meas",
+            label="ancX[0] (Z-basis readout)",
+            fault_events=fault_events,
+        )
+        _maybe_inject_single_qubit_depolarizing(
+            state=first_state,
+            qidx=flag_f_idx,
+            trigger_p=MEAS_BETA * TWO_QUBIT_FAULT_P,
+            phase=f"first_subround stab/seg={stab_i} at=before_readout",
+            reason="meas",
+            label="flagZ[0] (X-basis readout)",
+            fault_events=fault_events,
+        )
         s = _to_bit(first_state.qubits[anc_s_idx].z)
         f = _to_bit(first_state.qubits[flag_f_idx].x)
 
         # Enter second subround only when [s,f] != [0,0].
         if not (s == 0 and f == 0):
-            second_s = _run_second_subround(first_state, flag_qc, raw_qc, fault_events)
+            second_s = _run_second_subround(
+                first_state,
+                flag_qc,
+                raw_qc,
+                fault_events,
+                base_p=TWO_QUBIT_FAULT_P,
+                gamma=IDLE_GAMMA,
+                beta=MEAS_BETA,
+            )
             bitstring6 = f"{s}{f}{''.join(str(b) for b in second_s)}"
             # Once second subround is triggered, protocol terminates at LUT.
             dx, dz = _data_xz_lists(first_state, flag_qc)
@@ -255,21 +442,13 @@ def run_protocol_once() -> Tuple[Optional[LutRecord], Optional[List[bool]], Opti
 
 def main() -> None:
     rec, data_x, data_z, fault_events = run_protocol_once()
-    flag_qc = QuantumCircuit.from_qasm_file(str(FLAG_QASM))
-    raw_qc = QuantumCircuit.from_qasm_file(str(RAW_QASM))
-    print("Injected 2q faults:")
+    print(f"Noise params: p={TWO_QUBIT_FAULT_P}, gamma={IDLE_GAMMA}, beta={MEAS_BETA}")
+    print("Injected error events:")
     if not fault_events:
         print("  (none)")
     else:
         for i, ev in enumerate(fault_events):
-            qc = flag_qc if ev.phase == "first_subround" else raw_qc
-            c_name = _qidx_to_name(qc, ev.ctrl)
-            t_name = _qidx_to_name(qc, ev.targ)
-            fx, fz, tx, tz = ev.flips
-            print(
-                f"  [{i}] phase={ev.phase} stab/seg={ev.stab_or_seg} gate_idx={ev.gate_index} "
-                f"{ev.gate_name} {c_name},{t_name} flips=({int(fx)},{int(fz)})({int(tx)},{int(tz)})"
-            )
+            print(f"  [{i}] kind={ev.kind}, {ev.message}")
     if rec is None:
         print("End of protocol with no LUT output.")
         return
