@@ -129,7 +129,7 @@ def _run_second_subround(first_state: CircuitXZ, first_qc: QuantumCircuit, raw_q
         start = i * gates_per_stab
         end = (i + 1) * gates_per_stab
         _run_gate_slice(raw_qc, second_state, start, end)
-        s_bits.append(_to_bit(second_state.qubits[raw_anc[i]].x))
+        s_bits.append(_to_bit(second_state.qubits[raw_anc[i]].z))
     return s_bits
 
 
@@ -161,8 +161,8 @@ def run_protocol_once() -> Tuple[Optional[LutRecord], Optional[List[bool]], Opti
         end = (stab_i + 1) * gates_per_stab
         _run_gate_slice(flag_qc, first_state, start, end)
 
-        s = _to_bit(first_state.qubits[anc_s_idx].x)
-        f = _to_bit(first_state.qubits[flag_f_idx].z)
+        s = _to_bit(first_state.qubits[anc_s_idx].z)
+        f = _to_bit(first_state.qubits[flag_f_idx].x)
 
         # Enter second subround only when [s,f] != [0,0].
         if not (s == 0 and f == 0):
