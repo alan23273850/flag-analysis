@@ -27,6 +27,18 @@ TWO_QUBIT_FAULT_P = 1e-2
 IDLE_GAMMA = 1e-2        # 0 <= gamma <= 1
 MEAS_BETA = 1.0         # 1 <= beta <= 10
 
+_FLAG_QC_CACHE: Optional[QuantumCircuit] = None
+_RAW_QC_CACHE: Optional[QuantumCircuit] = None
+
+
+def preload_static_inputs() -> None:
+    """Load static QASM inputs once per process to avoid repeated file I/O."""
+    global _FLAG_QC_CACHE, _RAW_QC_CACHE
+    if _FLAG_QC_CACHE is None:
+        _FLAG_QC_CACHE = QuantumCircuit.from_qasm_file(str(FLAG_QASM))
+    if _RAW_QC_CACHE is None:
+        _RAW_QC_CACHE = QuantumCircuit.from_qasm_file(str(RAW_QASM))
+
 
 @dataclass
 class LutRecord:
@@ -335,8 +347,11 @@ def run_protocol_once() -> Tuple[Optional[LutRecord], Optional[List[bool]], Opti
     if not (1.0 <= MEAS_BETA <= 10.0):
         raise ValueError(f"MEAS_BETA must be in [1,10], got {MEAS_BETA}")
 
-    flag_qc = QuantumCircuit.from_qasm_file(str(FLAG_QASM))
-    raw_qc = QuantumCircuit.from_qasm_file(str(RAW_QASM))
+    preload_static_inputs()
+    if _FLAG_QC_CACHE is None or _RAW_QC_CACHE is None:
+        raise RuntimeError("QASM preload failed")
+    flag_qc = _FLAG_QC_CACHE
+    raw_qc = _RAW_QC_CACHE
 
     first_state = new_clean_circuit_state(flag_qc.num_qubits)
     fault_events: List[FaultEvent] = []

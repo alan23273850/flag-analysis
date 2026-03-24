@@ -6,13 +6,22 @@ and require fixed to commute with every line in log_txt then stab_txt (symplecti
 """
 from __future__ import annotations
 
+import builtins
 import re
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+# Prefer bundled z3 shared library path (important for frozen executables).
+_HERE = Path(__file__).resolve().parent
+_BUNDLED_Z3_LIB_DIR = _HERE / "z3" / "lib"
+if _BUNDLED_Z3_LIB_DIR.is_dir():
+    builtins.Z3_LIB_DIRS = [str(_BUNDLED_Z3_LIB_DIR)]
+
 from z3 import Bool, BoolVal, is_true, parse_smt2_string, simplify, substitute
 
 DEC_LINE_START = re.compile(r"^(dec\d+_[xz])\t(.*)$")
+_DECODER_CACHE: Dict[str, Tuple[List[str], Dict[str, str]]] = {}
+_PAIR_CACHE: Dict[Tuple[str, str], List[Tuple[str, str]]] = {}
 
 
 def decoder_file_index(first_stabilizer_index: int) -> int:
@@ -114,6 +123,22 @@ def load_log_then_stab_pairs(log_path: Path, stab_path: Path) -> List[Tuple[str,
     return _load_pairs_from_file(log_path) + _load_pairs_from_file(stab_path)
 
 
+def preload_decoder_assets(
+    *,
+    decoder_paths: List[Path],
+    log_path: Path,
+    stab_path: Path,
+) -> None:
+    """Preload decoder formulas and log/stab pairs into process-local cache."""
+    for p in decoder_paths:
+        key = str(p.resolve())
+        if key not in _DECODER_CACHE:
+            _DECODER_CACHE[key] = parse_decoder_c_file(p)
+    pair_key = (str(log_path.resolve()), str(stab_path.resolve()))
+    if pair_key not in _PAIR_CACHE:
+        _PAIR_CACHE[pair_key] = load_log_then_stab_pairs(log_path, stab_path)
+
+
 def fixed_commutes_with_all_generators(
     fixed_x: List[bool], fixed_z: List[bool], pairs: List[Tuple[str, str]]
 ) -> bool:
@@ -145,7 +170,12 @@ def verify_decoder_commute(
     """
     Returns (all_commute_holds, dec_values_by_name).
     """
-    meas_names, dec_formulas = parse_decoder_c_file(decoder_c_path)
+    dec_key = str(decoder_c_path.resolve())
+    cached_dec = _DECODER_CACHE.get(dec_key)
+    if cached_dec is None:
+        cached_dec = parse_decoder_c_file(decoder_c_path)
+        _DECODER_CACHE[dec_key] = cached_dec
+    meas_names, dec_formulas = cached_dec
     assign = measurement_assignment_from_bitstring6(first_stabilizer_index, bitstring6)
     for m in meas_names:
         if m not in assign:
@@ -168,7 +198,11 @@ def verify_decoder_commute(
         fixed_x.append(data_x[j] ^ decx)
         fixed_z.append(data_z[j] ^ decz)
 
-    pairs = load_log_then_stab_pairs(log_path, stab_path)
+    pair_key = (str(log_path.resolve()), str(stab_path.resolve()))
+    pairs = _PAIR_CACHE.get(pair_key)
+    if pairs is None:
+        pairs = load_log_then_stab_pairs(log_path, stab_path)
+        _PAIR_CACHE[pair_key] = pairs
     ok = fixed_commutes_with_all_generators(fixed_x, fixed_z, pairs)
     return ok, dec_vals
 
