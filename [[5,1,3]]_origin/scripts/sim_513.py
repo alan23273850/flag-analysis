@@ -4,10 +4,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import random
+import sys
 
 from z3 import BoolVal, is_true, simplify
 
 from qiskit import QuantumCircuit
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from decoder_commute_verify import decoder_file_index, verify_decoder_commute
 from flag_analysis import (
@@ -18,9 +23,9 @@ from flag_analysis import (
 )
 
 
-FLAG_QASM = Path("./[[5,1,3]]_origin/[[5,1,3]]_origin_flag_syndrome.qasm ")
-RAW_QASM = Path("./[[5,1,3]]_origin/raw_[[5,1,3]]_origin_flag_syndrome.qasm")
-ORIGIN_DIR = Path("./[[5,1,3]]_origin")
+ORIGIN_DIR = PROJECT_ROOT / "[[5,1,3]]_origin"
+FLAG_QASM = ORIGIN_DIR / "[[5,1,3]]_origin_flag_syndrome.qasm "
+RAW_QASM = ORIGIN_DIR / "raw_[[5,1,3]]_origin_flag_syndrome.qasm"
 STAB_TXT = ORIGIN_DIR / "[[5,1,3]]_origin.txt"
 LOG_TXT = ORIGIN_DIR / "[[5,1,3]]_log_op.txt"
 TWO_QUBIT_FAULT_P = 1e-2
@@ -477,7 +482,7 @@ def main() -> None:
     )
 
     dec_idx = decoder_file_index(rec.first_stabilizer_index)
-    dec_path = Path(f"./decoder_C_{dec_idx}.txt")
+    dec_path = ORIGIN_DIR / "decoder" / f"path_{dec_idx}.txt"
     ok, _dec_vals = verify_decoder_commute(
         first_stabilizer_index=rec.first_stabilizer_index,
         bitstring6=rec.bitstring6,
@@ -487,7 +492,7 @@ def main() -> None:
         log_path=LOG_TXT,
         stab_path=STAB_TXT,
     )
-    print(f"decoder_C_{dec_idx}.txt commute check (fixed vs log+stab): {'PASS' if ok else 'FAIL'}")
+    print(f"path_{dec_idx}.txt commute check (fixed vs log+stab): {'PASS' if ok else 'FAIL'}")
 
 
 if __name__ == "__main__":

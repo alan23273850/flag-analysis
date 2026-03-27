@@ -10,6 +10,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from decoder_commute_verify import (
     decoder_file_index,
     preload_decoder_assets,
@@ -17,17 +21,17 @@ from decoder_commute_verify import (
 )
 
 
-SIM_PATH = Path("./sim_513.py")
-ORIGIN_DIR = Path("./[[5,1,3]]_origin")
+SIM_PATH = Path(__file__).resolve().parent / "sim_513.py"
+ORIGIN_DIR = PROJECT_ROOT / "[[5,1,3]]_origin"
 STAB_TXT = ORIGIN_DIR / "[[5,1,3]]_origin.txt"
 LOG_TXT = ORIGIN_DIR / "[[5,1,3]]_log_op.txt"
 
-OUT_DIR = Path("./mc_results")
+OUT_DIR = ORIGIN_DIR / "mc_results"
 
 TARGET_FAILS = 1600
 BETA = 1.0
 GAMMA = 1.0
-P_POINTS = [i * 1e-3 for i in range(1, 11)]  # 1e-5 ... 1e-4
+P_POINTS = [0.00014 + i * 1e-6 for i in range(1, 5)]  # 1e-5 ... 1e-4
 DEFAULT_PROCESSES = 128
 DEFAULT_CHUNK_RUNS = 200
 
@@ -80,7 +84,7 @@ def _worker_init(sim_path_str: str) -> None:
     _SIM_MOD_WORKER = _load_sim_module(Path(sim_path_str))
     _SIM_MOD_WORKER.preload_static_inputs()
     preload_decoder_assets(
-        decoder_paths=[Path(f"./decoder_C_{i}.txt") for i in range(1, 5)],
+        decoder_paths=[ORIGIN_DIR / "decoder" / f"path_{i}.txt" for i in range(1, 5)],
         log_path=LOG_TXT,
         stab_path=STAB_TXT,
     )
@@ -104,7 +108,7 @@ def _run_chunk(sim_mod: Any, p: float, runs: int) -> tuple[int, int, int, int]:
             continue
 
         dec_idx = decoder_file_index(rec.first_stabilizer_index)
-        dec_path = Path(f"./decoder_C_{dec_idx}.txt")
+        dec_path = ORIGIN_DIR / "decoder" / f"path_{dec_idx}.txt"
         ok, _ = verify_decoder_commute(
             first_stabilizer_index=rec.first_stabilizer_index,
             bitstring6=rec.bitstring6,
@@ -301,7 +305,7 @@ def main() -> None:
     if sim_mod is not None:
         sim_mod.preload_static_inputs()
     preload_decoder_assets(
-        decoder_paths=[Path(f"./decoder_C_{i}.txt") for i in range(1, 5)],
+        decoder_paths=[ORIGIN_DIR / "decoder" / f"path_{i}.txt" for i in range(1, 5)],
         log_path=LOG_TXT,
         stab_path=STAB_TXT,
     )

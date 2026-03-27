@@ -1,5 +1,5 @@
 """
-Check whether a learned decoder (decoder_C_{i}.txt) fixes the data error for a given
+Check whether a learned decoder (path_{i}.txt) fixes the data error for a given
 LUT syndrome pattern, using the same commute constraints as proof_protocol.py:
   fixed_j_x = data_j_x XOR dec_j_x, fixed_j_z = data_j_z XOR dec_j_z
 and require fixed to commute with every line in log_txt then stab_txt (symplectic pairs).
@@ -25,7 +25,7 @@ _PAIR_CACHE: Dict[Tuple[str, str], List[Tuple[str, str]]] = {}
 
 
 def decoder_file_index(first_stabilizer_index: int) -> int:
-    """decoder_C_{i}.txt with i = 4 - first_stab (first_stabilizer_index in 0..3)."""
+    """path_{i}.txt with i = 4 - first_stab (first_stabilizer_index in 0..3)."""
     return 4 - first_stabilizer_index
 
 
@@ -283,7 +283,7 @@ def format_decoder_commute_fail_report(
         for ln in fault_detail_lines:
             lines.append(f"    {ln}")
 
-    lines.append("  meas vars (order as in decoder_C_*.txt), one per line:")
+    lines.append("  meas vars (order as in path_*.txt), one per line:")
     for m in meas_names:
         lines.append(f"    {m} = {int(assign[m])}")
     lines.append(f"  dec_x = {dec_x_list}")
@@ -315,7 +315,7 @@ def format_decoder_commute_fail_report(
 
     if smt_fault_block:
         lines.append("")
-        lines.append("  SMT fault asserts (paste after declare-fun block in output_C.txt):")
+        lines.append("  SMT fault asserts (paste after declare-fun block in boolean_learning_output_C.txt):")
         for sl in smt_fault_block.splitlines():
             lines.append(f"    {sl}")
 

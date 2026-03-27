@@ -274,7 +274,8 @@ def proof_protocol_boolean(protocol,
                   start_node: str,
                   init_state,
                   config: Dict,
-                  t: int):
+                  t: int,
+                  origin_dir: str):
 
     all_paths = []
     all_path_data = []  # Store collected data for each path
@@ -871,8 +872,13 @@ def proof_protocol_boolean(protocol,
         # We verify the learned decoders without blocking clauses again.
         solver.add(Not(all_commute))
         # Write decoder formulas for this path (machine-readable for Python)
-        decoder_basename = f"decoder_C_{i}.txt" if _use_c_decoder_learning else f"decoder_Python_{i}.txt"
-        decoder_out_path = Path(__file__).parent / decoder_basename
+        decoder_basename = f"path_{i}.txt" if _use_c_decoder_learning else f"decoder_Python_{i}.txt"
+        origin_path = Path(origin_dir)
+        if not origin_path.is_absolute():
+            origin_path = Path(__file__).parent / origin_path
+        decoder_out_dir = origin_path / "decoder"
+        decoder_out_dir.mkdir(parents=True, exist_ok=True)
+        decoder_out_path = decoder_out_dir / decoder_basename
         with open(decoder_out_path, "w", encoding="utf-8") as dec_file:
             # Format for Python: line1 = meas_var_names (comma-sep); then per line: dec_name TAB sexpr.
             # Rebuild formula_flat: decls = {name: Bool(name) for name in meas_names}; add dec names to decls;

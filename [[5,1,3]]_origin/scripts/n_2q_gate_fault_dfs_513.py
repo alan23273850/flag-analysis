@@ -3,7 +3,7 @@ Enumerate [[5,1,3]] origin protocol trajectories with **at most n** injected
 2-qubit Pauli faults (after each CX/CZ: either no fault, or one of 15 non-identity
 X/Z flips on control/target). Default n=1 (same as former one_gate_fault_dfs_513).
 
-Matches the flow of `proof_protocol.py` / `output_C.txt` naming:
+Matches the flow of `proof_protocol.py` / `boolean_learning_output_C.txt` naming:
   - Rounds r_0..r_3: one stabilizer circuit per round (XZZXI, IXZZX, XIXZZ, ZXIXZ).
     Fault sites: r_k_faulty_gate{0..5}_{x0,z0,x1,z1} (gate index = position in that .qasm).
   - Round r_4: full raw syndrome QASM. Fault sites: r_4_faulty_gate{0..N-1}_*.
@@ -22,9 +22,14 @@ from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
+import sys
 
 from qiskit import QuantumCircuit
 from z3 import BoolVal, is_true, simplify
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 from circuit_op import load_qasm
 from decoder_commute_verify import (
@@ -43,7 +48,7 @@ from flag_analysis import (
 # Paths
 # ---------------------------------------------------------------------------
 
-ORIGIN_DIR = Path("./[[5,1,3]]_origin")
+ORIGIN_DIR = PROJECT_ROOT / "[[5,1,3]]_origin"
 CONFIG_PATH = ORIGIN_DIR / "[[5,1,3]]_origin_config.txt"
 STAB_TXT = ORIGIN_DIR / "[[5,1,3]]_origin.txt"
 LOG_TXT = ORIGIN_DIR / "[[5,1,3]]_log_op.txt"
@@ -343,7 +348,7 @@ def build_smt_fault_asserts_for_path(
     raw_num_gates: int,
 ) -> str:
     """
-    Emit (assert (= r_... true/false)) lines matching `output_C.txt` fault var names.
+    Emit (assert (= r_... true/false)) lines matching `boolean_learning_output_C.txt` fault var names.
     Multiple faults: each gate site's x0/z0/x1/z1 set from that event; others false.
     """
     vals: Dict[str, bool] = {}
@@ -446,7 +451,7 @@ def dfs_protocol(
             bitstring6 = f"{s0}{f0}{''.join(str(b) for b in sec_s)}"
             dx, dz = _data_xz_lists(first_state, flag_qc_ref)
             dec_idx = decoder_file_index(first_stab)
-            dec_path = Path(f"./decoder_C_{dec_idx}.txt")
+            dec_path = ORIGIN_DIR / "decoder" / f"path_{dec_idx}.txt"
             ok, _ = verify_decoder_commute(
                 first_stabilizer_index=first_stab,
                 bitstring6=bitstring6,
