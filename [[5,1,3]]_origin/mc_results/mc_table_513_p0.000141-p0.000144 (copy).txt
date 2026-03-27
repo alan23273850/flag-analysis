@@ -1,0 +1,10 @@
+Monte Carlo table for [[5,1,3]] two-qubit simulator
+Target fails per point: 1600
+beta=1.0, gamma=1.0
+ratio_fail = decoder_fail / total_runs  (all protocol runs, incl. no LUT)
+
+p,beta,gamma,target_fails,decoder_pass,decoder_fail,ratio_fail,no_lut_runs,total_runs,elapsed_sec
+0.000141,1,1,1600,156239,1602,0.00013844718,11413359,11571200,514.095
+0.000142,1,1,1600,159486,1603,0.00013582904,11640511,11801600,494.353
+0.000143,1,1,1600,163057,1605,0.0001342512,11790538,11955200,515.302
+0.000144,1,1,1600,150408,1601,0.00014680531,10753591,10905600,470.577
