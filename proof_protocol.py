@@ -8,7 +8,7 @@ from protocol import *
 from qiskit import QuantumCircuit
 
 
-from z3 import Bool, BoolVal, Xor, Bool,simplify,substitute, And, Not,Or, PbLe, AtMost,ForAll, Implies, Exists, PbGe, AtLeast,PbEq
+from z3 import Bool, BoolVal, Xor, Bool,simplify,substitute, And, Not,Or, PbLe, AtMost,ForAll, Implies, Exists, PbGe, AtLeast,PbEq, parse_smt2_string
 
 from z3 import Solver, unsat, sat
 
@@ -17,6 +17,7 @@ from circuit_op import *
 from protocol import *
 
 from copy import deepcopy
+from time import perf_counter
 
 
 from dataclasses import dataclass
@@ -97,7 +98,7 @@ def proof_protocol(protocol,
                   start_node: str,
                   init_state,
                   config: Dict,
-                  t: int):
+                  at_most_t_faults: int):
 
     all_paths = []
 
@@ -224,7 +225,7 @@ def proof_protocol(protocol,
 
                 print("len all paths:", len(all_paths))
 
-                proof_path(full_path, t, gen_syn, all_condition, config['stab_txt_path'], config['log_txt_path'])
+                proof_path(full_path, at_most_t_faults, gen_syn, all_condition, config['stab_txt_path'], config['log_txt_path'])
 
                 return
             else:
@@ -274,8 +275,9 @@ def proof_protocol_boolean(protocol,
                   start_node: str,
                   init_state,
                   config: Dict,
-                  t: int,
-                  origin_dir: str):
+                  at_most_t_faults: int,
+                  origin_dir: str,
+                  enable_decoder: bool = True):
 
     all_paths = []
     all_path_data = []  # Store collected data for each path
@@ -509,6 +511,7 @@ def proof_protocol_boolean(protocol,
     print(f"COLLECTED DATA FROM {len(all_path_data)} PATHS")
     print("="*80)
     for i, path_data in enumerate(all_path_data):
+        path_idx = i
         if i == 0: continue # 1 <= i <= 4
         print(f"\n--- PATH {i+1} ---")
         print(f"\nMeasured syndrome:")
@@ -570,8 +573,14 @@ def proof_protocol_boolean(protocol,
         for cond_idx, cond in enumerate(path_data['conditions']):
             print(f"   Condition {cond_idx}: {cond}")
 
+        if not enable_decoder:
+            print("\n4. Decoder learning/verification skipped (enable_decoder=False).")
+            print("\n" + "="*80)
+            continue
+
         # We want to learn the decoder in this section.
         print(f"\n4. Decoder Boolean formulas (from truth table, DNF):")
+        decoder_start_t = perf_counter()
         solver = Solver()
         #############################
 
@@ -584,14 +593,9 @@ def proof_protocol_boolean(protocol,
             solver.add(fresh == fault)
             fault_bools.append(fresh)
 
-        # Require that **exactly one** fault occurs (i.e. among all
-        # fault_bools, there is one and only one that is True).
-        # If there are no faults, we leave the solver unconstrained here.
-        if len(fault_bools) == 1:
-            solver.add(fault_bools[0])
-        elif len(fault_bools) > 1:
-            # Sum of fault_bools treated as 0/1 must equal 1.
-            solver.add(PbEq([(b, 1) for b in fault_bools], 1))
+        # Fault cardinality control: always allow at most at_most_t_faults faults.
+        if len(fault_bools) > 0:
+            solver.add(PbLe([(b, 1) for b in fault_bools], at_most_t_faults))
 
         # For each condition in path_data["conditions"], create a fresh
         # Boolean variable condition_i and equate it to that condition.
@@ -680,8 +684,8 @@ def proof_protocol_boolean(protocol,
                 row_parity = terms[0]
             else:
                 acc = terms[0]
-                for t in terms[1:]:
-                    acc = Xor(acc, t)
+                for xor_term in terms[1:]:
+                    acc = Xor(acc, xor_term)
                 row_parity = acc
 
             commute = Bool(f"commute_{row_idx}")
@@ -722,81 +726,79 @@ def proof_protocol_boolean(protocol,
                         meas_vars.append(v)
                     idx += 1
 
-        # Decoder Learning in C: pass SMT2 + variable name lists to C routine
-        #   decoder_learning_in_C. Set _use_c_decoder_learning to True when
-        #   libdecoder_learning.so is built and available.
+        # Decoder Learning in C: C directly writes decoder/path_{i}.txt.
         _use_c_decoder_learning = True
-        if _use_c_decoder_learning:
-            learned_formulas_dict = {}
+        learned_formulas_dict = {}
+        decoder_out_dir = Path(origin_dir) / "decoder"
+        if not decoder_out_dir.is_absolute():
+            decoder_out_dir = Path(__file__).parent / decoder_out_dir
+        decoder_out_dir.mkdir(parents=True, exist_ok=True)
+        decoder_out_path = decoder_out_dir / f"path_{path_idx}.txt"
 
-            import json
-            import ctypes
-            try:
-                here = os.path.dirname(os.path.abspath(__file__))
-                so_path = os.path.join(here, "bull", "trunk", "Src", "c_examples", "libdecoder_learning.so")
-                lib = ctypes.CDLL(so_path)
+        import ctypes
+        try:
+            so_path = Path(__file__).parent / "bull" / "trunk" / "Src" / "c_examples" / "libdecoder_learning.so"
+            lib = ctypes.CDLL(str(so_path))
 
-                # 1. 準備純字串 List
-                smt2_str = solver.to_smt2()
-                meas_var_names = [str(v) for v in meas_vars]
-                decoder_var_names = [str(v) for v in decoder_vars]
-                all_commute_name = "all_commute"
+            smt2_str = solver.to_smt2()
+            meas_var_names = [str(v) for v in meas_vars]
+            decoder_var_names = [str(v) for v in decoder_vars]
+            all_commute_name = "all_commute"
 
-                # 2. 將字串轉為 bytes 列表
-                meas_bytes = [name.encode("utf-8") for name in meas_var_names]
-                dec_bytes = [name.encode("utf-8") for name in decoder_var_names]
+            meas_bytes = [name.encode("utf-8") for name in meas_var_names]
+            dec_bytes = [name.encode("utf-8") for name in decoder_var_names]
 
-                # 3. 建立 ctypes 的字串陣列 (char**)
-                MeasArrayType = ctypes.c_char_p * len(meas_bytes)
-                meas_c_array = MeasArrayType(*meas_bytes)
+            MeasArrayType = ctypes.c_char_p * len(meas_bytes)
+            meas_c_array = MeasArrayType(*meas_bytes)
+            DecArrayType = ctypes.c_char_p * len(dec_bytes)
+            dec_c_array = DecArrayType(*dec_bytes)
 
-                DecArrayType = ctypes.c_char_p * len(dec_bytes)
-                dec_c_array = DecArrayType(*dec_bytes)
+            lib.decoder_learning_in_C_to_file.argtypes = [
+                ctypes.c_char_p,                 # smt2_str
+                ctypes.POINTER(ctypes.c_char_p), # meas_names
+                ctypes.c_int,                    # num_meas
+                ctypes.POINTER(ctypes.c_char_p), # decoder_names
+                ctypes.c_int,                    # num_decoders
+                ctypes.c_char_p,                 # all_commute_name
+                ctypes.c_char_p,                 # out_path
+            ]
+            lib.decoder_learning_in_C_to_file.restype = ctypes.c_int
 
-                # 4. 設定 C 函數的參數型態 (注意：多了長度參數)
-                lib.decoder_learning_in_C.argtypes = [
-                    ctypes.c_char_p,                 # smt2_str
-                    ctypes.POINTER(ctypes.c_char_p), # meas_names (char**)
-                    ctypes.c_int,                    # num_meas (陣列長度)
-                    ctypes.POINTER(ctypes.c_char_p), # decoder_names (char**)
-                    ctypes.c_int,                    # num_decoders (陣列長度)
-                    ctypes.c_char_p                  # all_commute_name
-                ]
-                lib.decoder_learning_in_C.restype = ctypes.c_void_p
+            rc = lib.decoder_learning_in_C_to_file(
+                smt2_str.encode("utf-8"),
+                meas_c_array,
+                len(meas_bytes),
+                dec_c_array,
+                len(dec_bytes),
+                all_commute_name.encode("utf-8"),
+                str(decoder_out_path).encode("utf-8"),
+            )
+            if rc != 0:
+                raise RuntimeError(f"decoder_learning_in_C_to_file failed with code {rc}")
+        except Exception as e:
+            print("decoder_learning_in_C_to_file failed", e)
+            quit()
 
-                # 5. 呼叫 C 函數，直接傳入陣列與長度
-                ptr = lib.decoder_learning_in_C(
-                    smt2_str.encode("utf-8"),
-                    meas_c_array,
-                    len(meas_bytes),
-                    dec_c_array,
-                    len(dec_bytes),
-                    all_commute_name.encode("utf-8")
-                )
+        lines = decoder_out_path.read_text(encoding="utf-8").splitlines()
+        file_formulas: dict[str, str] = {}
+        for line in lines:
+            if (not line.strip()) or line.startswith("#") or line.startswith("meas_var_names:"):
+                continue
+            if "\t" not in line:
+                continue
+            k, v = line.split("\t", 1)
+            file_formulas[k.strip()] = v.strip()
 
-                try:
-                    # 4. 將 void 指標轉型為 char 指標，並讀取 C 語言產生的字串
-                    result_str = ctypes.cast(ptr, ctypes.c_char_p).value.decode("utf-8")
-
-                    # 5. 直接在 Python 記憶體中解析 JSON
-                    c_formulas_json = json.loads(result_str)
-
-                    # 建立翻譯字典：{ 'r_0_ancX0': r_0_ancX0的底層宣告, ... }
-                    meas_decls = {v.decl().name(): v.decl() for v in meas_vars}
-                    # 將 SMT2 字串解析回 Z3 AST (接續你原本的邏輯)
-                    for dec_name, smt2_expr in c_formulas_json.items():
-                        parsed_ast_vector = parse_smt2_string(f"(assert {smt2_expr})", decls=meas_decls)
-                        learned_formulas_dict[dec_name] = parsed_ast_vector[0]
-
-                finally:
-                    # 6. 【極度重要】不論 Python 解析 JSON 是否出錯，都必須呼叫 C 釋放記憶體
-                    if ptr:
-                        lib.free_c_string(ptr)
-
-            except Exception as e:
-                _use_c_decoder_learning = False
-                print("decoder_learning_in_C failed", e)
-                quit()
+        decls = {str(v): Bool(str(v)) for v in meas_vars}
+        decls.update({str(v): Bool(str(v)) for v in decoder_vars})
+        for dec_var in decoder_vars:
+            dec_name = str(dec_var)
+            if dec_name not in file_formulas:
+                raise ValueError(f"Missing decoder formula '{dec_name}' in {decoder_out_path}")
+            sexpr = file_formulas[dec_name]
+            parsed = parse_smt2_string(f"(assert (= {dec_name} {sexpr}))", decls=decls)
+            learned_formulas_dict[dec_name] = parsed[0].children()[1]
+        print(f"  Decoder formulas written by C to {decoder_out_path}")
 
         # Synthesize an explicit Boolean formula for each decoder variable
         # from the truth table (DNF: one term per row where output is True).
@@ -877,8 +879,8 @@ def proof_protocol_boolean(protocol,
                 # Now we want to find a feasible decoder under this row_key.
                 solver.push() ##########################################################
                 solver.add(all_commute)
-                for i, meaV in enumerate(meas_vars):
-                    solver.add(meaV == BoolVal(row_key[i]))
+                for meas_idx, meaV in enumerate(meas_vars):
+                    solver.add(meaV == BoolVal(row_key[meas_idx]))
                 res = solver.check()
                 if res != sat:
                     print('So strange!')
@@ -897,9 +899,11 @@ def proof_protocol_boolean(protocol,
         # At this point, solver is UNSAT under additional blocking clauses
         # on meas_vars, and decoder_tables holds the learned truth tables.
         # We verify the learned decoders without blocking clauses again.
+        learn_elapsed_s = perf_counter() - decoder_start_t
+        print(f"  [Timing] Path {path_idx+1} decoder learning: {learn_elapsed_s:.3f}s")
         solver.add(Not(all_commute))
         # Write decoder formulas for this path (machine-readable for Python)
-        decoder_basename = f"path_{i}.txt" if _use_c_decoder_learning else f"decoder_Python_{i}.txt"
+        decoder_basename = f"path_{path_idx}.txt" if _use_c_decoder_learning else f"decoder_Python_{path_idx}.txt"
         origin_path = Path(origin_dir)
         if not origin_path.is_absolute():
             origin_path = Path(__file__).parent / origin_path
@@ -929,7 +933,12 @@ def proof_protocol_boolean(protocol,
 
         print(f"\n5. Verified SMT formula:")
         print(solver.to_smt2())
+        verify_start_t = perf_counter()
         res = solver.check()
+        verify_elapsed_s = perf_counter() - verify_start_t
+        total_elapsed_s = perf_counter() - decoder_start_t
+        print(f"  [Timing] Path {path_idx+1} decoder verify: {verify_elapsed_s:.3f}s")
+        print(f"  [Timing] Path {path_idx+1} decoder total: {total_elapsed_s:.3f}s")
         if res == unsat:
             print('Verified!')
         else:
@@ -1198,7 +1207,7 @@ def condition_to_z3(cond: dict | None, full_state: dict, groups:Dict) -> Bool:
         return L == R
 
 
-def proof_path(path : list[dict], t : int , gen_syn : list ,all_condtion : list, stab_txt_path: str,  log_txt_path: str) :
+def proof_path(path : list[dict], at_most_t_faults : int , gen_syn : list ,all_condtion : list, stab_txt_path: str,  log_txt_path: str) :
     """
     Given a path (list of steps with conditions and states), build a z3 formula
     that encodes the conditions along the path.
@@ -1239,18 +1248,18 @@ def proof_path(path : list[dict], t : int , gen_syn : list ,all_condtion : list,
 
 
     #    print("gen_syn_z3:", gen_syn_z3)
-    at_most_t_faults = [PbEq( [(f,1) for f in faults ], t)]
+    at_most_t_faults_constraints = [PbLe([(f, 1) for f in faults], at_most_t_faults)]
 
 
 
 
 
 
-    #return uniqness_proof(vars, at_most_t_faults,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
-   # return  uniqueness_build_goal(vars, at_most_t_faults,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
-    #return uniqueness_solve_with_cryptominisat(vars, at_most_t_faults,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
+    #return uniqness_proof(vars, at_most_t_faults_constraints,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
+   # return  uniqueness_build_goal(vars, at_most_t_faults_constraints,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
+    #return uniqueness_solve_with_cryptominisat(vars, at_most_t_faults_constraints,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
 
-    status, model_lits, out = uniqueness_solve_with_cryptominisat(vars, at_most_t_faults,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
+    status, model_lits, out = uniqueness_solve_with_cryptominisat(vars, at_most_t_faults_constraints,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
 
 
 
