@@ -18,7 +18,8 @@ origin_dir = "[[19,1,5]]_[2,2,2,1,1,1]_T"
 protocol_path = "protocols/d_5_lai_protocol.json"
 config_path = f"{origin_dir}/[[19,1,5]]_[2,2,2,1,1,1]_T_lai_d_5_protocol_config.txt"
 at_most_t_faults = 2
-enable_decoder = True
+learn_decoder = True
+verify_decoder = True
 
 ap = argparse.ArgumentParser(description="Run boolean learning and save console output to file.")
 ap.add_argument(
@@ -99,7 +100,8 @@ try:
         config,
         at_most_t_faults,
         origin_dir=origin_dir,
-        enable_decoder=enable_decoder,
+        learn_decoder=learn_decoder,
+        verify_decoder=verify_decoder,
     )
 finally:
     sys.stdout.flush()

@@ -277,7 +277,8 @@ def proof_protocol_boolean(protocol,
                   config: Dict,
                   at_most_t_faults: int,
                   origin_dir: str,
-                  enable_decoder: bool = True):
+                  learn_decoder: bool = True,
+                  verify_decoder: bool = True):
 
     all_paths = []
     all_path_data = []  # Store collected data for each path
@@ -434,7 +435,7 @@ def proof_protocol_boolean(protocol,
                     s_m == s_p for s_m, s_p in zip(syn_measured, pred_syn)
                 ])
                 path_conditions = path_conditions + [syn_constraint]
-            
+
             # Store collected data
             faults = [info["act"] for step in full_path for info in step["site_info"]]
             path_data = {
@@ -573,8 +574,8 @@ def proof_protocol_boolean(protocol,
         for cond_idx, cond in enumerate(path_data['conditions']):
             print(f"   Condition {cond_idx}: {cond}")
 
-        if not enable_decoder:
-            print("\n4. Decoder learning/verification skipped (enable_decoder=False).")
+        if not learn_decoder and not verify_decoder:
+            print("\n4. Decoder learning/verification skipped.")
             print("\n" + "="*80)
             continue
 
@@ -735,49 +736,50 @@ def proof_protocol_boolean(protocol,
         decoder_out_dir.mkdir(parents=True, exist_ok=True)
         decoder_out_path = decoder_out_dir / f"path_{path_idx}.txt"
 
-        import ctypes
-        try:
-            so_path = Path(__file__).parent / "bull" / "trunk" / "Src" / "c_examples" / "libdecoder_learning.so"
-            lib = ctypes.CDLL(str(so_path))
+        if learn_decoder:
+            import ctypes
+            try:
+                so_path = Path(__file__).parent / "bull" / "trunk" / "Src" / "c_examples" / "libdecoder_learning.so"
+                lib = ctypes.CDLL(str(so_path))
 
-            smt2_str = solver.to_smt2()
-            meas_var_names = [str(v) for v in meas_vars]
-            decoder_var_names = [str(v) for v in decoder_vars]
-            all_commute_name = "all_commute"
+                smt2_str = solver.to_smt2()
+                meas_var_names = [str(v) for v in meas_vars]
+                decoder_var_names = [str(v) for v in decoder_vars]
+                all_commute_name = "all_commute"
 
-            meas_bytes = [name.encode("utf-8") for name in meas_var_names]
-            dec_bytes = [name.encode("utf-8") for name in decoder_var_names]
+                meas_bytes = [name.encode("utf-8") for name in meas_var_names]
+                dec_bytes = [name.encode("utf-8") for name in decoder_var_names]
 
-            MeasArrayType = ctypes.c_char_p * len(meas_bytes)
-            meas_c_array = MeasArrayType(*meas_bytes)
-            DecArrayType = ctypes.c_char_p * len(dec_bytes)
-            dec_c_array = DecArrayType(*dec_bytes)
+                MeasArrayType = ctypes.c_char_p * len(meas_bytes)
+                meas_c_array = MeasArrayType(*meas_bytes)
+                DecArrayType = ctypes.c_char_p * len(dec_bytes)
+                dec_c_array = DecArrayType(*dec_bytes)
 
-            lib.decoder_learning_in_C_to_file.argtypes = [
-                ctypes.c_char_p,                 # smt2_str
-                ctypes.POINTER(ctypes.c_char_p), # meas_names
-                ctypes.c_int,                    # num_meas
-                ctypes.POINTER(ctypes.c_char_p), # decoder_names
-                ctypes.c_int,                    # num_decoders
-                ctypes.c_char_p,                 # all_commute_name
-                ctypes.c_char_p,                 # out_path
-            ]
-            lib.decoder_learning_in_C_to_file.restype = ctypes.c_int
+                lib.decoder_learning_in_C_to_file.argtypes = [
+                    ctypes.c_char_p,                 # smt2_str
+                    ctypes.POINTER(ctypes.c_char_p), # meas_names
+                    ctypes.c_int,                    # num_meas
+                    ctypes.POINTER(ctypes.c_char_p), # decoder_names
+                    ctypes.c_int,                    # num_decoders
+                    ctypes.c_char_p,                 # all_commute_name
+                    ctypes.c_char_p,                 # out_path
+                ]
+                lib.decoder_learning_in_C_to_file.restype = ctypes.c_int
 
-            rc = lib.decoder_learning_in_C_to_file(
-                smt2_str.encode("utf-8"),
-                meas_c_array,
-                len(meas_bytes),
-                dec_c_array,
-                len(dec_bytes),
-                all_commute_name.encode("utf-8"),
-                str(decoder_out_path).encode("utf-8"),
-            )
-            if rc != 0:
-                raise RuntimeError(f"decoder_learning_in_C_to_file failed with code {rc}")
-        except Exception as e:
-            print("decoder_learning_in_C_to_file failed", e)
-            quit()
+                rc = lib.decoder_learning_in_C_to_file(
+                    smt2_str.encode("utf-8"),
+                    meas_c_array,
+                    len(meas_bytes),
+                    dec_c_array,
+                    len(dec_bytes),
+                    all_commute_name.encode("utf-8"),
+                    str(decoder_out_path).encode("utf-8"),
+                )
+                if rc != 0:
+                    raise RuntimeError(f"decoder_learning_in_C_to_file failed with code {rc}")
+            except Exception as e:
+                print("decoder_learning_in_C_to_file failed", e)
+                quit()
 
         lines = decoder_out_path.read_text(encoding="utf-8").splitlines()
         file_formulas: dict[str, str] = {}
@@ -836,7 +838,7 @@ def proof_protocol_boolean(protocol,
         #   We organize it as:
         #       decoder_tables: Dict[row_key: Tuple[bool,...],
         #                            Dict[decoder_var, bool]]
-        if not _use_c_decoder_learning:
+        if not _use_c_decoder_learning and learn_decoder:
             decoder_tables: dict[tuple[bool, ...], dict] = {}
 
             while True:
@@ -900,50 +902,62 @@ def proof_protocol_boolean(protocol,
         # on meas_vars, and decoder_tables holds the learned truth tables.
         # We verify the learned decoders without blocking clauses again.
         learn_elapsed_s = perf_counter() - decoder_start_t
-        print(f"  [Timing] Path {path_idx+1} decoder learning: {learn_elapsed_s:.3f}s")
+        if learn_decoder:
+            print(f"  [Timing] Path {path_idx+1} decoder learning: {learn_elapsed_s:.3f}s")
         solver.add(Not(all_commute))
-        # Write decoder formulas for this path (machine-readable for Python)
-        decoder_basename = f"path_{path_idx}.txt" if _use_c_decoder_learning else f"decoder_Python_{path_idx}.txt"
-        origin_path = Path(origin_dir)
-        if not origin_path.is_absolute():
-            origin_path = Path(__file__).parent / origin_path
-        decoder_out_dir = origin_path / "decoder"
-        decoder_out_dir.mkdir(parents=True, exist_ok=True)
-        decoder_out_path = decoder_out_dir / decoder_basename
-        with open(decoder_out_path, "w", encoding="utf-8") as dec_file:
-            # Format for Python: line1 = meas_var_names (comma-sep); then per line: dec_name TAB sexpr.
-            # Rebuild formula_flat: decls = {name: Bool(name) for name in meas_names}; add dec names to decls;
-            # parsed = parse_smt2_string("(assert (= " + dec_name + " " + sexpr + "))", decls=decls); formula_flat = parsed[0].children()[1]
-            dec_file.write("# decoder path " + str(i) + ": meas_var_names then dec_name\\tsexpr per line (parse (assert (= name sexpr)) with decls)\n")
-            dec_file.write("meas_var_names:\t" + ",".join(str(v) for v in meas_vars) + "\n")
-            # Each following line: decoder_var_name TAB formula_flat.sexpr()
-            # To reconstruct: parse_smt2_string("(assert (= " + dec_name + " " + sexpr + "))", decls=decls)
-            # then take the right-hand side of the equality as formula_flat.
-            for dec_var in decoder_vars:
-                if not _use_c_decoder_learning:
-                    formula = truth_table_to_formula(dec_var, meas_vars, decoder_tables)
-                else:
-                    formula = learned_formulas_dict[str(dec_var)]
-                formula_flat = simplify(formula)
-                dec_file.write(f"{dec_var}\t{formula_flat.sexpr()}\n")
-                solver.add(dec_var == formula_flat)
-        print(f"  Decoder formulas written to {decoder_out_path}")
-        if not _use_c_decoder_learning:
-            print('Table Size:', len(decoder_tables))
 
-        print(f"\n5. Verified SMT formula:")
-        print(solver.to_smt2())
-        verify_start_t = perf_counter()
-        res = solver.check()
-        verify_elapsed_s = perf_counter() - verify_start_t
-        total_elapsed_s = perf_counter() - decoder_start_t
-        print(f"  [Timing] Path {path_idx+1} decoder verify: {verify_elapsed_s:.3f}s")
-        print(f"  [Timing] Path {path_idx+1} decoder total: {total_elapsed_s:.3f}s")
-        if res == unsat:
-            print('Verified!')
+        if learn_decoder:
+            # Write decoder formulas for this path (machine-readable for Python)
+            decoder_basename = f"path_{path_idx}.txt" if _use_c_decoder_learning else f"decoder_Python_{path_idx}.txt"
+            origin_path = Path(origin_dir)
+            if not origin_path.is_absolute():
+                origin_path = Path(__file__).parent / origin_path
+            decoder_out_dir = origin_path / "decoder"
+            decoder_out_dir.mkdir(parents=True, exist_ok=True)
+            decoder_out_path = decoder_out_dir / decoder_basename
+            with open(decoder_out_path, "w", encoding="utf-8") as dec_file:
+                # Format for Python: line1 = meas_var_names (comma-sep); then per line: dec_name TAB sexpr.
+                # Rebuild formula_flat: decls = {name: Bool(name) for name in meas_names}; add dec names to decls;
+                # parsed = parse_smt2_string("(assert (= " + dec_name + " " + sexpr + "))", decls=decls); formula_flat = parsed[0].children()[1]
+                dec_file.write("# decoder path " + str(i) + ": meas_var_names then dec_name\\tsexpr per line (parse (assert (= name sexpr)) with decls)\n")
+                dec_file.write("meas_var_names:\t" + ",".join(str(v) for v in meas_vars) + "\n")
+                # Each following line: decoder_var_name TAB formula_flat.sexpr()
+                # To reconstruct: parse_smt2_string("(assert (= " + dec_name + " " + sexpr + "))", decls=decls)
+                # then take the right-hand side of the equality as formula_flat.
+                for dec_var in decoder_vars:
+                    if not _use_c_decoder_learning:
+                        formula = truth_table_to_formula(dec_var, meas_vars, decoder_tables)
+                    else:
+                        formula = learned_formulas_dict[str(dec_var)]
+                    formula_flat = simplify(formula)
+                    dec_file.write(f"{dec_var}\t{formula_flat.sexpr()}\n")
+                    solver.add(dec_var == formula_flat)
+            print(f"  Decoder formulas written to {decoder_out_path}")
+            if not _use_c_decoder_learning:
+                print('Table Size:', len(decoder_tables))
         else:
-            print('Unverified!')
-            quit()
+            # If not learning, we just add the formulas loaded from the file directly into the solver
+            for dec_var in decoder_vars:
+                formula = learned_formulas_dict[str(dec_var)]
+                formula_flat = simplify(formula)
+                solver.add(dec_var == formula_flat)
+
+        if verify_decoder:
+            print(f"\n5. Verified SMT formula:")
+            print(solver.to_smt2())
+            verify_start_t = perf_counter()
+            res = solver.check()
+            verify_elapsed_s = perf_counter() - verify_start_t
+            total_elapsed_s = perf_counter() - decoder_start_t
+            print(f"  [Timing] Path {path_idx+1} decoder verify: {verify_elapsed_s:.3f}s")
+            print(f"  [Timing] Path {path_idx+1} decoder total: {total_elapsed_s:.3f}s")
+            if res == unsat:
+                print('Verified!')
+            else:
+                print('Unverified!')
+                quit()
+        else:
+            print(f"\n5. Decoder verification skipped.")
 
     print("\n" + "="*80)
 
