@@ -271,6 +271,46 @@ def proof_protocol(protocol,
 
 
 
+
+def serialize_z3_ast(expr, node_dict, bytecode):
+    if expr.get_id() in node_dict:
+        return node_dict[expr.get_id()]
+    
+    node_id = len(node_dict)
+    node_dict[expr.get_id()] = node_id
+    
+    from z3 import is_const, is_true, is_false, is_not, is_and, is_or, is_eq, Z3_OP_UNINTERPRETED, Z3_OP_XOR, Z3_OP_PB_LE, Z3_OP_PB_AT_MOST
+    if is_const(expr) and expr.decl().kind() == Z3_OP_UNINTERPRETED:
+        bytecode.extend([0, node_id]) # OP_VAR
+    elif is_true(expr):
+        bytecode.extend([7, node_id])
+    elif is_false(expr):
+        bytecode.extend([8, node_id])
+    elif is_not(expr):
+        child = serialize_z3_ast(expr.children()[0], node_dict, bytecode)
+        bytecode.extend([1, node_id, child])
+    elif is_and(expr):
+        args = [serialize_z3_ast(c, node_dict, bytecode) for c in expr.children()]
+        bytecode.extend([2, node_id, len(args)] + args)
+    elif is_or(expr):
+        args = [serialize_z3_ast(c, node_dict, bytecode) for c in expr.children()]
+        bytecode.extend([3, node_id, len(args)] + args)
+    elif expr.decl().kind() == Z3_OP_XOR:
+        args = [serialize_z3_ast(c, node_dict, bytecode) for c in expr.children()]
+        bytecode.extend([4, node_id, len(args)] + args)
+    elif is_eq(expr):
+        c1 = serialize_z3_ast(expr.children()[0], node_dict, bytecode)
+        c2 = serialize_z3_ast(expr.children()[1], node_dict, bytecode)
+        bytecode.extend([5, node_id, c1, c2])
+    elif expr.decl().kind() in (Z3_OP_PB_LE, Z3_OP_PB_AT_MOST):
+        args = [serialize_z3_ast(c, node_dict, bytecode) for c in expr.children()]
+        limit = expr.params()[0]
+        bytecode.extend([6, node_id, limit, len(args)] + args)
+    else:
+        raise RuntimeError(f"Unknown expr: {expr}, kind: {expr.decl().kind()}")
+    
+    return node_id
+
 def proof_protocol_boolean(protocol,
                   start_node: str,
                   init_state,
@@ -742,7 +782,18 @@ def proof_protocol_boolean(protocol,
                 so_path = Path(__file__).parent / "bull" / "trunk" / "Src" / "c_examples" / "libdecoder_learning.so"
                 lib = ctypes.CDLL(str(so_path))
 
-                smt2_str = solver.to_smt2()
+                node_dict = {}
+                bytecode = []
+                # Serialize all assertions
+                root_args = [serialize_z3_ast(ast, node_dict, bytecode) for ast in solver.assertions()]
+                # Add a root AND node to connect all assertions
+                root_id = len(node_dict)
+                bytecode.extend([2, root_id, len(root_args)] + root_args)
+                
+                meas_ids = [node_dict.get(v.get_id(), -1) for v in meas_vars]
+                dec_ids = [node_dict.get(v.get_id(), -1) for v in decoder_vars]
+                all_commute_id = node_dict.get(all_commute.get_id(), -1)
+                
                 meas_var_names = [str(v) for v in meas_vars]
                 decoder_var_names = [str(v) for v in decoder_vars]
                 all_commute_name = "all_commute"
@@ -754,24 +805,41 @@ def proof_protocol_boolean(protocol,
                 meas_c_array = MeasArrayType(*meas_bytes)
                 DecArrayType = ctypes.c_char_p * len(dec_bytes)
                 dec_c_array = DecArrayType(*dec_bytes)
+                
+                BytecodeArrayType = ctypes.c_int * len(bytecode)
+                bytecode_c_array = BytecodeArrayType(*bytecode)
+                MeasIdsArrayType = ctypes.c_int * len(meas_ids)
+                meas_ids_c_array = MeasIdsArrayType(*meas_ids)
+                DecIdsArrayType = ctypes.c_int * len(dec_ids)
+                dec_ids_c_array = DecIdsArrayType(*dec_ids)
 
                 lib.decoder_learning_in_C_to_file.argtypes = [
-                    ctypes.c_char_p,                 # smt2_str
+                    ctypes.POINTER(ctypes.c_int),    # bytecode
+                    ctypes.c_int,                    # bytecode_len
+                    ctypes.c_int,                    # num_nodes
+                    ctypes.POINTER(ctypes.c_int),    # meas_ids
                     ctypes.POINTER(ctypes.c_char_p), # meas_names
                     ctypes.c_int,                    # num_meas
+                    ctypes.POINTER(ctypes.c_int),    # dec_ids
                     ctypes.POINTER(ctypes.c_char_p), # decoder_names
                     ctypes.c_int,                    # num_decoders
+                    ctypes.c_int,                    # all_commute_id
                     ctypes.c_char_p,                 # all_commute_name
                     ctypes.c_char_p,                 # out_path
                 ]
                 lib.decoder_learning_in_C_to_file.restype = ctypes.c_int
 
                 rc = lib.decoder_learning_in_C_to_file(
-                    smt2_str.encode("utf-8"),
+                    bytecode_c_array,
+                    len(bytecode),
+                    root_id + 1,
+                    meas_ids_c_array,
                     meas_c_array,
                     len(meas_bytes),
+                    dec_ids_c_array,
                     dec_c_array,
                     len(dec_bytes),
+                    all_commute_id,
                     all_commute_name.encode("utf-8"),
                     str(decoder_out_path).encode("utf-8"),
                 )
