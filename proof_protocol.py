@@ -475,9 +475,10 @@ def proof_protocol_boolean(protocol,
                     s_m == s_p for s_m, s_p in zip(syn_measured, pred_syn)
                 ])
                 path_conditions = path_conditions + [syn_constraint]
-
+            
             # Store collected data
             faults = [info["act"] for step in full_path for info in step["site_info"]]
+            at_most_t_faults = PbEq([(f, 1) for f in faults], t) if faults else BoolVal(True)
             path_data = {
                 "last_data": last_data,
                 "anc_flag_per_round": anc_flag_per_round,
@@ -564,7 +565,10 @@ def proof_protocol_boolean(protocol,
         print(f"\n0. Fault variables (count = {len(path_data['faults'])}):")
         for f_idx, f in enumerate(path_data["faults"]):
             print(f"   f[{f_idx}]: {f}")
-
+        
+        print(f"\n   At-most-{t}-faults constraint (PbEq):")
+        print(f"   {path_data['at_most_t_faults']}")
+        
         # Print last round data qubits
         print(f"\n1. Last Round Data Qubits ({len(path_data['last_data'])} qubits):")
         for idx, dq in enumerate(path_data['last_data']):
@@ -1335,16 +1339,14 @@ def proof_path(path : list[dict], at_most_t_faults : int , gen_syn : list ,all_c
 
 
 
+    #return uniqness_proof(vars, at_most_t_faults,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
+   # return  uniqueness_build_goal(vars, at_most_t_faults,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
+    #return uniqueness_solve_with_cryptominisat(vars, at_most_t_faults,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
+    
+    status, model_lits, out = uniqueness_solve_with_cryptominisat(vars, at_most_t_faults,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
+    print(out)
 
-
-    #return uniqness_proof(vars, at_most_t_faults_constraints,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
-   # return  uniqueness_build_goal(vars, at_most_t_faults_constraints,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
-    #return uniqueness_solve_with_cryptominisat(vars, at_most_t_faults_constraints,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
-
-    status, model_lits, out = uniqueness_solve_with_cryptominisat(vars, at_most_t_faults_constraints,all_condtion,  gen_syn_z3, path[-1]["state"]["data"],stab_txt_path, log_txt_path)
-
-
-
+    
     return 0
 
     # Add fault constraints if needed
