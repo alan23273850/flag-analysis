@@ -502,12 +502,12 @@ def proof_protocol_boolean(protocol,
                 # print("len all paths:", len(all_paths))
 
                 # Print collected data for this path
-                # print(f"Path {len(all_paths)} data collected:")
-                # print(f"  - Last data qubits: {len(last_data)} qubits")
-                # print(f"  - Rounds with anc/flag: {len(anc_flag_per_round)}")
-                # print(f"  - Path conditions: {len(path_conditions)}")
-
-                return
+                print(f"Path {len(all_paths) - 1} data collected:")
+                print(f"  - Last data qubits: {len(last_data)} qubits")
+                print(f"  - Rounds with anc/flag: {len(anc_flag_per_round)}")
+                print(f"  - Path conditions: {len(path_conditions)}")
+                
+                return 
             else:
                 # leaf with some other instruction, but nothing to prove
                 return
@@ -553,9 +553,7 @@ def proof_protocol_boolean(protocol,
     print(f"COLLECTED DATA FROM {len(all_path_data)} PATHS")
     print("="*80)
     for i, path_data in enumerate(all_path_data):
-        path_idx = i
-        if i == 0: continue # 1 <= i <= 4
-        print(f"\n--- PATH {i+1} ---")
+        print(f"\n--- PATH {i} ---")
         print(f"\nMeasured syndrome:")
         print(f"   {path_data['syn_measured']}")
         print(f"\nCommutation syndrome:")
