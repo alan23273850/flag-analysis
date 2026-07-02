@@ -16,6 +16,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from decoder_commute_verify import (
     decoder_file_index,
+    decoder_path,
     preload_decoder_assets,
     verify_decoder_commute,
 )
@@ -84,7 +85,7 @@ def _worker_init(sim_path_str: str) -> None:
     _SIM_MOD_WORKER = _load_sim_module(Path(sim_path_str))
     _SIM_MOD_WORKER.preload_static_inputs()
     preload_decoder_assets(
-        decoder_paths=[ORIGIN_DIR / "decoder" / f"path_{i}.txt" for i in range(1, 5)],
+        decoder_paths=[decoder_path(ORIGIN_DIR, i) for i in range(1, 5)],
         log_path=LOG_TXT,
         stab_path=STAB_TXT,
     )
@@ -108,13 +109,13 @@ def _run_chunk(sim_mod: Any, p: float, runs: int) -> tuple[int, int, int, int]:
             continue
 
         dec_idx = decoder_file_index(rec.first_stabilizer_index)
-        dec_path = ORIGIN_DIR / "decoder" / f"path_{dec_idx}.txt"
+        dec_file = decoder_path(ORIGIN_DIR, dec_idx)
         ok, _ = verify_decoder_commute(
             first_stabilizer_index=rec.first_stabilizer_index,
             bitstring6=rec.bitstring6,
             data_x=data_x or [],
             data_z=data_z or [],
-            decoder_c_path=dec_path,
+            decoder_c_path=dec_file,
             log_path=LOG_TXT,
             stab_path=STAB_TXT,
         )
@@ -285,6 +286,12 @@ def _parse_args() -> argparse.Namespace:
         help=f"Worker processes per p point (default: {DEFAULT_PROCESSES})",
     )
     parser.add_argument(
+        "--backend",
+        choices=("cms", "dnf", "cadet"),
+        default=None,
+        help="Decoder backend subdirectory (default: DECODER_BACKEND env or cms)",
+    )
+    parser.add_argument(
         "--chunk-runs",
         type=int,
         default=DEFAULT_CHUNK_RUNS,
@@ -295,6 +302,9 @@ def _parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = _parse_args()
+    if args.backend is not None:
+        import os
+        os.environ["DECODER_BACKEND"] = args.backend
     if args.processes < 1:
         raise ValueError("--processes must be >= 1")
     if args.chunk_runs < 1:
@@ -305,7 +315,7 @@ def main() -> None:
     if sim_mod is not None:
         sim_mod.preload_static_inputs()
     preload_decoder_assets(
-        decoder_paths=[ORIGIN_DIR / "decoder" / f"path_{i}.txt" for i in range(1, 5)],
+        decoder_paths=[decoder_path(ORIGIN_DIR, i) for i in range(1, 5)],
         log_path=LOG_TXT,
         stab_path=STAB_TXT,
     )

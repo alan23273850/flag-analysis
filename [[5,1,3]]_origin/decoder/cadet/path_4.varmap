@@ -1,0 +1,16 @@
+meas	519	r_0_ancX0
+meas	521	r_0_flagZ0
+meas	523	r_1_ancX0
+meas	525	r_1_ancX1
+meas	527	r_1_ancX2
+meas	529	r_1_ancX3
+dec	400	dec0_x
+dec	404	dec0_z
+dec	418	dec1_x
+dec	422	dec1_z
+dec	436	dec2_x
+dec	440	dec2_z
+dec	454	dec3_x
+dec	458	dec3_z
+dec	472	dec4_x
+dec	476	dec4_z

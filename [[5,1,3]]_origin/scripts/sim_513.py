@@ -14,7 +14,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from decoder_commute_verify import decoder_file_index, verify_decoder_commute
+from decoder_commute_verify import decoder_file_index, decoder_path, verify_decoder_commute
 from flag_analysis import (
     CircuitXZ,
     apply_qasm_gate_into_state,
@@ -482,13 +482,13 @@ def main() -> None:
     )
 
     dec_idx = decoder_file_index(rec.first_stabilizer_index)
-    dec_path = ORIGIN_DIR / "decoder" / f"path_{dec_idx}.txt"
+    dec_file = decoder_path(ORIGIN_DIR, dec_idx)
     ok, _dec_vals = verify_decoder_commute(
         first_stabilizer_index=rec.first_stabilizer_index,
         bitstring6=rec.bitstring6,
         data_x=data_x or [],
         data_z=data_z or [],
-        decoder_c_path=dec_path,
+        decoder_c_path=dec_file,
         log_path=LOG_TXT,
         stab_path=STAB_TXT,
     )

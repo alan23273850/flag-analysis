@@ -1,0 +1,55 @@
+[[5,1,3]] WMC ratio_fail convergence over the --max-faults K cutoff
+gpmc -mode=3 (Weighted Projected Model Counting)
+beta=1.0, gamma=1.0
+
+Per-path ratio_fail (path sum = ratio_fail)
+-----------------------------------------------------------------------------
+       p |  K |            t=0 |            t=1 |            t=2 |            t=3 |          TOTAL
+   1e-05 | K2 |   1.038140e-07 |   1.440828e-07 |   2.053233e-07 |   2.380012e-07 |   6.912213e-07
+   1e-05 | K3 |   1.038715e-07 |   1.441770e-07 |   2.054629e-07 |   2.381712e-07 |   6.916826e-07
+   5e-05 | K2 |   2.584779e-06 |   3.582812e-06 |   5.099108e-06 |   5.903087e-06 |   1.716979e-05
+   5e-05 | K3 |   2.591936e-06 |   3.594521e-06 |   5.116442e-06 |   5.924182e-06 |   1.722708e-05
+   1e-04 | K2 |   1.028650e-05 |   1.423553e-05 |   2.022782e-05 |   2.337971e-05 |   6.812956e-05
+   1e-04 | K3 |   1.034347e-05 |   1.432858e-05 |   2.036535e-05 |   2.354682e-05 |   6.858422e-05
+   1e-04 | K4 |   1.034365e-05 |   1.432894e-05 |       (killed) |   2.354756e-05 |  (incomplete)
+
+Relative shift K=3 vs K=2 (total ratio_fail)
+-----------------------------------------------------------------------------
+  p=1e-05 : 6.91683e-07 vs 6.91221e-07  → +0.067 %
+  p=5e-05 : 1.72271e-05 vs 1.71698e-05  → +0.334 %
+  p=1e-04 : 6.85842e-05 vs 6.81296e-05  → +0.667 %
+
+Per-path relative shift K=3 → K=4 at p=1e-4
+-----------------------------------------------------------------------------
+  t=0 : +0.0018 %
+  t=1 : +0.0025 %
+  t=2 : N/A (gpmc killed after 9.5 h still running, treewidth 57)
+  t=3 : +0.0031 %
+
+gpmc wall times (single thread per CNF, parallel across paths)
+-----------------------------------------------------------------------------
+  K=2  per path : ~6 s ; total 4-path sweep : ~10 s parallel
+  K=3  per path : 23/51/95/130 s ; total 4-path sweep : ~2.5 min parallel
+  K=4 @ p=1e-4 : t=0 1854 s (31 min)
+                 t=1 6319 s (1.75 h)
+                 t=3 18578 s (5.16 h)
+                 t=2 killed at >9.5 h still in "Counting starts..."
+  No-K  @ p=1e-4 : all 4 paths killed at ~57 min still in "Counting starts..."
+
+MC reference (mc_results/mc_table_513_p1e-05-p0.0001.csv)
+-----------------------------------------------------------------------------
+  p=1e-05 : ratio_fail = 7.0372581e-07  (MC: 1600 fails, ~23 h wall)
+  p=5e-05 : ratio_fail = 1.6954247e-05  (MC: 1600 fails, ~1.1 h wall)
+  p=1e-04 : ratio_fail = 7.1067116e-05  (MC: 1600 fails, ~16 min wall)
+
+Interpretation
+-----------------------------------------------------------------------------
+  - K=3 → K=4 brings <0.01 % shift per path at p=1e-4 (~10^(-9)
+    absolute), strongly suggesting the true ratio_fail differs from
+    K=3 by ~10^(-8) abs / <0.01 % rel at p=1e-4, well below MC's
+    statistical noise (~2.5 % from 1600 failures).
+  - K=2 truncation error appears to scale ~ p:
+       +0.067 % @ 1e-5, +0.33 % @ 5e-5, +0.67 % @ 1e-4
+    consistent with the "leading term beyond K=2" being O(p^3).
+  - K=3 is the practical sweet spot: ~2.5 min wall for the full
+    4-path sweep, far cheaper than MC and accurate to <0.01 %.

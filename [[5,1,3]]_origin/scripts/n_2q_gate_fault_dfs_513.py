@@ -34,6 +34,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from circuit_op import load_qasm
 from decoder_commute_verify import (
     decoder_file_index,
+    decoder_path,
     format_decoder_commute_fail_report,
     verify_decoder_commute,
 )
@@ -451,13 +452,13 @@ def dfs_protocol(
             bitstring6 = f"{s0}{f0}{''.join(str(b) for b in sec_s)}"
             dx, dz = _data_xz_lists(first_state, flag_qc_ref)
             dec_idx = decoder_file_index(first_stab)
-            dec_path = ORIGIN_DIR / "decoder" / f"path_{dec_idx}.txt"
+            dec_file = decoder_path(ORIGIN_DIR, dec_idx)
             ok, _ = verify_decoder_commute(
                 first_stabilizer_index=first_stab,
                 bitstring6=bitstring6,
                 data_x=dx,
                 data_z=dz,
-                decoder_c_path=dec_path,
+                decoder_c_path=dec_file,
                 log_path=LOG_TXT,
                 stab_path=STAB_TXT,
             )
@@ -485,7 +486,7 @@ def dfs_protocol(
                             bitstring6=bitstring6,
                             data_x=dx,
                             data_z=dz,
-                            decoder_c_path=dec_path,
+                            decoder_c_path=dec_file,
                             log_path=LOG_TXT,
                             stab_path=STAB_TXT,
                             fault_detail_lines=fault_lines if fault_lines else None,

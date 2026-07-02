@@ -1,0 +1,4 @@
+p,beta,gamma,max_faults,ratio_fail,path_t0_fail,path_t1_fail,path_t2_fail,path_t3_fail,total_vars,total_clauses,elapsed_sec
+1e-05,1,1,1,0,0,0,0,0,3616,10709,5.877
+5e-05,1,1,1,0,0,0,0,0,3621,10732,5.869
+0.0001,1,1,1,0,0,0,0,0,3613,10707,5.890

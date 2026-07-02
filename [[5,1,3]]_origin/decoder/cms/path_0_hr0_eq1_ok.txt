@@ -1,0 +1,14 @@
+# hash_table_valid_entries: 1
+0 0 0 0 0 0 0 0 0 0
+# decoder: meas_var_names then dec_name\tsexpr per line
+meas_var_names:	r_0_ancX0,r_0_flagZ0,r_1_ancX0,r_1_flagZ0,r_2_ancX0,r_2_flagZ0,r_3_ancX0,r_3_flagZ0
+dec0_x	true
+dec0_z	true
+dec1_x	true
+dec1_z	true
+dec2_x	true
+dec2_z	true
+dec3_x	true
+dec3_z	true
+dec4_x	true
+dec4_z	true

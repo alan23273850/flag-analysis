@@ -1,0 +1,2100 @@
+--- PATH 3 ---
+
+Measured syndrome:
+   [Xor(Xor(Xor(Xor(Xor(Xor(False, r_0_faulty_gate3_x0),
+                    r_1_faulty_gate2_x0),
+                Xor(Xor(Xor(Xor(Xor(False,
+                                    r_0_faulty_gate2_x0),
+                                False),
+                            r_1_faulty_gate0_x1),
+                        Xor(Xor(False,
+                                Xor(False,
+                                    r_0_faulty_gate0_z1)),
+                            r_2_faulty_gate0_z0)),
+                    r_2_faulty_gate1_z1)),
+            r_2_faulty_gate2_z1),
+        Xor(Xor(Xor(Xor(Xor(False, r_1_faulty_gate0_x0),
+                        r_1_faulty_gate1_x0),
+                    r_1_faulty_gate2_x1),
+                Xor(False, r_0_faulty_gate5_z1)),
+            r_1_faulty_gate3_z0)),
+    r_2_faulty_gate3_z0), Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        r_0_faulty_gate3_x1),
+                                        r_0_faulty_gate4_x0)),
+                                r_0_faulty_gate5_x1),
+                            r_1_faulty_gate3_x0),
+                        Xor(Xor(Xor(False,
+                                    r_2_faulty_gate0_x0),
+                                r_2_faulty_gate1_x1),
+                            r_2_faulty_gate2_x1)),
+                    r_2_faulty_gate3_x1),
+                Xor(Xor(Xor(Xor(Xor(False,
+                                    r_0_faulty_gate3_x0),
+                                r_1_faulty_gate2_x0),
+                            r_2_faulty_gate2_x0),
+                        Xor(Xor(False,
+                                Xor(Xor(Xor(False,
+                                        r_2_faulty_gate0_x0),
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        False),
+                                        r_0_faulty_gate2_z0),
+                                        r_1_faulty_gate0_z1)),
+                                    r_2_faulty_gate1_z0)),
+                            r_2_faulty_gate4_z0)),
+                    r_2_faulty_gate5_z1)),
+            r_2_faulty_gate6_z1),
+        Xor(False, r_1_faulty_gate5_z1)),
+    r_2_faulty_gate7_z0), Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                Xor(Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                        r_1_faulty_gate1_x0),
+                                        r_1_faulty_gate2_x1),
+                                        r_1_faulty_gate3_x1),
+                                    r_1_faulty_gate4_x0)),
+                            r_1_faulty_gate5_x1),
+                        Xor(Xor(Xor(False,
+                                    r_2_faulty_gate4_x0),
+                                r_2_faulty_gate5_x1),
+                            r_2_faulty_gate6_x1)),
+                    r_2_faulty_gate7_x1),
+                Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        r_0_faulty_gate3_x1),
+                                        r_0_faulty_gate4_x0)),
+                                        r_0_faulty_gate5_x1),
+                                        r_1_faulty_gate3_x0),
+                                    Xor(Xor(Xor(False,
+                                        r_2_faulty_gate0_x0),
+                                        r_2_faulty_gate1_x1),
+                                        r_2_faulty_gate2_x1)),
+                                r_2_faulty_gate3_x1),
+                            r_2_faulty_gate6_x0),
+                        Xor(Xor(False,
+                                Xor(Xor(False,
+                                        r_0_faulty_gate0_z1),
+                                    r_2_faulty_gate0_z1)),
+                            r_2_faulty_gate8_z0)),
+                    r_2_faulty_gate9_z1)),
+            r_2_faulty_gate10_z1),
+        Xor(Xor(Xor(False, r_2_faulty_gate4_x0),
+                Xor(Xor(Xor(Xor(False, r_2_faulty_gate0_x0),
+                            r_2_faulty_gate1_x1),
+                        Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                    r_1_faulty_gate1_x0),
+                                Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        False),
+                                    r_0_faulty_gate3_z0)),
+                            r_1_faulty_gate2_z0)),
+                    r_2_faulty_gate2_z0)),
+            r_2_faulty_gate5_z0)),
+    r_2_faulty_gate11_z0), Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                        r_1_faulty_gate1_x0),
+                                        r_1_faulty_gate2_x1),
+                                        r_1_faulty_gate3_x1),
+                                        r_1_faulty_gate4_x0)),
+                                r_1_faulty_gate5_x1),
+                            Xor(Xor(Xor(False,
+                                        r_2_faulty_gate4_x0),
+                                    r_2_faulty_gate5_x1),
+                                r_2_faulty_gate6_x1)),
+                        r_2_faulty_gate7_x1),
+                    r_2_faulty_gate10_x0),
+                Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        False),
+                                        r_0_faulty_gate0_x1),
+                                        False),
+                                    r_2_faulty_gate0_x1),
+                                False),
+                            r_2_faulty_gate8_x1),
+                        Xor(Xor(False,
+                                Xor(Xor(Xor(Xor(False,
+                                        r_2_faulty_gate0_x0),
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        False),
+                                        r_0_faulty_gate2_z0),
+                                        r_1_faulty_gate0_z1)),
+                                        r_2_faulty_gate1_z0),
+                                    r_2_faulty_gate4_z1)),
+                            r_2_faulty_gate12_z0)),
+                    r_2_faulty_gate13_z1)),
+            r_2_faulty_gate14_z1),
+        Xor(Xor(Xor(False, r_2_faulty_gate8_x0),
+                Xor(Xor(Xor(Xor(False, r_2_faulty_gate4_x0),
+                            r_2_faulty_gate5_x1),
+                        Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                        r_1_faulty_gate1_x0),
+                                        r_1_faulty_gate2_x1),
+                                    Xor(False,
+                                        r_0_faulty_gate5_z1)),
+                                r_1_faulty_gate3_z0),
+                            r_2_faulty_gate3_z1)),
+                    r_2_faulty_gate6_z0)),
+            r_2_faulty_gate9_z0)),
+    r_2_faulty_gate15_z0)]
+
+Commutation syndrome:
+   [Not((((r_2_faulty_gate8_x0 ==
+       (((((((r_1_faulty_gate0_x0 == r_1_faulty_gate1_x0) ==
+             r_1_faulty_gate2_x1) ==
+            r_0_faulty_gate5_z1) ==
+           r_1_faulty_gate3_z0) ==
+          r_2_faulty_gate3_z1) ==
+         (r_2_faulty_gate4_x0 == r_2_faulty_gate5_x1)) ==
+        r_2_faulty_gate6_z0)) ==
+      r_2_faulty_gate9_z0) ==
+     r_2_faulty_gate15_z1) ==
+    ((((((r_0_faulty_gate3_x0 == r_1_faulty_gate2_x0) ==
+         r_2_faulty_gate2_x0) ==
+        r_2_faulty_gate5_x0) ==
+       ((r_2_faulty_gate8_x0 == r_2_faulty_gate9_x1) ==
+        r_2_faulty_gate10_x1)) ==
+      r_2_faulty_gate11_x1) ==
+     (((r_2_faulty_gate12_x0 ==
+        ((r_0_faulty_gate0_z1 == r_2_faulty_gate0_z1) ==
+         r_2_faulty_gate8_z1)) ==
+       r_2_faulty_gate13_z0) ==
+      ((((r_0_faulty_gate2_x0 == r_1_faulty_gate0_x1) ==
+         r_2_faulty_gate1_x0) ==
+        r_2_faulty_gate4_x1) ==
+       r_2_faulty_gate12_x1)))), (((((((r_0_faulty_gate3_x0 == r_1_faulty_gate2_x0) ==
+      r_2_faulty_gate2_x0) ==
+     r_2_faulty_gate5_x0) ==
+    ((r_2_faulty_gate8_x0 == r_2_faulty_gate9_x1) ==
+     r_2_faulty_gate10_x1)) ==
+   r_2_faulty_gate11_x1) ==
+  ((((r_2_faulty_gate0_x0 ==
+      (((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+        r_0_faulty_gate2_z0) ==
+       r_1_faulty_gate0_z1)) ==
+     r_2_faulty_gate1_z0) ==
+    r_2_faulty_gate4_z1) ==
+   r_2_faulty_gate12_z1)) ==
+ ((((((((((((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+            r_0_faulty_gate2_x1) ==
+           r_0_faulty_gate3_x1) ==
+          r_0_faulty_gate4_x0) ==
+         r_0_faulty_gate5_x1) ==
+        r_1_faulty_gate3_x0) ==
+       ((r_2_faulty_gate0_x0 == r_2_faulty_gate1_x1) ==
+        r_2_faulty_gate2_x1)) ==
+      r_2_faulty_gate3_x1) ==
+     r_2_faulty_gate6_x0) ==
+    r_2_faulty_gate9_x0) ==
+   ((r_2_faulty_gate12_x0 == r_2_faulty_gate13_x1) ==
+    r_2_faulty_gate14_x1)) ==
+  r_2_faulty_gate15_x1)) ==
+(((r_2_faulty_gate12_x0 == r_2_faulty_gate13_x1) ==
+  (((r_1_faulty_gate5_z1 == r_2_faulty_gate7_z1) ==
+    (r_2_faulty_gate8_x0 == r_2_faulty_gate9_x1)) ==
+   r_2_faulty_gate10_z0)) ==
+ r_2_faulty_gate14_z0), ((((r_2_faulty_gate12_x0 ==
+    ((r_0_faulty_gate0_z1 == r_2_faulty_gate0_z1) ==
+     r_2_faulty_gate8_z1)) ==
+   r_2_faulty_gate13_z0) ==
+  (((r_2_faulty_gate4_x0 ==
+     (((r_2_faulty_gate0_x0 == r_2_faulty_gate1_x1) ==
+       (((((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+           r_0_faulty_gate2_x1) ==
+          r_0_faulty_gate3_z0) ==
+         (r_1_faulty_gate0_x0 == r_1_faulty_gate1_x0)) ==
+        r_1_faulty_gate2_z0)) ==
+      r_2_faulty_gate2_z0)) ==
+    r_2_faulty_gate5_z0) ==
+   r_2_faulty_gate11_z1)) ==
+ ((((((((((((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+            r_0_faulty_gate2_x1) ==
+           r_0_faulty_gate3_x1) ==
+          r_0_faulty_gate4_x0) ==
+         r_0_faulty_gate5_x1) ==
+        r_1_faulty_gate3_x0) ==
+       ((r_2_faulty_gate0_x0 == r_2_faulty_gate1_x1) ==
+        r_2_faulty_gate2_x1)) ==
+      r_2_faulty_gate3_x1) ==
+     r_2_faulty_gate6_x0) ==
+    r_2_faulty_gate9_x0) ==
+   ((r_2_faulty_gate12_x0 == r_2_faulty_gate13_x1) ==
+    r_2_faulty_gate14_x1)) ==
+  r_2_faulty_gate15_x1)) ==
+(((((((((r_1_faulty_gate0_x0 == r_1_faulty_gate1_x0) ==
+        r_1_faulty_gate2_x1) ==
+       r_1_faulty_gate3_x1) ==
+      r_1_faulty_gate4_x0) ==
+     r_1_faulty_gate5_x1) ==
+    ((r_2_faulty_gate4_x0 == r_2_faulty_gate5_x1) ==
+     r_2_faulty_gate6_x1)) ==
+   r_2_faulty_gate7_x1) ==
+  r_2_faulty_gate10_x0) ==
+ r_2_faulty_gate14_x0), Not((((((((((r_1_faulty_gate0_x0 == r_1_faulty_gate1_x0) ==
+            r_1_faulty_gate2_x1) ==
+           r_1_faulty_gate3_x1) ==
+          r_1_faulty_gate4_x0) ==
+         r_1_faulty_gate5_x1) ==
+        ((r_2_faulty_gate4_x0 == r_2_faulty_gate5_x1) ==
+         r_2_faulty_gate6_x1)) ==
+       r_2_faulty_gate7_x1) ==
+      r_2_faulty_gate10_x0) ==
+     r_2_faulty_gate14_x0) ==
+    ((((r_2_faulty_gate8_x0 ==
+        (((((((r_1_faulty_gate0_x0 == r_1_faulty_gate1_x0) ==
+              r_1_faulty_gate2_x1) ==
+             r_0_faulty_gate5_z1) ==
+            r_1_faulty_gate3_z0) ==
+           r_2_faulty_gate3_z1) ==
+          (r_2_faulty_gate4_x0 == r_2_faulty_gate5_x1)) ==
+         r_2_faulty_gate6_z0)) ==
+       r_2_faulty_gate9_z0) ==
+      r_2_faulty_gate15_z1) ==
+     (((((r_2_faulty_gate0_x0 ==
+          (((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+            r_0_faulty_gate2_z0) ==
+           r_1_faulty_gate0_z1)) ==
+         r_2_faulty_gate1_z0) ==
+        r_2_faulty_gate4_z1) ==
+       r_2_faulty_gate12_z1) ==
+      (((r_0_faulty_gate0_x1 == r_2_faulty_gate0_x1) ==
+        r_2_faulty_gate8_x1) ==
+       r_2_faulty_gate13_x0))))]
+
+Syndrome equality constraint:
+   And(Xor(Xor(Xor(Xor(Xor(Xor(False, r_0_faulty_gate3_x0),
+                        r_1_faulty_gate2_x0),
+                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate2_x0),
+                                    False),
+                                r_1_faulty_gate0_x1),
+                            Xor(Xor(False,
+                                    Xor(False,
+                                        r_0_faulty_gate0_z1)),
+                                r_2_faulty_gate0_z0)),
+                        r_2_faulty_gate1_z1)),
+                r_2_faulty_gate2_z1),
+            Xor(Xor(Xor(Xor(Xor(False, r_1_faulty_gate0_x0),
+                            r_1_faulty_gate1_x0),
+                        r_1_faulty_gate2_x1),
+                    Xor(False, r_0_faulty_gate5_z1)),
+                r_1_faulty_gate3_z0)),
+        r_2_faulty_gate3_z0) ==
+    Not((((r_2_faulty_gate8_x0 ==
+           (((((((r_1_faulty_gate0_x0 == r_1_faulty_gate1_x0) ==
+                 r_1_faulty_gate2_x1) ==
+                r_0_faulty_gate5_z1) ==
+               r_1_faulty_gate3_z0) ==
+              r_2_faulty_gate3_z1) ==
+             (r_2_faulty_gate4_x0 == r_2_faulty_gate5_x1)) ==
+            r_2_faulty_gate6_z0)) ==
+          r_2_faulty_gate9_z0) ==
+         r_2_faulty_gate15_z1) ==
+        ((((((r_0_faulty_gate3_x0 == r_1_faulty_gate2_x0) ==
+             r_2_faulty_gate2_x0) ==
+            r_2_faulty_gate5_x0) ==
+           ((r_2_faulty_gate8_x0 == r_2_faulty_gate9_x1) ==
+            r_2_faulty_gate10_x1)) ==
+          r_2_faulty_gate11_x1) ==
+         (((r_2_faulty_gate12_x0 ==
+            ((r_0_faulty_gate0_z1 == r_2_faulty_gate0_z1) ==
+             r_2_faulty_gate8_z1)) ==
+           r_2_faulty_gate13_z0) ==
+          ((((r_0_faulty_gate2_x0 == r_1_faulty_gate0_x1) ==
+             r_2_faulty_gate1_x0) ==
+            r_2_faulty_gate4_x1) ==
+           r_2_faulty_gate12_x1)))),
+    Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        r_0_faulty_gate3_x1),
+                                        r_0_faulty_gate4_x0)),
+                                    r_0_faulty_gate5_x1),
+                                r_1_faulty_gate3_x0),
+                            Xor(Xor(Xor(False,
+                                        r_2_faulty_gate0_x0),
+                                    r_2_faulty_gate1_x1),
+                                r_2_faulty_gate2_x1)),
+                        r_2_faulty_gate3_x1),
+                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate3_x0),
+                                    r_1_faulty_gate2_x0),
+                                r_2_faulty_gate2_x0),
+                            Xor(Xor(False,
+                                    Xor(Xor(Xor(False,
+                                        r_2_faulty_gate0_x0),
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        False),
+                                        r_0_faulty_gate2_z0),
+                                        r_1_faulty_gate0_z1)),
+                                        r_2_faulty_gate1_z0)),
+                                r_2_faulty_gate4_z0)),
+                        r_2_faulty_gate5_z1)),
+                r_2_faulty_gate6_z1),
+            Xor(False, r_1_faulty_gate5_z1)),
+        r_2_faulty_gate7_z0) ==
+    ((((((((r_0_faulty_gate3_x0 == r_1_faulty_gate2_x0) ==
+           r_2_faulty_gate2_x0) ==
+          r_2_faulty_gate5_x0) ==
+         ((r_2_faulty_gate8_x0 == r_2_faulty_gate9_x1) ==
+          r_2_faulty_gate10_x1)) ==
+        r_2_faulty_gate11_x1) ==
+       ((((r_2_faulty_gate0_x0 ==
+           (((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+             r_0_faulty_gate2_z0) ==
+            r_1_faulty_gate0_z1)) ==
+          r_2_faulty_gate1_z0) ==
+         r_2_faulty_gate4_z1) ==
+        r_2_faulty_gate12_z1)) ==
+      ((((((((((((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+                 r_0_faulty_gate2_x1) ==
+                r_0_faulty_gate3_x1) ==
+               r_0_faulty_gate4_x0) ==
+              r_0_faulty_gate5_x1) ==
+             r_1_faulty_gate3_x0) ==
+            ((r_2_faulty_gate0_x0 == r_2_faulty_gate1_x1) ==
+             r_2_faulty_gate2_x1)) ==
+           r_2_faulty_gate3_x1) ==
+          r_2_faulty_gate6_x0) ==
+         r_2_faulty_gate9_x0) ==
+        ((r_2_faulty_gate12_x0 == r_2_faulty_gate13_x1) ==
+         r_2_faulty_gate14_x1)) ==
+       r_2_faulty_gate15_x1)) ==
+     (((r_2_faulty_gate12_x0 == r_2_faulty_gate13_x1) ==
+       (((r_1_faulty_gate5_z1 == r_2_faulty_gate7_z1) ==
+         (r_2_faulty_gate8_x0 == r_2_faulty_gate9_x1)) ==
+        r_2_faulty_gate10_z0)) ==
+      r_2_faulty_gate14_z0)),
+    Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                        r_1_faulty_gate1_x0),
+                                        r_1_faulty_gate2_x1),
+                                        r_1_faulty_gate3_x1),
+                                        r_1_faulty_gate4_x0)),
+                                r_1_faulty_gate5_x1),
+                            Xor(Xor(Xor(False,
+                                        r_2_faulty_gate4_x0),
+                                    r_2_faulty_gate5_x1),
+                                r_2_faulty_gate6_x1)),
+                        r_2_faulty_gate7_x1),
+                    Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        r_0_faulty_gate3_x1),
+                                        r_0_faulty_gate4_x0)),
+                                        r_0_faulty_gate5_x1),
+                                        r_1_faulty_gate3_x0),
+                                        Xor(Xor(Xor(False,
+                                        r_2_faulty_gate0_x0),
+                                        r_2_faulty_gate1_x1),
+                                        r_2_faulty_gate2_x1)),
+                                    r_2_faulty_gate3_x1),
+                                r_2_faulty_gate6_x0),
+                            Xor(Xor(False,
+                                    Xor(Xor(False,
+                                        r_0_faulty_gate0_z1),
+                                        r_2_faulty_gate0_z1)),
+                                r_2_faulty_gate8_z0)),
+                        r_2_faulty_gate9_z1)),
+                r_2_faulty_gate10_z1),
+            Xor(Xor(Xor(False, r_2_faulty_gate4_x0),
+                    Xor(Xor(Xor(Xor(False,
+                                    r_2_faulty_gate0_x0),
+                                r_2_faulty_gate1_x1),
+                            Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                        r_1_faulty_gate1_x0),
+                                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        False),
+                                        r_0_faulty_gate3_z0)),
+                                r_1_faulty_gate2_z0)),
+                        r_2_faulty_gate2_z0)),
+                r_2_faulty_gate5_z0)),
+        r_2_faulty_gate11_z0) ==
+    (((((r_2_faulty_gate12_x0 ==
+         ((r_0_faulty_gate0_z1 == r_2_faulty_gate0_z1) ==
+          r_2_faulty_gate8_z1)) ==
+        r_2_faulty_gate13_z0) ==
+       (((r_2_faulty_gate4_x0 ==
+          (((r_2_faulty_gate0_x0 == r_2_faulty_gate1_x1) ==
+            (((((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+                r_0_faulty_gate2_x1) ==
+               r_0_faulty_gate3_z0) ==
+              (r_1_faulty_gate0_x0 == r_1_faulty_gate1_x0)) ==
+             r_1_faulty_gate2_z0)) ==
+           r_2_faulty_gate2_z0)) ==
+         r_2_faulty_gate5_z0) ==
+        r_2_faulty_gate11_z1)) ==
+      ((((((((((((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+                 r_0_faulty_gate2_x1) ==
+                r_0_faulty_gate3_x1) ==
+               r_0_faulty_gate4_x0) ==
+              r_0_faulty_gate5_x1) ==
+             r_1_faulty_gate3_x0) ==
+            ((r_2_faulty_gate0_x0 == r_2_faulty_gate1_x1) ==
+             r_2_faulty_gate2_x1)) ==
+           r_2_faulty_gate3_x1) ==
+          r_2_faulty_gate6_x0) ==
+         r_2_faulty_gate9_x0) ==
+        ((r_2_faulty_gate12_x0 == r_2_faulty_gate13_x1) ==
+         r_2_faulty_gate14_x1)) ==
+       r_2_faulty_gate15_x1)) ==
+     (((((((((r_1_faulty_gate0_x0 == r_1_faulty_gate1_x0) ==
+             r_1_faulty_gate2_x1) ==
+            r_1_faulty_gate3_x1) ==
+           r_1_faulty_gate4_x0) ==
+          r_1_faulty_gate5_x1) ==
+         ((r_2_faulty_gate4_x0 == r_2_faulty_gate5_x1) ==
+          r_2_faulty_gate6_x1)) ==
+        r_2_faulty_gate7_x1) ==
+       r_2_faulty_gate10_x0) ==
+      r_2_faulty_gate14_x0)),
+    Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+...
+
+0. Fault variables (count = 28):
+   f[0]: Or(Or(r_0_faulty_gate0_x0, r_0_faulty_gate0_z0),
+   Or(r_0_faulty_gate0_x1, r_0_faulty_gate0_z1))
+   f[1]: Or(Or(r_0_faulty_gate1_x0, r_0_faulty_gate1_z0),
+   Or(r_0_faulty_gate1_x1, r_0_faulty_gate1_z1))
+   f[2]: Or(Or(r_0_faulty_gate2_x0, r_0_faulty_gate2_z0),
+   Or(r_0_faulty_gate2_x1, r_0_faulty_gate2_z1))
+   f[3]: Or(Or(r_0_faulty_gate3_x0, r_0_faulty_gate3_z0),
+   Or(r_0_faulty_gate3_x1, r_0_faulty_gate3_z1))
+   f[4]: Or(Or(r_0_faulty_gate4_x0, r_0_faulty_gate4_z0),
+   Or(r_0_faulty_gate4_x1, r_0_faulty_gate4_z1))
+   f[5]: Or(Or(r_0_faulty_gate5_x0, r_0_faulty_gate5_z0),
+   Or(r_0_faulty_gate5_x1, r_0_faulty_gate5_z1))
+   f[6]: Or(Or(r_1_faulty_gate0_x0, r_1_faulty_gate0_z0),
+   Or(r_1_faulty_gate0_x1, r_1_faulty_gate0_z1))
+   f[7]: Or(Or(r_1_faulty_gate1_x0, r_1_faulty_gate1_z0),
+   Or(r_1_faulty_gate1_x1, r_1_faulty_gate1_z1))
+   f[8]: Or(Or(r_1_faulty_gate2_x0, r_1_faulty_gate2_z0),
+   Or(r_1_faulty_gate2_x1, r_1_faulty_gate2_z1))
+   f[9]: Or(Or(r_1_faulty_gate3_x0, r_1_faulty_gate3_z0),
+   Or(r_1_faulty_gate3_x1, r_1_faulty_gate3_z1))
+   f[10]: Or(Or(r_1_faulty_gate4_x0, r_1_faulty_gate4_z0),
+   Or(r_1_faulty_gate4_x1, r_1_faulty_gate4_z1))
+   f[11]: Or(Or(r_1_faulty_gate5_x0, r_1_faulty_gate5_z0),
+   Or(r_1_faulty_gate5_x1, r_1_faulty_gate5_z1))
+   f[12]: Or(Or(r_2_faulty_gate0_x0, r_2_faulty_gate0_z0),
+   Or(r_2_faulty_gate0_x1, r_2_faulty_gate0_z1))
+   f[13]: Or(Or(r_2_faulty_gate1_x0, r_2_faulty_gate1_z0),
+   Or(r_2_faulty_gate1_x1, r_2_faulty_gate1_z1))
+   f[14]: Or(Or(r_2_faulty_gate2_x0, r_2_faulty_gate2_z0),
+   Or(r_2_faulty_gate2_x1, r_2_faulty_gate2_z1))
+   f[15]: Or(Or(r_2_faulty_gate3_x0, r_2_faulty_gate3_z0),
+   Or(r_2_faulty_gate3_x1, r_2_faulty_gate3_z1))
+   f[16]: Or(Or(r_2_faulty_gate4_x0, r_2_faulty_gate4_z0),
+   Or(r_2_faulty_gate4_x1, r_2_faulty_gate4_z1))
+   f[17]: Or(Or(r_2_faulty_gate5_x0, r_2_faulty_gate5_z0),
+   Or(r_2_faulty_gate5_x1, r_2_faulty_gate5_z1))
+   f[18]: Or(Or(r_2_faulty_gate6_x0, r_2_faulty_gate6_z0),
+   Or(r_2_faulty_gate6_x1, r_2_faulty_gate6_z1))
+   f[19]: Or(Or(r_2_faulty_gate7_x0, r_2_faulty_gate7_z0),
+   Or(r_2_faulty_gate7_x1, r_2_faulty_gate7_z1))
+   f[20]: Or(Or(r_2_faulty_gate8_x0, r_2_faulty_gate8_z0),
+   Or(r_2_faulty_gate8_x1, r_2_faulty_gate8_z1))
+   f[21]: Or(Or(r_2_faulty_gate9_x0, r_2_faulty_gate9_z0),
+   Or(r_2_faulty_gate9_x1, r_2_faulty_gate9_z1))
+   f[22]: Or(Or(r_2_faulty_gate10_x0, r_2_faulty_gate10_z0),
+   Or(r_2_faulty_gate10_x1, r_2_faulty_gate10_z1))
+   f[23]: Or(Or(r_2_faulty_gate11_x0, r_2_faulty_gate11_z0),
+   Or(r_2_faulty_gate11_x1, r_2_faulty_gate11_z1))
+   f[24]: Or(Or(r_2_faulty_gate12_x0, r_2_faulty_gate12_z0),
+   Or(r_2_faulty_gate12_x1, r_2_faulty_gate12_z1))
+   f[25]: Or(Or(r_2_faulty_gate13_x0, r_2_faulty_gate13_z0),
+   Or(r_2_faulty_gate13_x1, r_2_faulty_gate13_z1))
+   f[26]: Or(Or(r_2_faulty_gate14_x0, r_2_faulty_gate14_z0),
+   Or(r_2_faulty_gate14_x1, r_2_faulty_gate14_z1))
+   f[27]: Or(Or(r_2_faulty_gate15_x0, r_2_faulty_gate15_z0),
+   Or(r_2_faulty_gate15_x1, r_2_faulty_gate15_z1))
+
+   At-most-1-faults constraint (PbEq):
+   PbEq(((Or(Or(r_0_faulty_gate0_x0, r_0_faulty_gate0_z0),
+          Or(r_0_faulty_gate0_x1, r_0_faulty_gate0_z1)),
+       1),
+      (Or(Or(r_0_faulty_gate1_x0, r_0_faulty_gate1_z0),
+          Or(r_0_faulty_gate1_x1, r_0_faulty_gate1_z1)),
+       1),
+      (Or(Or(r_0_faulty_gate2_x0, r_0_faulty_gate2_z0),
+          Or(r_0_faulty_gate2_x1, r_0_faulty_gate2_z1)),
+       1),
+      (Or(Or(r_0_faulty_gate3_x0, r_0_faulty_gate3_z0),
+          Or(r_0_faulty_gate3_x1, r_0_faulty_gate3_z1)),
+       1),
+      (Or(Or(r_0_faulty_gate4_x0, r_0_faulty_gate4_z0),
+          Or(r_0_faulty_gate4_x1, r_0_faulty_gate4_z1)),
+       1),
+      (Or(Or(r_0_faulty_gate5_x0, r_0_faulty_gate5_z0),
+          Or(r_0_faulty_gate5_x1, r_0_faulty_gate5_z1)),
+       1),
+      (Or(Or(r_1_faulty_gate0_x0, r_1_faulty_gate0_z0),
+          Or(r_1_faulty_gate0_x1, r_1_faulty_gate0_z1)),
+       1),
+      (Or(Or(r_1_faulty_gate1_x0, r_1_faulty_gate1_z0),
+          Or(r_1_faulty_gate1_x1, r_1_faulty_gate1_z1)),
+       1),
+      (Or(Or(r_1_faulty_gate2_x0, r_1_faulty_gate2_z0),
+          Or(r_1_faulty_gate2_x1, r_1_faulty_gate2_z1)),
+       1),
+      (Or(Or(r_1_faulty_gate3_x0, r_1_faulty_gate3_z0),
+          Or(r_1_faulty_gate3_x1, r_1_faulty_gate3_z1)),
+       1),
+      (Or(Or(r_1_faulty_gate4_x0, r_1_faulty_gate4_z0),
+          Or(r_1_faulty_gate4_x1, r_1_faulty_gate4_z1)),
+       1),
+      (Or(Or(r_1_faulty_gate5_x0, r_1_faulty_gate5_z0),
+          Or(r_1_faulty_gate5_x1, r_1_faulty_gate5_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate0_x0, r_2_faulty_gate0_z0),
+          Or(r_2_faulty_gate0_x1, r_2_faulty_gate0_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate1_x0, r_2_faulty_gate1_z0),
+          Or(r_2_faulty_gate1_x1, r_2_faulty_gate1_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate2_x0, r_2_faulty_gate2_z0),
+          Or(r_2_faulty_gate2_x1, r_2_faulty_gate2_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate3_x0, r_2_faulty_gate3_z0),
+          Or(r_2_faulty_gate3_x1, r_2_faulty_gate3_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate4_x0, r_2_faulty_gate4_z0),
+          Or(r_2_faulty_gate4_x1, r_2_faulty_gate4_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate5_x0, r_2_faulty_gate5_z0),
+          Or(r_2_faulty_gate5_x1, r_2_faulty_gate5_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate6_x0, r_2_faulty_gate6_z0),
+          Or(r_2_faulty_gate6_x1, r_2_faulty_gate6_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate7_x0, r_2_faulty_gate7_z0),
+          Or(r_2_faulty_gate7_x1, r_2_faulty_gate7_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate8_x0, r_2_faulty_gate8_z0),
+          Or(r_2_faulty_gate8_x1, r_2_faulty_gate8_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate9_x0, r_2_faulty_gate9_z0),
+          Or(r_2_faulty_gate9_x1, r_2_faulty_gate9_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate10_x0, r_2_faulty_gate10_z0),
+          Or(r_2_faulty_gate10_x1, r_2_faulty_gate10_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate11_x0, r_2_faulty_gate11_z0),
+          Or(r_2_faulty_gate11_x1, r_2_faulty_gate11_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate12_x0, r_2_faulty_gate12_z0),
+          Or(r_2_faulty_gate12_x1, r_2_faulty_gate12_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate13_x0, r_2_faulty_gate13_z0),
+          Or(r_2_faulty_gate13_x1, r_2_faulty_gate13_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate14_x0, r_2_faulty_gate14_z0),
+          Or(r_2_faulty_gate14_x1, r_2_faulty_gate14_z1)),
+       1),
+      (Or(Or(r_2_faulty_gate15_x0, r_2_faulty_gate15_z0),
+          Or(r_2_faulty_gate15_x1, r_2_faulty_gate15_z1)),
+       1)),
+     1)
+
+1. Last Round Data Qubits (5 qubits):
+   Data[0]: X=Xor(Xor(Xor(Xor(Xor(Xor(Xor(False, False),
+                        r_0_faulty_gate0_x1),
+                    False),
+                r_2_faulty_gate0_x1),
+            False),
+        r_2_faulty_gate8_x1),
+    r_2_faulty_gate13_x0), Z=Xor(Xor(Xor(False, r_2_faulty_gate12_x0),
+        Xor(Xor(Xor(False, r_0_faulty_gate0_z1),
+                r_2_faulty_gate0_z1),
+            r_2_faulty_gate8_z1)),
+    r_2_faulty_gate13_z0)
+   Data[1]: X=Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False, r_0_faulty_gate2_x0),
+                            False),
+                        r_1_faulty_gate0_x1),
+                    r_2_faulty_gate1_x0),
+                False),
+            r_2_faulty_gate4_x1),
+        False),
+    r_2_faulty_gate12_x1), Z=Xor(Xor(Xor(Xor(Xor(False, r_2_faulty_gate0_x0),
+                Xor(Xor(Xor(Xor(Xor(False,
+                                    r_0_faulty_gate0_x0),
+                                r_0_faulty_gate1_x0),
+                            False),
+                        r_0_faulty_gate2_z0),
+                    r_1_faulty_gate0_z1)),
+            r_2_faulty_gate1_z0),
+        r_2_faulty_gate4_z1),
+    r_2_faulty_gate12_z1)
+   Data[2]: X=Xor(Xor(Xor(Xor(Xor(Xor(False, r_0_faulty_gate3_x0),
+                    r_1_faulty_gate2_x0),
+                r_2_faulty_gate2_x0),
+            r_2_faulty_gate5_x0),
+        Xor(Xor(Xor(False, r_2_faulty_gate8_x0),
+                r_2_faulty_gate9_x1),
+            r_2_faulty_gate10_x1)),
+    r_2_faulty_gate11_x1), Z=Xor(Xor(Xor(Xor(False, r_2_faulty_gate4_x0),
+            Xor(Xor(Xor(Xor(False, r_2_faulty_gate0_x0),
+                        r_2_faulty_gate1_x1),
+                    Xor(Xor(Xor(Xor(False,
+                                    r_1_faulty_gate0_x0),
+                                r_1_faulty_gate1_x0),
+                            Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                    False),
+                                r_0_faulty_gate3_z0)),
+                        r_1_faulty_gate2_z0)),
+                r_2_faulty_gate2_z0)),
+        r_2_faulty_gate5_z0),
+    r_2_faulty_gate11_z1)
+   Data[3]: X=Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        r_0_faulty_gate3_x1),
+                                        r_0_faulty_gate4_x0)),
+                                r_0_faulty_gate5_x1),
+                            r_1_faulty_gate3_x0),
+                        Xor(Xor(Xor(False,
+                                    r_2_faulty_gate0_x0),
+                                r_2_faulty_gate1_x1),
+                            r_2_faulty_gate2_x1)),
+                    r_2_faulty_gate3_x1),
+                r_2_faulty_gate6_x0),
+            r_2_faulty_gate9_x0),
+        Xor(Xor(Xor(False, r_2_faulty_gate12_x0),
+                r_2_faulty_gate13_x1),
+            r_2_faulty_gate14_x1)),
+    r_2_faulty_gate15_x1), Z=Xor(Xor(Xor(Xor(False, r_2_faulty_gate8_x0),
+            Xor(Xor(Xor(Xor(False, r_2_faulty_gate4_x0),
+                        r_2_faulty_gate5_x1),
+                    Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                        r_1_faulty_gate1_x0),
+                                    r_1_faulty_gate2_x1),
+                                Xor(False,
+                                    r_0_faulty_gate5_z1)),
+                            r_1_faulty_gate3_z0),
+                        r_2_faulty_gate3_z1)),
+                r_2_faulty_gate6_z0)),
+        r_2_faulty_gate9_z0),
+    r_2_faulty_gate15_z1)
+   Data[4]: X=Xor(Xor(Xor(Xor(Xor(Xor(False,
+                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                        r_1_faulty_gate1_x0),
+                                    r_1_faulty_gate2_x1),
+                                r_1_faulty_gate3_x1),
+                            r_1_faulty_gate4_x0)),
+                    r_1_faulty_gate5_x1),
+                Xor(Xor(Xor(False, r_2_faulty_gate4_x0),
+                        r_2_faulty_gate5_x1),
+                    r_2_faulty_gate6_x1)),
+            r_2_faulty_gate7_x1),
+        r_2_faulty_gate10_x0),
+    r_2_faulty_gate14_x0), Z=Xor(Xor(Xor(Xor(False, r_2_faulty_gate12_x0),
+            r_2_faulty_gate13_x1),
+        Xor(Xor(Xor(Xor(False, r_2_faulty_gate8_x0),
+                    r_2_faulty_gate9_x1),
+                Xor(Xor(False, r_1_faulty_gate5_z1),
+                    r_2_faulty_gate7_z1)),
+            r_2_faulty_gate10_z0)),
+    r_2_faulty_gate14_z0)
+
+2. Ancilla & Flag Formulas per Round (4 rounds):
+   Round 0:
+     ancX (Z-basis): 1 measurements
+       ancX[0]: Xor(Xor(Xor(Xor(Xor(Xor(False,
+                        Xor(Xor(False,
+                                Xor(Xor(Xor(Xor(False,
+                                        False),
+                                        r_0_faulty_gate0_z0),
+                                        False),
+                                    r_0_faulty_gate1_z0)),
+                            r_0_faulty_gate2_z1)),
+                    r_0_faulty_gate3_z1),
+                Xor(False, r_0_faulty_gate1_z1)),
+            r_0_faulty_gate4_z0),
+        False),
+    r_0_faulty_gate5_z0)
+     ancZ (X-basis): 0 measurements
+     flagX (Z-basis): 0 groups/measurements
+     flagZ (X-basis): 1 groups/measurements
+       flagZ[0]: Xor(Xor(Xor(Xor(False, Xor(False, r_0_faulty_gate0_x0)),
+            r_0_faulty_gate1_x1),
+        Xor(Xor(Xor(Xor(False, r_0_faulty_gate0_x0),
+                    r_0_faulty_gate1_x0),
+                r_0_faulty_gate2_x1),
+            r_0_faulty_gate3_x1)),
+    r_0_faulty_gate4_x1)
+   Round 1:
+     ancX (Z-basis): 1 measurements
+       ancX[0]: Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        r_0_faulty_gate3_x1),
+                                    r_0_faulty_gate4_x0)),
+                            r_0_faulty_gate5_x1),
+                        Xor(Xor(Xor(False,
+                                    r_0_faulty_gate3_x0),
+                                Xor(Xor(Xor(Xor(False,
+                                        Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        False),
+                                        r_0_faulty_gate2_z0)),
+                                        r_1_faulty_gate0_z0),
+                                        False),
+                                    r_1_faulty_gate1_z0)),
+                            r_1_faulty_gate2_z1)),
+                    r_1_faulty_gate3_z1),
+                Xor(False, r_1_faulty_gate1_z1)),
+            r_1_faulty_gate4_z0),
+        False),
+    r_1_faulty_gate5_z0)
+     ancZ (X-basis): 0 measurements
+     flagX (Z-basis): 0 groups/measurements
+     flagZ (X-basis): 1 groups/measurements
+       flagZ[0]: Xor(Xor(Xor(Xor(False, Xor(False, r_1_faulty_gate0_x0)),
+            r_1_faulty_gate1_x1),
+        Xor(Xor(Xor(Xor(False, r_1_faulty_gate0_x0),
+                    r_1_faulty_gate1_x0),
+                r_1_faulty_gate2_x1),
+            r_1_faulty_gate3_x1)),
+    r_1_faulty_gate4_x1)
+   Round 2:
+     ancX (Z-basis): 4 measurements
+       ancX[0]: Xor(Xor(Xor(Xor(Xor(Xor(False, r_0_faulty_gate3_x0),
+                    r_1_faulty_gate2_x0),
+                Xor(Xor(Xor(Xor(Xor(False,
+                                    r_0_faulty_gate2_x0),
+                                False),
+                            r_1_faulty_gate0_x1),
+                        Xor(Xor(False,
+                                Xor(False,
+                                    r_0_faulty_gate0_z1)),
+                            r_2_faulty_gate0_z0)),
+                    r_2_faulty_gate1_z1)),
+            r_2_faulty_gate2_z1),
+        Xor(Xor(Xor(Xor(Xor(False, r_1_faulty_gate0_x0),
+                        r_1_faulty_gate1_x0),
+                    r_1_faulty_gate2_x1),
+                Xor(False, r_0_faulty_gate5_z1)),
+            r_1_faulty_gate3_z0)),
+    r_2_faulty_gate3_z0)
+       ancX[1]: Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        r_0_faulty_gate3_x1),
+                                        r_0_faulty_gate4_x0)),
+                                r_0_faulty_gate5_x1),
+                            r_1_faulty_gate3_x0),
+                        Xor(Xor(Xor(False,
+                                    r_2_faulty_gate0_x0),
+                                r_2_faulty_gate1_x1),
+                            r_2_faulty_gate2_x1)),
+                    r_2_faulty_gate3_x1),
+                Xor(Xor(Xor(Xor(Xor(False,
+                                    r_0_faulty_gate3_x0),
+                                r_1_faulty_gate2_x0),
+                            r_2_faulty_gate2_x0),
+                        Xor(Xor(False,
+                                Xor(Xor(Xor(False,
+                                        r_2_faulty_gate0_x0),
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        False),
+                                        r_0_faulty_gate2_z0),
+                                        r_1_faulty_gate0_z1)),
+                                    r_2_faulty_gate1_z0)),
+                            r_2_faulty_gate4_z0)),
+                    r_2_faulty_gate5_z1)),
+            r_2_faulty_gate6_z1),
+        Xor(False, r_1_faulty_gate5_z1)),
+    r_2_faulty_gate7_z0)
+       ancX[2]: Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                Xor(Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                        r_1_faulty_gate1_x0),
+                                        r_1_faulty_gate2_x1),
+                                        r_1_faulty_gate3_x1),
+                                    r_1_faulty_gate4_x0)),
+                            r_1_faulty_gate5_x1),
+                        Xor(Xor(Xor(False,
+                                    r_2_faulty_gate4_x0),
+                                r_2_faulty_gate5_x1),
+                            r_2_faulty_gate6_x1)),
+                    r_2_faulty_gate7_x1),
+                Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        r_0_faulty_gate3_x1),
+                                        r_0_faulty_gate4_x0)),
+                                        r_0_faulty_gate5_x1),
+                                        r_1_faulty_gate3_x0),
+                                    Xor(Xor(Xor(False,
+                                        r_2_faulty_gate0_x0),
+                                        r_2_faulty_gate1_x1),
+                                        r_2_faulty_gate2_x1)),
+                                r_2_faulty_gate3_x1),
+                            r_2_faulty_gate6_x0),
+                        Xor(Xor(False,
+                                Xor(Xor(False,
+                                        r_0_faulty_gate0_z1),
+                                    r_2_faulty_gate0_z1)),
+                            r_2_faulty_gate8_z0)),
+                    r_2_faulty_gate9_z1)),
+            r_2_faulty_gate10_z1),
+        Xor(Xor(Xor(False, r_2_faulty_gate4_x0),
+                Xor(Xor(Xor(Xor(False, r_2_faulty_gate0_x0),
+                            r_2_faulty_gate1_x1),
+                        Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                    r_1_faulty_gate1_x0),
+                                Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        False),
+                                    r_0_faulty_gate3_z0)),
+                            r_1_faulty_gate2_z0)),
+                    r_2_faulty_gate2_z0)),
+            r_2_faulty_gate5_z0)),
+    r_2_faulty_gate11_z0)
+       ancX[3]: Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                        r_1_faulty_gate1_x0),
+                                        r_1_faulty_gate2_x1),
+                                        r_1_faulty_gate3_x1),
+                                        r_1_faulty_gate4_x0)),
+                                r_1_faulty_gate5_x1),
+                            Xor(Xor(Xor(False,
+                                        r_2_faulty_gate4_x0),
+                                    r_2_faulty_gate5_x1),
+                                r_2_faulty_gate6_x1)),
+                        r_2_faulty_gate7_x1),
+                    r_2_faulty_gate10_x0),
+                Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        False),
+                                        r_0_faulty_gate0_x1),
+                                        False),
+                                    r_2_faulty_gate0_x1),
+                                False),
+                            r_2_faulty_gate8_x1),
+                        Xor(Xor(False,
+                                Xor(Xor(Xor(Xor(False,
+                                        r_2_faulty_gate0_x0),
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        False),
+                                        r_0_faulty_gate2_z0),
+                                        r_1_faulty_gate0_z1)),
+                                        r_2_faulty_gate1_z0),
+                                    r_2_faulty_gate4_z1)),
+                            r_2_faulty_gate12_z0)),
+                    r_2_faulty_gate13_z1)),
+            r_2_faulty_gate14_z1),
+        Xor(Xor(Xor(False, r_2_faulty_gate8_x0),
+                Xor(Xor(Xor(Xor(False, r_2_faulty_gate4_x0),
+                            r_2_faulty_gate5_x1),
+                        Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                        r_1_faulty_gate1_x0),
+                                        r_1_faulty_gate2_x1),
+                                    Xor(False,
+                                        r_0_faulty_gate5_z1)),
+                                r_1_faulty_gate3_z0),
+                            r_2_faulty_gate3_z1)),
+                    r_2_faulty_gate6_z0)),
+            r_2_faulty_gate9_z0)),
+    r_2_faulty_gate15_z0)
+     ancZ (X-basis): 0 measurements
+     flagX (Z-basis): 0 groups/measurements
+     flagZ (X-basis): 0 groups/measurements
+   Round 3:
+     ancX (Z-basis): 0 measurements
+     ancZ (X-basis): 0 measurements
+     flagX (Z-basis): 0 groups/measurements
+     flagZ (X-basis): 0 groups/measurements
+
+3. Path Conditions (4 conditions):
+   Condition 0: And(And(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                Xor(Xor(False,
+                                        Xor(Xor(Xor(Xor(False,
+                                        False),
+                                        r_0_faulty_gate0_z0),
+                                        False),
+                                        r_0_faulty_gate1_z0)),
+                                    r_0_faulty_gate2_z1)),
+                            r_0_faulty_gate3_z1),
+                        Xor(False, r_0_faulty_gate1_z1)),
+                    r_0_faulty_gate4_z0),
+                False),
+            r_0_faulty_gate5_z0) ==
+        False),
+    And(Xor(Xor(Xor(Xor(False,
+                        Xor(False, r_0_faulty_gate0_x0)),
+                    r_0_faulty_gate1_x1),
+                Xor(Xor(Xor(Xor(False, r_0_faulty_gate0_x0),
+                            r_0_faulty_gate1_x0),
+                        r_0_faulty_gate2_x1),
+                    r_0_faulty_gate3_x1)),
+            r_0_faulty_gate4_x1) ==
+        False))
+   Condition 1: Not(And(And(Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        r_0_faulty_gate3_x1),
+                                        r_0_faulty_gate4_x0)),
+                                        r_0_faulty_gate5_x1),
+                                    Xor(Xor(Xor(False,
+                                        r_0_faulty_gate3_x0),
+                                        Xor(Xor(Xor(Xor(False,
+                                        Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        False),
+                                        r_0_faulty_gate2_z0)),
+                                        r_1_faulty_gate0_z0),
+                                        False),
+                                        r_1_faulty_gate1_z0)),
+                                        r_1_faulty_gate2_z1)),
+                                r_1_faulty_gate3_z1),
+                            Xor(False, r_1_faulty_gate1_z1)),
+                        r_1_faulty_gate4_z0),
+                    False),
+                r_1_faulty_gate5_z0) ==
+            False),
+        And(Xor(Xor(Xor(Xor(False,
+                            Xor(False, r_1_faulty_gate0_x0)),
+                        r_1_faulty_gate1_x1),
+                    Xor(Xor(Xor(Xor(False,
+                                    r_1_faulty_gate0_x0),
+                                r_1_faulty_gate1_x0),
+                            r_1_faulty_gate2_x1),
+                        r_1_faulty_gate3_x1)),
+                r_1_faulty_gate4_x1) ==
+            False)))
+   Condition 2: True
+   Condition 3: And(Xor(Xor(Xor(Xor(Xor(Xor(False, r_0_faulty_gate3_x0),
+                        r_1_faulty_gate2_x0),
+                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate2_x0),
+                                    False),
+                                r_1_faulty_gate0_x1),
+                            Xor(Xor(False,
+                                    Xor(False,
+                                        r_0_faulty_gate0_z1)),
+                                r_2_faulty_gate0_z0)),
+                        r_2_faulty_gate1_z1)),
+                r_2_faulty_gate2_z1),
+            Xor(Xor(Xor(Xor(Xor(False, r_1_faulty_gate0_x0),
+                            r_1_faulty_gate1_x0),
+                        r_1_faulty_gate2_x1),
+                    Xor(False, r_0_faulty_gate5_z1)),
+                r_1_faulty_gate3_z0)),
+        r_2_faulty_gate3_z0) ==
+    Not((((r_2_faulty_gate8_x0 ==
+           (((((((r_1_faulty_gate0_x0 == r_1_faulty_gate1_x0) ==
+                 r_1_faulty_gate2_x1) ==
+                r_0_faulty_gate5_z1) ==
+               r_1_faulty_gate3_z0) ==
+              r_2_faulty_gate3_z1) ==
+             (r_2_faulty_gate4_x0 == r_2_faulty_gate5_x1)) ==
+            r_2_faulty_gate6_z0)) ==
+          r_2_faulty_gate9_z0) ==
+         r_2_faulty_gate15_z1) ==
+        ((((((r_0_faulty_gate3_x0 == r_1_faulty_gate2_x0) ==
+             r_2_faulty_gate2_x0) ==
+            r_2_faulty_gate5_x0) ==
+           ((r_2_faulty_gate8_x0 == r_2_faulty_gate9_x1) ==
+            r_2_faulty_gate10_x1)) ==
+          r_2_faulty_gate11_x1) ==
+         (((r_2_faulty_gate12_x0 ==
+            ((r_0_faulty_gate0_z1 == r_2_faulty_gate0_z1) ==
+             r_2_faulty_gate8_z1)) ==
+           r_2_faulty_gate13_z0) ==
+          ((((r_0_faulty_gate2_x0 == r_1_faulty_gate0_x1) ==
+             r_2_faulty_gate1_x0) ==
+            r_2_faulty_gate4_x1) ==
+           r_2_faulty_gate12_x1)))),
+    Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        r_0_faulty_gate3_x1),
+                                        r_0_faulty_gate4_x0)),
+                                    r_0_faulty_gate5_x1),
+                                r_1_faulty_gate3_x0),
+                            Xor(Xor(Xor(False,
+                                        r_2_faulty_gate0_x0),
+                                    r_2_faulty_gate1_x1),
+                                r_2_faulty_gate2_x1)),
+                        r_2_faulty_gate3_x1),
+                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate3_x0),
+                                    r_1_faulty_gate2_x0),
+                                r_2_faulty_gate2_x0),
+                            Xor(Xor(False,
+                                    Xor(Xor(Xor(False,
+                                        r_2_faulty_gate0_x0),
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        False),
+                                        r_0_faulty_gate2_z0),
+                                        r_1_faulty_gate0_z1)),
+                                        r_2_faulty_gate1_z0)),
+                                r_2_faulty_gate4_z0)),
+                        r_2_faulty_gate5_z1)),
+                r_2_faulty_gate6_z1),
+            Xor(False, r_1_faulty_gate5_z1)),
+        r_2_faulty_gate7_z0) ==
+    ((((((((r_0_faulty_gate3_x0 == r_1_faulty_gate2_x0) ==
+           r_2_faulty_gate2_x0) ==
+          r_2_faulty_gate5_x0) ==
+         ((r_2_faulty_gate8_x0 == r_2_faulty_gate9_x1) ==
+          r_2_faulty_gate10_x1)) ==
+        r_2_faulty_gate11_x1) ==
+       ((((r_2_faulty_gate0_x0 ==
+           (((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+             r_0_faulty_gate2_z0) ==
+            r_1_faulty_gate0_z1)) ==
+          r_2_faulty_gate1_z0) ==
+         r_2_faulty_gate4_z1) ==
+        r_2_faulty_gate12_z1)) ==
+      ((((((((((((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+                 r_0_faulty_gate2_x1) ==
+                r_0_faulty_gate3_x1) ==
+               r_0_faulty_gate4_x0) ==
+              r_0_faulty_gate5_x1) ==
+             r_1_faulty_gate3_x0) ==
+            ((r_2_faulty_gate0_x0 == r_2_faulty_gate1_x1) ==
+             r_2_faulty_gate2_x1)) ==
+           r_2_faulty_gate3_x1) ==
+          r_2_faulty_gate6_x0) ==
+         r_2_faulty_gate9_x0) ==
+        ((r_2_faulty_gate12_x0 == r_2_faulty_gate13_x1) ==
+         r_2_faulty_gate14_x1)) ==
+       r_2_faulty_gate15_x1)) ==
+     (((r_2_faulty_gate12_x0 == r_2_faulty_gate13_x1) ==
+       (((r_1_faulty_gate5_z1 == r_2_faulty_gate7_z1) ==
+         (r_2_faulty_gate8_x0 == r_2_faulty_gate9_x1)) ==
+        r_2_faulty_gate10_z0)) ==
+      r_2_faulty_gate14_z0)),
+    Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                        r_1_faulty_gate1_x0),
+                                        r_1_faulty_gate2_x1),
+                                        r_1_faulty_gate3_x1),
+                                        r_1_faulty_gate4_x0)),
+                                r_1_faulty_gate5_x1),
+                            Xor(Xor(Xor(False,
+                                        r_2_faulty_gate4_x0),
+                                    r_2_faulty_gate5_x1),
+                                r_2_faulty_gate6_x1)),
+                        r_2_faulty_gate7_x1),
+                    Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        r_0_faulty_gate3_x1),
+                                        r_0_faulty_gate4_x0)),
+                                        r_0_faulty_gate5_x1),
+                                        r_1_faulty_gate3_x0),
+                                        Xor(Xor(Xor(False,
+                                        r_2_faulty_gate0_x0),
+                                        r_2_faulty_gate1_x1),
+                                        r_2_faulty_gate2_x1)),
+                                    r_2_faulty_gate3_x1),
+                                r_2_faulty_gate6_x0),
+                            Xor(Xor(False,
+                                    Xor(Xor(False,
+                                        r_0_faulty_gate0_z1),
+                                        r_2_faulty_gate0_z1)),
+                                r_2_faulty_gate8_z0)),
+                        r_2_faulty_gate9_z1)),
+                r_2_faulty_gate10_z1),
+            Xor(Xor(Xor(False, r_2_faulty_gate4_x0),
+                    Xor(Xor(Xor(Xor(False,
+                                    r_2_faulty_gate0_x0),
+                                r_2_faulty_gate1_x1),
+                            Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+                                        r_1_faulty_gate1_x0),
+                                    Xor(Xor(Xor(Xor(Xor(False,
+                                        r_0_faulty_gate0_x0),
+                                        r_0_faulty_gate1_x0),
+                                        r_0_faulty_gate2_x1),
+                                        False),
+                                        r_0_faulty_gate3_z0)),
+                                r_1_faulty_gate2_z0)),
+                        r_2_faulty_gate2_z0)),
+                r_2_faulty_gate5_z0)),
+        r_2_faulty_gate11_z0) ==
+    (((((r_2_faulty_gate12_x0 ==
+         ((r_0_faulty_gate0_z1 == r_2_faulty_gate0_z1) ==
+          r_2_faulty_gate8_z1)) ==
+        r_2_faulty_gate13_z0) ==
+       (((r_2_faulty_gate4_x0 ==
+          (((r_2_faulty_gate0_x0 == r_2_faulty_gate1_x1) ==
+            (((((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+                r_0_faulty_gate2_x1) ==
+               r_0_faulty_gate3_z0) ==
+              (r_1_faulty_gate0_x0 == r_1_faulty_gate1_x0)) ==
+             r_1_faulty_gate2_z0)) ==
+           r_2_faulty_gate2_z0)) ==
+         r_2_faulty_gate5_z0) ==
+        r_2_faulty_gate11_z1)) ==
+      ((((((((((((r_0_faulty_gate0_x0 == r_0_faulty_gate1_x0) ==
+                 r_0_faulty_gate2_x1) ==
+                r_0_faulty_gate3_x1) ==
+               r_0_faulty_gate4_x0) ==
+              r_0_faulty_gate5_x1) ==
+             r_1_faulty_gate3_x0) ==
+            ((r_2_faulty_gate0_x0 == r_2_faulty_gate1_x1) ==
+             r_2_faulty_gate2_x1)) ==
+           r_2_faulty_gate3_x1) ==
+          r_2_faulty_gate6_x0) ==
+         r_2_faulty_gate9_x0) ==
+        ((r_2_faulty_gate12_x0 == r_2_faulty_gate13_x1) ==
+         r_2_faulty_gate14_x1)) ==
+       r_2_faulty_gate15_x1)) ==
+     (((((((((r_1_faulty_gate0_x0 == r_1_faulty_gate1_x0) ==
+             r_1_faulty_gate2_x1) ==
+            r_1_faulty_gate3_x1) ==
+           r_1_faulty_gate4_x0) ==
+          r_1_faulty_gate5_x1) ==
+         ((r_2_faulty_gate4_x0 == r_2_faulty_gate5_x1) ==
+          r_2_faulty_gate6_x1)) ==
+        r_2_faulty_gate7_x1) ==
+       r_2_faulty_gate10_x0) ==
+      r_2_faulty_gate14_x0)),
+    Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(Xor(False,
+                                        Xor(Xor(Xor(Xor(Xor(False,
+                                        r_1_faulty_gate0_x0),
+...
+
+4. Decoder learning (C backend: cms / dnf / cadet):
+  Decoder formulas loaded from /home/alan23273850/flag-analysis2/[[5,1,3]]_origin/decoder/path_3.txt
+  [Timing] Path 3 decoder learning: 1.698s
+
+5. Verified SMT formula:
+; benchmark generated from python API
+(set-info :status unknown)
+(declare-fun r_0_faulty_gate0_z1 () Bool)
+(declare-fun r_0_faulty_gate0_x1 () Bool)
+(declare-fun r_0_faulty_gate0_z0 () Bool)
+(declare-fun r_0_faulty_gate0_x0 () Bool)
+(declare-fun fault_0 () Bool)
+(declare-fun r_0_faulty_gate1_z1 () Bool)
+(declare-fun r_0_faulty_gate1_x1 () Bool)
+(declare-fun r_0_faulty_gate1_z0 () Bool)
+(declare-fun r_0_faulty_gate1_x0 () Bool)
+(declare-fun fault_1 () Bool)
+(declare-fun r_0_faulty_gate2_z1 () Bool)
+(declare-fun r_0_faulty_gate2_x1 () Bool)
+(declare-fun r_0_faulty_gate2_z0 () Bool)
+(declare-fun r_0_faulty_gate2_x0 () Bool)
+(declare-fun fault_2 () Bool)
+(declare-fun r_0_faulty_gate3_z1 () Bool)
+(declare-fun r_0_faulty_gate3_x1 () Bool)
+(declare-fun r_0_faulty_gate3_z0 () Bool)
+(declare-fun r_0_faulty_gate3_x0 () Bool)
+(declare-fun fault_3 () Bool)
+(declare-fun r_0_faulty_gate4_z1 () Bool)
+(declare-fun r_0_faulty_gate4_x1 () Bool)
+(declare-fun r_0_faulty_gate4_z0 () Bool)
+(declare-fun r_0_faulty_gate4_x0 () Bool)
+(declare-fun fault_4 () Bool)
+(declare-fun r_0_faulty_gate5_z1 () Bool)
+(declare-fun r_0_faulty_gate5_x1 () Bool)
+(declare-fun r_0_faulty_gate5_z0 () Bool)
+(declare-fun r_0_faulty_gate5_x0 () Bool)
+(declare-fun fault_5 () Bool)
+(declare-fun r_1_faulty_gate0_z1 () Bool)
+(declare-fun r_1_faulty_gate0_x1 () Bool)
+(declare-fun r_1_faulty_gate0_z0 () Bool)
+(declare-fun r_1_faulty_gate0_x0 () Bool)
+(declare-fun fault_6 () Bool)
+(declare-fun r_1_faulty_gate1_z1 () Bool)
+(declare-fun r_1_faulty_gate1_x1 () Bool)
+(declare-fun r_1_faulty_gate1_z0 () Bool)
+(declare-fun r_1_faulty_gate1_x0 () Bool)
+(declare-fun fault_7 () Bool)
+(declare-fun r_1_faulty_gate2_z1 () Bool)
+(declare-fun r_1_faulty_gate2_x1 () Bool)
+(declare-fun r_1_faulty_gate2_z0 () Bool)
+(declare-fun r_1_faulty_gate2_x0 () Bool)
+(declare-fun fault_8 () Bool)
+(declare-fun r_1_faulty_gate3_z1 () Bool)
+(declare-fun r_1_faulty_gate3_x1 () Bool)
+(declare-fun r_1_faulty_gate3_z0 () Bool)
+(declare-fun r_1_faulty_gate3_x0 () Bool)
+(declare-fun fault_9 () Bool)
+(declare-fun r_1_faulty_gate4_z1 () Bool)
+(declare-fun r_1_faulty_gate4_x1 () Bool)
+(declare-fun r_1_faulty_gate4_z0 () Bool)
+(declare-fun r_1_faulty_gate4_x0 () Bool)
+(declare-fun fault_10 () Bool)
+(declare-fun r_1_faulty_gate5_z1 () Bool)
+(declare-fun r_1_faulty_gate5_x1 () Bool)
+(declare-fun r_1_faulty_gate5_z0 () Bool)
+(declare-fun r_1_faulty_gate5_x0 () Bool)
+(declare-fun fault_11 () Bool)
+(declare-fun r_2_faulty_gate0_z1 () Bool)
+(declare-fun r_2_faulty_gate0_x1 () Bool)
+(declare-fun r_2_faulty_gate0_z0 () Bool)
+(declare-fun r_2_faulty_gate0_x0 () Bool)
+(declare-fun fault_12 () Bool)
+(declare-fun r_2_faulty_gate1_z1 () Bool)
+(declare-fun r_2_faulty_gate1_x1 () Bool)
+(declare-fun r_2_faulty_gate1_z0 () Bool)
+(declare-fun r_2_faulty_gate1_x0 () Bool)
+(declare-fun fault_13 () Bool)
+(declare-fun r_2_faulty_gate2_z1 () Bool)
+(declare-fun r_2_faulty_gate2_x1 () Bool)
+(declare-fun r_2_faulty_gate2_z0 () Bool)
+(declare-fun r_2_faulty_gate2_x0 () Bool)
+(declare-fun fault_14 () Bool)
+(declare-fun r_2_faulty_gate3_z1 () Bool)
+(declare-fun r_2_faulty_gate3_x1 () Bool)
+(declare-fun r_2_faulty_gate3_z0 () Bool)
+(declare-fun r_2_faulty_gate3_x0 () Bool)
+(declare-fun fault_15 () Bool)
+(declare-fun r_2_faulty_gate4_z1 () Bool)
+(declare-fun r_2_faulty_gate4_x1 () Bool)
+(declare-fun r_2_faulty_gate4_z0 () Bool)
+(declare-fun r_2_faulty_gate4_x0 () Bool)
+(declare-fun fault_16 () Bool)
+(declare-fun r_2_faulty_gate5_z1 () Bool)
+(declare-fun r_2_faulty_gate5_x1 () Bool)
+(declare-fun r_2_faulty_gate5_z0 () Bool)
+(declare-fun r_2_faulty_gate5_x0 () Bool)
+(declare-fun fault_17 () Bool)
+(declare-fun r_2_faulty_gate6_z1 () Bool)
+(declare-fun r_2_faulty_gate6_x1 () Bool)
+(declare-fun r_2_faulty_gate6_z0 () Bool)
+(declare-fun r_2_faulty_gate6_x0 () Bool)
+(declare-fun fault_18 () Bool)
+(declare-fun r_2_faulty_gate7_z1 () Bool)
+(declare-fun r_2_faulty_gate7_x1 () Bool)
+(declare-fun r_2_faulty_gate7_z0 () Bool)
+(declare-fun r_2_faulty_gate7_x0 () Bool)
+(declare-fun fault_19 () Bool)
+(declare-fun r_2_faulty_gate8_z1 () Bool)
+(declare-fun r_2_faulty_gate8_x1 () Bool)
+(declare-fun r_2_faulty_gate8_z0 () Bool)
+(declare-fun r_2_faulty_gate8_x0 () Bool)
+(declare-fun fault_20 () Bool)
+(declare-fun r_2_faulty_gate9_z1 () Bool)
+(declare-fun r_2_faulty_gate9_x1 () Bool)
+(declare-fun r_2_faulty_gate9_z0 () Bool)
+(declare-fun r_2_faulty_gate9_x0 () Bool)
+(declare-fun fault_21 () Bool)
+(declare-fun r_2_faulty_gate10_z1 () Bool)
+(declare-fun r_2_faulty_gate10_x1 () Bool)
+(declare-fun r_2_faulty_gate10_z0 () Bool)
+(declare-fun r_2_faulty_gate10_x0 () Bool)
+(declare-fun fault_22 () Bool)
+(declare-fun r_2_faulty_gate11_z1 () Bool)
+(declare-fun r_2_faulty_gate11_x1 () Bool)
+(declare-fun r_2_faulty_gate11_z0 () Bool)
+(declare-fun r_2_faulty_gate11_x0 () Bool)
+(declare-fun fault_23 () Bool)
+(declare-fun r_2_faulty_gate12_z1 () Bool)
+(declare-fun r_2_faulty_gate12_x1 () Bool)
+(declare-fun r_2_faulty_gate12_z0 () Bool)
+(declare-fun r_2_faulty_gate12_x0 () Bool)
+(declare-fun fault_24 () Bool)
+(declare-fun r_2_faulty_gate13_z1 () Bool)
+(declare-fun r_2_faulty_gate13_x1 () Bool)
+(declare-fun r_2_faulty_gate13_z0 () Bool)
+(declare-fun r_2_faulty_gate13_x0 () Bool)
+(declare-fun fault_25 () Bool)
+(declare-fun r_2_faulty_gate14_z1 () Bool)
+(declare-fun r_2_faulty_gate14_x1 () Bool)
+(declare-fun r_2_faulty_gate14_z0 () Bool)
+(declare-fun r_2_faulty_gate14_x0 () Bool)
+(declare-fun fault_26 () Bool)
+(declare-fun r_2_faulty_gate15_z1 () Bool)
+(declare-fun r_2_faulty_gate15_x1 () Bool)
+(declare-fun r_2_faulty_gate15_z0 () Bool)
+(declare-fun r_2_faulty_gate15_x0 () Bool)
+(declare-fun fault_27 () Bool)
+(declare-fun condition_0 () Bool)
+(declare-fun condition_1 () Bool)
+(declare-fun condition_2 () Bool)
+(declare-fun condition_3 () Bool)
+(declare-fun conditionAll () Bool)
+(declare-fun data0_x () Bool)
+(declare-fun data0_z () Bool)
+(declare-fun dec0_x () Bool)
+(declare-fun fixed0_x () Bool)
+(declare-fun dec0_z () Bool)
+(declare-fun fixed0_z () Bool)
+(declare-fun data1_x () Bool)
+(declare-fun data1_z () Bool)
+(declare-fun dec1_x () Bool)
+(declare-fun fixed1_x () Bool)
+(declare-fun dec1_z () Bool)
+(declare-fun fixed1_z () Bool)
+(declare-fun data2_x () Bool)
+(declare-fun data2_z () Bool)
+(declare-fun dec2_x () Bool)
+(declare-fun fixed2_x () Bool)
+(declare-fun dec2_z () Bool)
+(declare-fun fixed2_z () Bool)
+(declare-fun data3_x () Bool)
+(declare-fun data3_z () Bool)
+(declare-fun dec3_x () Bool)
+(declare-fun fixed3_x () Bool)
+(declare-fun dec3_z () Bool)
+(declare-fun fixed3_z () Bool)
+(declare-fun data4_x () Bool)
+(declare-fun data4_z () Bool)
+(declare-fun dec4_x () Bool)
+(declare-fun fixed4_x () Bool)
+(declare-fun dec4_z () Bool)
+(declare-fun fixed4_z () Bool)
+(declare-fun commute_0 () Bool)
+(declare-fun commute_1 () Bool)
+(declare-fun commute_2 () Bool)
+(declare-fun commute_3 () Bool)
+(declare-fun commute_4 () Bool)
+(declare-fun commute_5 () Bool)
+(declare-fun all_commute () Bool)
+(declare-fun r_0_ancX0 () Bool)
+(declare-fun r_0_flagZ0 () Bool)
+(declare-fun r_1_ancX0 () Bool)
+(declare-fun r_1_flagZ0 () Bool)
+(declare-fun r_2_ancX0 () Bool)
+(declare-fun r_2_ancX1 () Bool)
+(declare-fun r_2_ancX2 () Bool)
+(declare-fun r_2_ancX3 () Bool)
+(assert
+ (let (($x15 (or r_0_faulty_gate0_x1 r_0_faulty_gate0_z1)))
+ (let (($x14 (or r_0_faulty_gate0_x0 r_0_faulty_gate0_z0)))
+ (let (($x16 (or $x14 $x15)))
+ (= fault_0 $x16)))))
+(assert
+ (let (($x28 (or r_0_faulty_gate1_x1 r_0_faulty_gate1_z1)))
+ (let (($x27 (or r_0_faulty_gate1_x0 r_0_faulty_gate1_z0)))
+ (let (($x29 (or $x27 $x28)))
+ (= fault_1 $x29)))))
+(assert
+ (let (($x41 (or r_0_faulty_gate2_x1 r_0_faulty_gate2_z1)))
+ (let (($x40 (or r_0_faulty_gate2_x0 r_0_faulty_gate2_z0)))
+ (let (($x42 (or $x40 $x41)))
+ (= fault_2 $x42)))))
+(assert
+ (let (($x54 (or r_0_faulty_gate3_x1 r_0_faulty_gate3_z1)))
+ (let (($x53 (or r_0_faulty_gate3_x0 r_0_faulty_gate3_z0)))
+ (let (($x55 (or $x53 $x54)))
+ (= fault_3 $x55)))))
+(assert
+ (let (($x67 (or r_0_faulty_gate4_x1 r_0_faulty_gate4_z1)))
+ (let (($x66 (or r_0_faulty_gate4_x0 r_0_faulty_gate4_z0)))
+ (let (($x68 (or $x66 $x67)))
+ (= fault_4 $x68)))))
+(assert
+ (let (($x80 (or r_0_faulty_gate5_x1 r_0_faulty_gate5_z1)))
+ (let (($x79 (or r_0_faulty_gate5_x0 r_0_faulty_gate5_z0)))
+ (let (($x81 (or $x79 $x80)))
+ (= fault_5 $x81)))))
+(assert
+ (let (($x98 (or r_1_faulty_gate0_x1 r_1_faulty_gate0_z1)))
+ (let (($x97 (or r_1_faulty_gate0_x0 r_1_faulty_gate0_z0)))
+ (let (($x99 (or $x97 $x98)))
+ (= fault_6 $x99)))))
+(assert
+ (let (($x111 (or r_1_faulty_gate1_x1 r_1_faulty_gate1_z1)))
+ (let (($x110 (or r_1_faulty_gate1_x0 r_1_faulty_gate1_z0)))
+ (let (($x112 (or $x110 $x111)))
+ (= fault_7 $x112)))))
+(assert
+ (let (($x124 (or r_1_faulty_gate2_x1 r_1_faulty_gate2_z1)))
+ (let (($x123 (or r_1_faulty_gate2_x0 r_1_faulty_gate2_z0)))
+ (let (($x125 (or $x123 $x124)))
+ (= fault_8 $x125)))))
+(assert
+ (let (($x137 (or r_1_faulty_gate3_x1 r_1_faulty_gate3_z1)))
+ (let (($x136 (or r_1_faulty_gate3_x0 r_1_faulty_gate3_z0)))
+ (let (($x138 (or $x136 $x137)))
+ (= fault_9 $x138)))))
+(assert
+ (let (($x150 (or r_1_faulty_gate4_x1 r_1_faulty_gate4_z1)))
+ (let (($x149 (or r_1_faulty_gate4_x0 r_1_faulty_gate4_z0)))
+ (let (($x151 (or $x149 $x150)))
+ (= fault_10 $x151)))))
+(assert
+ (let (($x163 (or r_1_faulty_gate5_x1 r_1_faulty_gate5_z1)))
+ (let (($x162 (or r_1_faulty_gate5_x0 r_1_faulty_gate5_z0)))
+ (let (($x164 (or $x162 $x163)))
+ (= fault_11 $x164)))))
+(assert
+ (let (($x181 (or r_2_faulty_gate0_x1 r_2_faulty_gate0_z1)))
+ (let (($x180 (or r_2_faulty_gate0_x0 r_2_faulty_gate0_z0)))
+ (let (($x182 (or $x180 $x181)))
+ (= fault_12 $x182)))))
+(assert
+ (let (($x194 (or r_2_faulty_gate1_x1 r_2_faulty_gate1_z1)))
+ (let (($x193 (or r_2_faulty_gate1_x0 r_2_faulty_gate1_z0)))
+ (let (($x195 (or $x193 $x194)))
+ (= fault_13 $x195)))))
+(assert
+ (let (($x207 (or r_2_faulty_gate2_x1 r_2_faulty_gate2_z1)))
+ (let (($x206 (or r_2_faulty_gate2_x0 r_2_faulty_gate2_z0)))
+ (let (($x208 (or $x206 $x207)))
+ (= fault_14 $x208)))))
+(assert
+ (let (($x220 (or r_2_faulty_gate3_x1 r_2_faulty_gate3_z1)))
+ (let (($x219 (or r_2_faulty_gate3_x0 r_2_faulty_gate3_z0)))
+ (let (($x221 (or $x219 $x220)))
+ (= fault_15 $x221)))))
+(assert
+ (let (($x233 (or r_2_faulty_gate4_x1 r_2_faulty_gate4_z1)))
+ (let (($x232 (or r_2_faulty_gate4_x0 r_2_faulty_gate4_z0)))
+ (let (($x234 (or $x232 $x233)))
+ (= fault_16 $x234)))))
+(assert
+ (let (($x246 (or r_2_faulty_gate5_x1 r_2_faulty_gate5_z1)))
+ (let (($x245 (or r_2_faulty_gate5_x0 r_2_faulty_gate5_z0)))
+ (let (($x247 (or $x245 $x246)))
+ (= fault_17 $x247)))))
+(assert
+ (let (($x946 (or r_2_faulty_gate6_x1 r_2_faulty_gate6_z1)))
+ (let (($x945 (or r_2_faulty_gate6_x0 r_2_faulty_gate6_z0)))
+ (let (($x947 (or $x945 $x946)))
+ (= fault_18 $x947)))))
+(assert
+ (let (($x959 (or r_2_faulty_gate7_x1 r_2_faulty_gate7_z1)))
+ (let (($x958 (or r_2_faulty_gate7_x0 r_2_faulty_gate7_z0)))
+ (let (($x960 (or $x958 $x959)))
+ (= fault_19 $x960)))))
+(assert
+ (let (($x970 (or r_2_faulty_gate8_x1 r_2_faulty_gate8_z1)))
+ (let (($x969 (or r_2_faulty_gate8_x0 r_2_faulty_gate8_z0)))
+ (let (($x971 (or $x969 $x970)))
+ (= fault_20 $x971)))))
+(assert
+ (let (($x983 (or r_2_faulty_gate9_x1 r_2_faulty_gate9_z1)))
+ (let (($x982 (or r_2_faulty_gate9_x0 r_2_faulty_gate9_z0)))
+ (let (($x984 (or $x982 $x983)))
+ (= fault_21 $x984)))))
+(assert
+ (let (($x996 (or r_2_faulty_gate10_x1 r_2_faulty_gate10_z1)))
+ (let (($x995 (or r_2_faulty_gate10_x0 r_2_faulty_gate10_z0)))
+ (let (($x997 (or $x995 $x996)))
+ (= fault_22 $x997)))))
+(assert
+ (let (($x1009 (or r_2_faulty_gate11_x1 r_2_faulty_gate11_z1)))
+ (let (($x1008 (or r_2_faulty_gate11_x0 r_2_faulty_gate11_z0)))
+ (let (($x1010 (or $x1008 $x1009)))
+ (= fault_23 $x1010)))))
+(assert
+ (let (($x1022 (or r_2_faulty_gate12_x1 r_2_faulty_gate12_z1)))
+ (let (($x1021 (or r_2_faulty_gate12_x0 r_2_faulty_gate12_z0)))
+ (let (($x1023 (or $x1021 $x1022)))
+ (= fault_24 $x1023)))))
+(assert
+ (let (($x1035 (or r_2_faulty_gate13_x1 r_2_faulty_gate13_z1)))
+ (let (($x1034 (or r_2_faulty_gate13_x0 r_2_faulty_gate13_z0)))
+ (let (($x1036 (or $x1034 $x1035)))
+ (= fault_25 $x1036)))))
+(assert
+ (let (($x1048 (or r_2_faulty_gate14_x1 r_2_faulty_gate14_z1)))
+ (let (($x1047 (or r_2_faulty_gate14_x0 r_2_faulty_gate14_z0)))
+ (let (($x1049 (or $x1047 $x1048)))
+ (= fault_26 $x1049)))))
+(assert
+ (let (($x1061 (or r_2_faulty_gate15_x1 r_2_faulty_gate15_z1)))
+ (let (($x1060 (or r_2_faulty_gate15_x0 r_2_faulty_gate15_z0)))
+ (let (($x1062 (or $x1060 $x1061)))
+ (= fault_27 $x1062)))))
+(assert
+ ((_ at-most 1) fault_0 fault_1 fault_2 fault_3 fault_4 fault_5 fault_6 fault_7 fault_8 fault_9 fault_10 fault_11 fault_12 fault_13 fault_14 fault_15 fault_16 fault_17 fault_18 fault_19 fault_20 fault_21 fault_22 fault_23 fault_24 fault_25 fault_26 fault_27))
+(assert
+ (let (($x10 (xor false r_0_faulty_gate0_x0)))
+ (let (($x23 (xor $x10 r_0_faulty_gate1_x0)))
+ (let (($x38 (xor $x23 r_0_faulty_gate2_x1)))
+ (let (($x51 (xor $x38 r_0_faulty_gate3_x1)))
+ (let (($x64 (xor (xor (xor (xor false $x10) r_0_faulty_gate1_x1) $x51) r_0_faulty_gate4_x1)))
+ (let (($x26 (xor false r_0_faulty_gate1_z1)))
+ (let (($x24 (xor (xor (xor (xor false false) r_0_faulty_gate0_z0) false) r_0_faulty_gate1_z0)))
+ (let (($x52 (xor (xor false (xor (xor false $x24) r_0_faulty_gate2_z1)) r_0_faulty_gate3_z1)))
+ (let (($x76 (xor (xor (xor (xor $x52 $x26) r_0_faulty_gate4_z0) false) r_0_faulty_gate5_z0)))
+ (let (($x86 (and (and (= $x76 false)) (and (= $x64 false)))))
+ (= condition_0 $x86))))))))))))
+(assert
+ (let (($x93 (xor false r_1_faulty_gate0_x0)))
+ (let (($x106 (xor $x93 r_1_faulty_gate1_x0)))
+ (let (($x121 (xor $x106 r_1_faulty_gate2_x1)))
+ (let (($x134 (xor $x121 r_1_faulty_gate3_x1)))
+ (let (($x147 (xor (xor (xor (xor false $x93) r_1_faulty_gate1_x1) $x134) r_1_faulty_gate4_x1)))
+ (let (($x109 (xor false r_1_faulty_gate1_z1)))
+ (let (($x10 (xor false r_0_faulty_gate0_x0)))
+ (let (($x23 (xor $x10 r_0_faulty_gate1_x0)))
+ (let (($x37 (xor (xor $x23 false) r_0_faulty_gate2_z0)))
+ (let (($x107 (xor (xor (xor (xor false $x37) r_1_faulty_gate0_z0) false) r_1_faulty_gate1_z0)))
+ (let (($x49 (xor false r_0_faulty_gate3_x0)))
+ (let (($x38 (xor $x23 r_0_faulty_gate2_x1)))
+ (let (($x51 (xor $x38 r_0_faulty_gate3_x1)))
+ (let (($x62 (xor $x51 r_0_faulty_gate4_x0)))
+ (let (($x77 (xor (xor false $x62) r_0_faulty_gate5_x1)))
+ (let (($x135 (xor (xor $x77 (xor (xor $x49 $x107) r_1_faulty_gate2_z1)) r_1_faulty_gate3_z1)))
+ (let (($x159 (xor (xor (xor (xor $x135 $x109) r_1_faulty_gate4_z0) false) r_1_faulty_gate5_z0)))
+ (let (($x169 (and (and (= $x159 false)) (and (= $x147 false)))))
+ (let (($x835 (not $x169)))
+ (= condition_1 $x835)))))))))))))))))))))
+(assert
+ (= condition_2 true))
+(assert
+ (let (($x657 (= r_0_faulty_gate0_x1 r_2_faulty_gate0_x1)))
+ (let (($x1132 (= $x657 r_2_faulty_gate8_x1)))
+ (let (($x1144 (= $x1132 r_2_faulty_gate13_x0)))
+ (let (($x604 (= r_0_faulty_gate0_x0 r_0_faulty_gate1_x0)))
+ (let (($x554 (= $x604 r_0_faulty_gate2_z0)))
+ (let (($x559 (= $x554 r_1_faulty_gate0_z1)))
+ (let (($x1071 (= (= r_2_faulty_gate0_x0 $x559) r_2_faulty_gate1_z0)))
+ (let (($x1077 (= $x1071 r_2_faulty_gate4_z1)))
+ (let (($x1102 (= $x1077 r_2_faulty_gate12_z1)))
+ (let (($x1093 (= r_2_faulty_gate4_x0 r_2_faulty_gate5_x1)))
+ (let (($x597 (= r_1_faulty_gate0_x0 r_1_faulty_gate1_x0)))
+ (let (($x594 (= $x597 r_1_faulty_gate2_x1)))
+ (let (($x599 (= (= $x594 r_0_faulty_gate5_z1) r_1_faulty_gate3_z0)))
+ (let (($x1099 (= r_2_faulty_gate8_x0 (= (= (= $x599 r_2_faulty_gate3_z1) $x1093) r_2_faulty_gate6_z0))))
+ (let (($x1098 (= $x1099 r_2_faulty_gate9_z0)))
+ (let (($x1101 (= $x1098 r_2_faulty_gate15_z1)))
+ (let (($x1130 (= $x1093 r_2_faulty_gate6_x1)))
+ (let (($x668 (= $x594 r_1_faulty_gate3_x1)))
+ (let (($x667 (= $x668 r_1_faulty_gate4_x0)))
+ (let (($x671 (= $x667 r_1_faulty_gate5_x1)))
+ (let (($x1140 (= (= $x671 $x1130) r_2_faulty_gate7_x1)))
+ (let (($x1139 (= $x1140 r_2_faulty_gate10_x0)))
+ (let (($x1143 (= $x1139 r_2_faulty_gate14_x0)))
+ (let (($x1131 (= $x1143 (= $x1101 (= $x1102 $x1144)))))
+ (let (($x1149 (not $x1131)))
+ (let (($x78 (xor false r_0_faulty_gate5_z1)))
+ (let (($x93 (xor false r_1_faulty_gate0_x0)))
+ (let (($x106 (xor $x93 r_1_faulty_gate1_x0)))
+ (let (($x121 (xor $x106 r_1_faulty_gate2_x1)))
+ (let (($x133 (xor (xor $x121 $x78) r_1_faulty_gate3_z0)))
+ (let (($x925 (xor false r_2_faulty_gate4_x0)))
+ (let (($x933 (xor $x925 r_2_faulty_gate5_x1)))
+ (let (($x965 (xor false r_2_faulty_gate8_x0)))
+ (let (($x972 (xor $x965 (xor (xor $x933 (xor $x133 r_2_faulty_gate3_z1)) r_2_faulty_gate6_z0))))
+ (let (($x979 (xor $x972 r_2_faulty_gate9_z0)))
+ (let (($x10 (xor false r_0_faulty_gate0_x0)))
+ (let (($x23 (xor $x10 r_0_faulty_gate1_x0)))
+ (let (($x37 (xor (xor $x23 false) r_0_faulty_gate2_z0)))
+ (let (($x96 (xor $x37 r_1_faulty_gate0_z1)))
+ (let (($x176 (xor false r_2_faulty_gate0_x0)))
+ (let (($x912 (xor (xor $x176 $x96) r_2_faulty_gate1_z0)))
+ (let (($x928 (xor $x912 r_2_faulty_gate4_z1)))
+ (let (($x5 (xor false false)))
+ (let (($x12 (xor $x5 r_0_faulty_gate0_x1)))
+ (let (($x171 (xor $x12 false)))
+ (let (($x178 (xor $x171 r_2_faulty_gate0_x1)))
+ (let (($x612 (xor $x178 false)))
+ (let (($x967 (xor $x612 r_2_faulty_gate8_x1)))
+ (let (($x1033 (xor (xor $x967 (xor (xor false $x928) r_2_faulty_gate12_z0)) r_2_faulty_gate13_z1)))
+ (let (($x943 (xor $x933 r_2_faulty_gate6_x1)))
+ (let (($x134 (xor $x121 r_1_faulty_gate3_x1)))
+ (let (($x145 (xor $x134 r_1_faulty_gate4_x0)))
+ (let (($x160 (xor (xor false $x145) r_1_faulty_gate5_x1)))
+ (let (($x956 (xor (xor $x160 $x943) r_2_faulty_gate7_x1)))
+ (let (($x991 (xor $x956 r_2_faulty_gate10_x0)))
+ (let (($x1057 (xor (xor (xor (xor $x991 $x1033) r_2_faulty_gate14_z1) $x979) r_2_faulty_gate15_z0)))
+ (let (($x1118 (= r_2_faulty_gate12_x0 r_2_faulty_gate13_x1)))
+ (let (($x1117 (= $x1118 r_2_faulty_gate14_x1)))
+ (let (($x1110 (= r_2_faulty_gate0_x0 r_2_faulty_gate1_x1)))
+ (let (($x1107 (= $x1110 r_2_faulty_gate2_x1)))
+ (let (($x614 (= $x604 r_0_faulty_gate2_x1)))
+ (let (($x617 (= $x614 r_0_faulty_gate3_x1)))
+ (let (($x616 (= $x617 r_0_faulty_gate4_x0)))
+ (let (($x620 (= $x616 r_0_faulty_gate5_x1)))
+ (let (($x619 (= $x620 r_1_faulty_gate3_x0)))
+ (let (($x1112 (= (= $x619 $x1107) r_2_faulty_gate3_x1)))
+ (let (($x1115 (= $x1112 r_2_faulty_gate6_x0)))
+ (let (($x1120 (= (= (= $x1115 r_2_faulty_gate9_x0) $x1117) r_2_faulty_gate15_x1)))
+ (let (($x596 (= (= (= $x614 r_0_faulty_gate3_z0) $x597) r_1_faulty_gate2_z0)))
+ (let (($x1119 (= (= r_2_faulty_gate4_x0 (= (= $x1110 $x596) r_2_faulty_gate2_z0)) r_2_faulty_gate5_z0)))
+ (let (($x1088 (= $x1119 r_2_faulty_gate11_z1)))
+ (let (($x1075 (= r_2_faulty_gate12_x0 (= (= r_0_faulty_gate0_z1 r_2_faulty_gate0_z1) r_2_faulty_gate8_z1))))
+ (let (($x1074 (= $x1075 r_2_faulty_gate13_z0)))
+ (let (($x1145 (= (= (= $x1074 $x1088) $x1120) $x1143)))
+ (let (($x50 (xor (xor (xor $x23 r_0_faulty_gate2_x1) false) r_0_faulty_gate3_z0)))
+ (let (($x120 (xor (xor $x106 $x50) r_1_faulty_gate2_z0)))
+ (let (($x913 (xor $x176 r_2_faulty_gate1_x1)))
+ (let (($x932 (xor (xor $x925 (xor (xor $x913 $x120) r_2_faulty_gate2_z0)) r_2_faulty_gate5_z0)))
+ (let (($x13 (xor false r_0_faulty_gate0_z1)))
+ (let (($x179 (xor $x13 r_2_faulty_gate0_z1)))
+ (let (($x550 (xor false $x179)))
+ (let (($x906 (xor $x913 r_2_faulty_gate2_x1)))
+ (let (($x38 (xor $x23 r_0_faulty_gate2_x1)))
+ (let (($x51 (xor $x38 r_0_faulty_gate3_x1)))
+ (let (($x62 (xor $x51 r_0_faulty_gate4_x0)))
+ (let (($x77 (xor (xor false $x62) r_0_faulty_gate5_x1)))
+ (let (($x132 (xor $x77 r_1_faulty_gate3_x0)))
+ (let (($x867 (xor (xor $x132 $x906) r_2_faulty_gate3_x1)))
+ (let (($x941 (xor $x867 r_2_faulty_gate6_x0)))
+ (let (($x986 (xor $x956 (xor (xor $x941 (xor $x550 r_2_faulty_gate8_z0)) r_2_faulty_gate9_z1))))
+ (let (($x1005 (xor (xor (xor $x986 r_2_faulty_gate10_z1) $x932) r_2_faulty_gate11_z0)))
+ (let (($x1087 (= r_2_faulty_gate8_x0 r_2_faulty_gate9_x1)))
+ (let (($x1124 (= (= (= r_1_faulty_gate5_z1 r_2_faulty_gate7_z1) $x1087) r_2_faulty_gate10_z0)))
+ (let (($x1127 (= (= $x1118 $x1124) r_2_faulty_gate14_z0)))
+ (let (($x1084 (= $x1087 r_2_faulty_gate10_x1)))
+ (let (($x575 (= r_0_faulty_gate3_x0 r_1_faulty_gate2_x0)))
+ (let (($x1080 (= $x575 r_2_faulty_gate2_x0)))
+ (let (($x1090 (= (= (= $x1080 r_2_faulty_gate5_x0) $x1084) r_2_faulty_gate11_x1)))
+ (let (($x1126 (= (= (= $x1090 $x1102) $x1120) $x1127)))
+ (let (($x161 (xor false r_1_faulty_gate5_z1)))
+ (let (($x49 (xor false r_0_faulty_gate3_x0)))
+ (let (($x119 (xor $x49 r_1_faulty_gate2_x0)))
+ (let (($x910 (xor $x119 r_2_faulty_gate2_x0)))
+ (let (($x934 (xor (xor $x910 (xor (xor false $x912) r_2_faulty_gate4_z0)) r_2_faulty_gate5_z1)))
+ (let (($x955 (xor (xor (xor (xor $x867 $x934) r_2_faulty_gate6_z1) $x161) r_2_faulty_gate7_z0)))
+ (let (($x1079 (= (= (= r_0_faulty_gate2_x0 r_1_faulty_gate0_x1) r_2_faulty_gate1_x0) r_2_faulty_gate4_x1)))
+ (let (($x1078 (= $x1079 r_2_faulty_gate12_x1)))
+ (let (($x1100 (= $x1101 (= $x1090 (= $x1074 $x1078)))))
+ (let (($x1103 (not $x1100)))
+ (let (($x170 (xor false $x13)))
+ (let (($x177 (xor $x170 r_2_faulty_gate0_z0)))
+ (let (($x95 (xor (xor (xor false r_0_faulty_gate2_x0) false) r_1_faulty_gate0_x1)))
+ (let (($x865 (xor (xor $x119 (xor (xor $x95 $x177) r_2_faulty_gate1_z1)) r_2_faulty_gate2_z1)))
+ (let (($x907 (xor (xor $x865 $x133) r_2_faulty_gate3_z0)))
+ (let (($x1064 (and (= $x907 $x1103) (= $x955 $x1126) (= $x1005 $x1145) (= $x1057 $x1149))))
+ (= condition_3 $x1064)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+(assert
+ (= conditionAll (and condition_0 condition_1 condition_2 condition_3)))
+(assert
+ conditionAll)
+(assert
+ (let (($x5 (xor false false)))
+ (let (($x12 (xor $x5 r_0_faulty_gate0_x1)))
+ (let (($x171 (xor $x12 false)))
+ (let (($x178 (xor $x171 r_2_faulty_gate0_x1)))
+ (let (($x612 (xor $x178 false)))
+ (let (($x967 (xor $x612 r_2_faulty_gate8_x1)))
+ (let (($x1030 (xor $x967 r_2_faulty_gate13_x0)))
+ (= data0_x $x1030)))))))))
+(assert
+ (let (($x13 (xor false r_0_faulty_gate0_z1)))
+ (let (($x179 (xor $x13 r_2_faulty_gate0_z1)))
+ (let (($x1017 (xor false r_2_faulty_gate12_x0)))
+ (let (($x1031 (xor (xor $x1017 (xor $x179 r_2_faulty_gate8_z1)) r_2_faulty_gate13_z0)))
+ (= data0_z $x1031))))))
+(assert
+ (= fixed0_x (xor data0_x dec0_x)))
+(assert
+ (= fixed0_z (xor data0_z dec0_z)))
+(assert
+ (let (($x95 (xor (xor (xor false r_0_faulty_gate2_x0) false) r_1_faulty_gate0_x1)))
+ (let (($x927 (xor (xor (xor $x95 r_2_faulty_gate1_x0) false) r_2_faulty_gate4_x1)))
+ (let (($x1019 (xor (xor $x927 false) r_2_faulty_gate12_x1)))
+ (= data1_x $x1019)))))
+(assert
+ (let (($x10 (xor false r_0_faulty_gate0_x0)))
+ (let (($x23 (xor $x10 r_0_faulty_gate1_x0)))
+ (let (($x37 (xor (xor $x23 false) r_0_faulty_gate2_z0)))
+ (let (($x96 (xor $x37 r_1_faulty_gate0_z1)))
+ (let (($x176 (xor false r_2_faulty_gate0_x0)))
+ (let (($x912 (xor (xor $x176 $x96) r_2_faulty_gate1_z0)))
+ (let (($x928 (xor $x912 r_2_faulty_gate4_z1)))
+ (let (($x1020 (xor $x928 r_2_faulty_gate12_z1)))
+ (= data1_z $x1020))))))))))
+(assert
+ (= fixed1_x (xor data1_x dec1_x)))
+(assert
+ (= fixed1_z (xor data1_z dec1_z)))
+(assert
+ (let (($x965 (xor false r_2_faulty_gate8_x0)))
+ (let (($x980 (xor $x965 r_2_faulty_gate9_x1)))
+ (let (($x993 (xor $x980 r_2_faulty_gate10_x1)))
+ (let (($x49 (xor false r_0_faulty_gate3_x0)))
+ (let (($x119 (xor $x49 r_1_faulty_gate2_x0)))
+ (let (($x910 (xor $x119 r_2_faulty_gate2_x0)))
+ (let (($x1006 (xor (xor (xor $x910 r_2_faulty_gate5_x0) $x993) r_2_faulty_gate11_x1)))
+ (= data2_x $x1006)))))))))
+(assert
+ (let (($x10 (xor false r_0_faulty_gate0_x0)))
+ (let (($x23 (xor $x10 r_0_faulty_gate1_x0)))
+ (let (($x38 (xor $x23 r_0_faulty_gate2_x1)))
+ (let (($x50 (xor (xor $x38 false) r_0_faulty_gate3_z0)))
+ (let (($x93 (xor false r_1_faulty_gate0_x0)))
+ (let (($x106 (xor $x93 r_1_faulty_gate1_x0)))
+ (let (($x120 (xor (xor $x106 $x50) r_1_faulty_gate2_z0)))
+ (let (($x176 (xor false r_2_faulty_gate0_x0)))
+ (let (($x913 (xor $x176 r_2_faulty_gate1_x1)))
+ (let (($x925 (xor false r_2_faulty_gate4_x0)))
+ (let (($x932 (xor (xor $x925 (xor (xor $x913 $x120) r_2_faulty_gate2_z0)) r_2_faulty_gate5_z0)))
+ (let (($x1007 (xor $x932 r_2_faulty_gate11_z1)))
+ (= data2_z $x1007))))))))))))))
+(assert
+ (= fixed2_x (xor data2_x dec2_x)))
+(assert
+ (= fixed2_z (xor data2_z dec2_z)))
+(assert
+ (let (($x1017 (xor false r_2_faulty_gate12_x0)))
+ (let (($x1032 (xor $x1017 r_2_faulty_gate13_x1)))
+ (let (($x1045 (xor $x1032 r_2_faulty_gate14_x1)))
+ (let (($x176 (xor false r_2_faulty_gate0_x0)))
+ (let (($x913 (xor $x176 r_2_faulty_gate1_x1)))
+ (let (($x906 (xor $x913 r_2_faulty_gate2_x1)))
+ (let (($x10 (xor false r_0_faulty_gate0_x0)))
+ (let (($x23 (xor $x10 r_0_faulty_gate1_x0)))
+ (let (($x38 (xor $x23 r_0_faulty_gate2_x1)))
+ (let (($x51 (xor $x38 r_0_faulty_gate3_x1)))
+ (let (($x62 (xor $x51 r_0_faulty_gate4_x0)))
+ (let (($x77 (xor (xor false $x62) r_0_faulty_gate5_x1)))
+ (let (($x132 (xor $x77 r_1_faulty_gate3_x0)))
+ (let (($x867 (xor (xor $x132 $x906) r_2_faulty_gate3_x1)))
+ (let (($x941 (xor $x867 r_2_faulty_gate6_x0)))
+ (let (($x1058 (xor (xor (xor $x941 r_2_faulty_gate9_x0) $x1045) r_2_faulty_gate15_x1)))
+ (= data3_x $x1058))))))))))))))))))
+(assert
+ (let (($x78 (xor false r_0_faulty_gate5_z1)))
+ (let (($x93 (xor false r_1_faulty_gate0_x0)))
+ (let (($x106 (xor $x93 r_1_faulty_gate1_x0)))
+ (let (($x121 (xor $x106 r_1_faulty_gate2_x1)))
+ (let (($x133 (xor (xor $x121 $x78) r_1_faulty_gate3_z0)))
+ (let (($x925 (xor false r_2_faulty_gate4_x0)))
+ (let (($x933 (xor $x925 r_2_faulty_gate5_x1)))
+ (let (($x965 (xor false r_2_faulty_gate8_x0)))
+ (let (($x972 (xor $x965 (xor (xor $x933 (xor $x133 r_2_faulty_gate3_z1)) r_2_faulty_gate6_z0))))
+ (let (($x979 (xor $x972 r_2_faulty_gate9_z0)))
+ (let (($x1059 (xor $x979 r_2_faulty_gate15_z1)))
+ (= data3_z $x1059)))))))))))))
+(assert
+ (= fixed3_x (xor data3_x dec3_x)))
+(assert
+ (= fixed3_z (xor data3_z dec3_z)))
+(assert
+ (let (($x925 (xor false r_2_faulty_gate4_x0)))
+ (let (($x933 (xor $x925 r_2_faulty_gate5_x1)))
+ (let (($x943 (xor $x933 r_2_faulty_gate6_x1)))
+ (let (($x93 (xor false r_1_faulty_gate0_x0)))
+ (let (($x106 (xor $x93 r_1_faulty_gate1_x0)))
+ (let (($x121 (xor $x106 r_1_faulty_gate2_x1)))
+ (let (($x134 (xor $x121 r_1_faulty_gate3_x1)))
+ (let (($x145 (xor $x134 r_1_faulty_gate4_x0)))
+ (let (($x160 (xor (xor false $x145) r_1_faulty_gate5_x1)))
+ (let (($x956 (xor (xor $x160 $x943) r_2_faulty_gate7_x1)))
+ (let (($x991 (xor $x956 r_2_faulty_gate10_x0)))
+ (let (($x1043 (xor $x991 r_2_faulty_gate14_x0)))
+ (= data4_x $x1043))))))))))))))
+(assert
+ (let (($x965 (xor false r_2_faulty_gate8_x0)))
+ (let (($x980 (xor $x965 r_2_faulty_gate9_x1)))
+ (let (($x985 (xor $x980 (xor (xor false r_1_faulty_gate5_z1) r_2_faulty_gate7_z1))))
+ (let (($x1017 (xor false r_2_faulty_gate12_x0)))
+ (let (($x1032 (xor $x1017 r_2_faulty_gate13_x1)))
+ (let (($x1044 (xor (xor $x1032 (xor $x985 r_2_faulty_gate10_z0)) r_2_faulty_gate14_z0)))
+ (= data4_z $x1044))))))))
+(assert
+ (= fixed4_x (xor data4_x dec4_x)))
+(assert
+ (= fixed4_z (xor data4_z dec4_z)))
+(assert
+ (let (($x2145 (xor (xor (xor (xor fixed0_z fixed1_z) fixed2_z) fixed3_z) fixed4_z)))
+ (= commute_0 (not $x2145))))
+(assert
+ (let (($x1827 (xor (xor (xor (xor fixed0_x fixed1_x) fixed2_x) fixed3_x) fixed4_x)))
+ (= commute_1 (not $x1827))))
+(assert
+ (= commute_2 (not (xor (xor (xor fixed0_z fixed1_x) fixed2_x) fixed3_z))))
+(assert
+ (= commute_3 (not (xor (xor (xor fixed1_z fixed2_x) fixed3_x) fixed4_z))))
+(assert
+ (= commute_4 (not (xor (xor (xor fixed0_z fixed2_z) fixed3_x) fixed4_x))))
+(assert
+ (= commute_5 (not (xor (xor (xor fixed0_x fixed1_z) fixed3_z) fixed4_x))))
+(assert
+ (let (($x1463 (and commute_0 commute_1 commute_2 commute_3 commute_4 commute_5)))
+ (= all_commute $x1463)))
+(assert
+ (let (($x26 (xor false r_0_faulty_gate1_z1)))
+ (let (($x24 (xor (xor (xor (xor false false) r_0_faulty_gate0_z0) false) r_0_faulty_gate1_z0)))
+ (let (($x52 (xor (xor false (xor (xor false $x24) r_0_faulty_gate2_z1)) r_0_faulty_gate3_z1)))
+ (let (($x76 (xor (xor (xor (xor $x52 $x26) r_0_faulty_gate4_z0) false) r_0_faulty_gate5_z0)))
+ (= r_0_ancX0 $x76))))))
+(assert
+ (let (($x10 (xor false r_0_faulty_gate0_x0)))
+ (let (($x23 (xor $x10 r_0_faulty_gate1_x0)))
+ (let (($x38 (xor $x23 r_0_faulty_gate2_x1)))
+ (let (($x51 (xor $x38 r_0_faulty_gate3_x1)))
+ (let (($x64 (xor (xor (xor (xor false $x10) r_0_faulty_gate1_x1) $x51) r_0_faulty_gate4_x1)))
+ (= r_0_flagZ0 $x64)))))))
+(assert
+ (let (($x109 (xor false r_1_faulty_gate1_z1)))
+ (let (($x10 (xor false r_0_faulty_gate0_x0)))
+ (let (($x23 (xor $x10 r_0_faulty_gate1_x0)))
+ (let (($x37 (xor (xor $x23 false) r_0_faulty_gate2_z0)))
+ (let (($x107 (xor (xor (xor (xor false $x37) r_1_faulty_gate0_z0) false) r_1_faulty_gate1_z0)))
+ (let (($x49 (xor false r_0_faulty_gate3_x0)))
+ (let (($x38 (xor $x23 r_0_faulty_gate2_x1)))
+ (let (($x51 (xor $x38 r_0_faulty_gate3_x1)))
+ (let (($x62 (xor $x51 r_0_faulty_gate4_x0)))
+ (let (($x77 (xor (xor false $x62) r_0_faulty_gate5_x1)))
+ (let (($x135 (xor (xor $x77 (xor (xor $x49 $x107) r_1_faulty_gate2_z1)) r_1_faulty_gate3_z1)))
+ (let (($x159 (xor (xor (xor (xor $x135 $x109) r_1_faulty_gate4_z0) false) r_1_faulty_gate5_z0)))
+ (= r_1_ancX0 $x159))))))))))))))
+(assert
+ (let (($x93 (xor false r_1_faulty_gate0_x0)))
+ (let (($x106 (xor $x93 r_1_faulty_gate1_x0)))
+ (let (($x121 (xor $x106 r_1_faulty_gate2_x1)))
+ (let (($x134 (xor $x121 r_1_faulty_gate3_x1)))
+ (let (($x147 (xor (xor (xor (xor false $x93) r_1_faulty_gate1_x1) $x134) r_1_faulty_gate4_x1)))
+ (= r_1_flagZ0 $x147)))))))
+(assert
+ (let (($x78 (xor false r_0_faulty_gate5_z1)))
+ (let (($x93 (xor false r_1_faulty_gate0_x0)))
+ (let (($x106 (xor $x93 r_1_faulty_gate1_x0)))
+ (let (($x121 (xor $x106 r_1_faulty_gate2_x1)))
+ (let (($x133 (xor (xor $x121 $x78) r_1_faulty_gate3_z0)))
+ (let (($x13 (xor false r_0_faulty_gate0_z1)))
+ (let (($x170 (xor false $x13)))
+ (let (($x177 (xor $x170 r_2_faulty_gate0_z0)))
+ (let (($x95 (xor (xor (xor false r_0_faulty_gate2_x0) false) r_1_faulty_gate0_x1)))
+ (let (($x49 (xor false r_0_faulty_gate3_x0)))
+ (let (($x119 (xor $x49 r_1_faulty_gate2_x0)))
+ (let (($x865 (xor (xor $x119 (xor (xor $x95 $x177) r_2_faulty_gate1_z1)) r_2_faulty_gate2_z1)))
+ (let (($x907 (xor (xor $x865 $x133) r_2_faulty_gate3_z0)))
+ (= r_2_ancX0 $x907)))))))))))))))
+(assert
+ (let (($x161 (xor false r_1_faulty_gate5_z1)))
+ (let (($x10 (xor false r_0_faulty_gate0_x0)))
+ (let (($x23 (xor $x10 r_0_faulty_gate1_x0)))
+ (let (($x37 (xor (xor $x23 false) r_0_faulty_gate2_z0)))
+ (let (($x96 (xor $x37 r_1_faulty_gate0_z1)))
+ (let (($x176 (xor false r_2_faulty_gate0_x0)))
+ (let (($x912 (xor (xor $x176 $x96) r_2_faulty_gate1_z0)))
+ (let (($x49 (xor false r_0_faulty_gate3_x0)))
+ (let (($x119 (xor $x49 r_1_faulty_gate2_x0)))
+ (let (($x910 (xor $x119 r_2_faulty_gate2_x0)))
+ (let (($x934 (xor (xor $x910 (xor (xor false $x912) r_2_faulty_gate4_z0)) r_2_faulty_gate5_z1)))
+ (let (($x913 (xor $x176 r_2_faulty_gate1_x1)))
+ (let (($x906 (xor $x913 r_2_faulty_gate2_x1)))
+ (let (($x38 (xor $x23 r_0_faulty_gate2_x1)))
+ (let (($x51 (xor $x38 r_0_faulty_gate3_x1)))
+ (let (($x62 (xor $x51 r_0_faulty_gate4_x0)))
+ (let (($x77 (xor (xor false $x62) r_0_faulty_gate5_x1)))
+ (let (($x132 (xor $x77 r_1_faulty_gate3_x0)))
+ (let (($x867 (xor (xor $x132 $x906) r_2_faulty_gate3_x1)))
+ (let (($x955 (xor (xor (xor (xor $x867 $x934) r_2_faulty_gate6_z1) $x161) r_2_faulty_gate7_z0)))
+ (= r_2_ancX1 $x955))))))))))))))))))))))
+(assert
+ (let (($x10 (xor false r_0_faulty_gate0_x0)))
+ (let (($x23 (xor $x10 r_0_faulty_gate1_x0)))
+ (let (($x38 (xor $x23 r_0_faulty_gate2_x1)))
+ (let (($x50 (xor (xor $x38 false) r_0_faulty_gate3_z0)))
+ (let (($x93 (xor false r_1_faulty_gate0_x0)))
+ (let (($x106 (xor $x93 r_1_faulty_gate1_x0)))
+ (let (($x120 (xor (xor $x106 $x50) r_1_faulty_gate2_z0)))
+ (let (($x176 (xor false r_2_faulty_gate0_x0)))
+ (let (($x913 (xor $x176 r_2_faulty_gate1_x1)))
+ (let (($x925 (xor false r_2_faulty_gate4_x0)))
+ (let (($x932 (xor (xor $x925 (xor (xor $x913 $x120) r_2_faulty_gate2_z0)) r_2_faulty_gate5_z0)))
+ (let (($x13 (xor false r_0_faulty_gate0_z1)))
+ (let (($x179 (xor $x13 r_2_faulty_gate0_z1)))
+ (let (($x550 (xor false $x179)))
+ (let (($x906 (xor $x913 r_2_faulty_gate2_x1)))
+ (let (($x51 (xor $x38 r_0_faulty_gate3_x1)))
+ (let (($x62 (xor $x51 r_0_faulty_gate4_x0)))
+ (let (($x77 (xor (xor false $x62) r_0_faulty_gate5_x1)))
+ (let (($x132 (xor $x77 r_1_faulty_gate3_x0)))
+ (let (($x867 (xor (xor $x132 $x906) r_2_faulty_gate3_x1)))
+ (let (($x941 (xor $x867 r_2_faulty_gate6_x0)))
+ (let (($x933 (xor $x925 r_2_faulty_gate5_x1)))
+ (let (($x943 (xor $x933 r_2_faulty_gate6_x1)))
+ (let (($x121 (xor $x106 r_1_faulty_gate2_x1)))
+ (let (($x134 (xor $x121 r_1_faulty_gate3_x1)))
+ (let (($x145 (xor $x134 r_1_faulty_gate4_x0)))
+ (let (($x160 (xor (xor false $x145) r_1_faulty_gate5_x1)))
+ (let (($x956 (xor (xor $x160 $x943) r_2_faulty_gate7_x1)))
+ (let (($x986 (xor $x956 (xor (xor $x941 (xor $x550 r_2_faulty_gate8_z0)) r_2_faulty_gate9_z1))))
+ (let (($x1005 (xor (xor (xor $x986 r_2_faulty_gate10_z1) $x932) r_2_faulty_gate11_z0)))
+ (= r_2_ancX2 $x1005))))))))))))))))))))))))))))))))
+(assert
+ (let (($x78 (xor false r_0_faulty_gate5_z1)))
+ (let (($x93 (xor false r_1_faulty_gate0_x0)))
+ (let (($x106 (xor $x93 r_1_faulty_gate1_x0)))
+ (let (($x121 (xor $x106 r_1_faulty_gate2_x1)))
+ (let (($x133 (xor (xor $x121 $x78) r_1_faulty_gate3_z0)))
+ (let (($x925 (xor false r_2_faulty_gate4_x0)))
+ (let (($x933 (xor $x925 r_2_faulty_gate5_x1)))
+ (let (($x965 (xor false r_2_faulty_gate8_x0)))
+ (let (($x972 (xor $x965 (xor (xor $x933 (xor $x133 r_2_faulty_gate3_z1)) r_2_faulty_gate6_z0))))
+ (let (($x979 (xor $x972 r_2_faulty_gate9_z0)))
+ (let (($x10 (xor false r_0_faulty_gate0_x0)))
+ (let (($x23 (xor $x10 r_0_faulty_gate1_x0)))
+ (let (($x37 (xor (xor $x23 false) r_0_faulty_gate2_z0)))
+ (let (($x96 (xor $x37 r_1_faulty_gate0_z1)))
+ (let (($x176 (xor false r_2_faulty_gate0_x0)))
+ (let (($x912 (xor (xor $x176 $x96) r_2_faulty_gate1_z0)))
+ (let (($x928 (xor $x912 r_2_faulty_gate4_z1)))
+ (let (($x5 (xor false false)))
+ (let (($x12 (xor $x5 r_0_faulty_gate0_x1)))
+ (let (($x171 (xor $x12 false)))
+ (let (($x178 (xor $x171 r_2_faulty_gate0_x1)))
+ (let (($x612 (xor $x178 false)))
+ (let (($x967 (xor $x612 r_2_faulty_gate8_x1)))
+ (let (($x1033 (xor (xor $x967 (xor (xor false $x928) r_2_faulty_gate12_z0)) r_2_faulty_gate13_z1)))
+ (let (($x943 (xor $x933 r_2_faulty_gate6_x1)))
+ (let (($x134 (xor $x121 r_1_faulty_gate3_x1)))
+ (let (($x145 (xor $x134 r_1_faulty_gate4_x0)))
+ (let (($x160 (xor (xor false $x145) r_1_faulty_gate5_x1)))
+ (let (($x956 (xor (xor $x160 $x943) r_2_faulty_gate7_x1)))
+ (let (($x991 (xor $x956 r_2_faulty_gate10_x0)))
+ (let (($x1057 (xor (xor (xor (xor $x991 $x1033) r_2_faulty_gate14_z1) $x979) r_2_faulty_gate15_z0)))
+ (= r_2_ancX3 $x1057)))))))))))))))))))))))))))))))))
+(assert
+ (not all_commute))
+(assert
+ (let (($x2026 (not r_2_ancX0)))
+ (let (($x2031 (not r_2_ancX3)))
+ (let (($x2044 (and $x2031 $x2026)))
+ (let (($x1976 (not r_2_ancX1)))
+ (let (($x2032 (and $x1976 $x2026)))
+ (let (($x2022 (not r_1_flagZ0)))
+ (let (($x1957 (not r_2_ancX2)))
+ (let (($x2028 (and $x2031 $x1957 r_2_ancX1 $x2022)))
+ (let (($x1691 (and (or r_2_ancX1 r_2_ancX3) (or $x2022 $x2028) (or $x2032 $x2044) (or $x1957 (and r_2_ancX3 $x1976)))))
+ (= dec0_x $x1691)))))))))))
+(assert
+ (let (($x2026 (not r_2_ancX0)))
+ (let (($x2031 (not r_2_ancX3)))
+ (let (($x2044 (and $x2031 $x2026)))
+ (let (($x1976 (not r_2_ancX1)))
+ (let (($x2032 (and $x1976 $x2026)))
+ (let (($x2022 (not r_1_flagZ0)))
+ (let (($x1957 (not r_2_ancX2)))
+ (let (($x2028 (and $x2031 $x1957 r_2_ancX1 $x2022)))
+ (let (($x1691 (and (or r_2_ancX1 r_2_ancX3) (or $x2022 $x2028) (or $x2032 $x2044) (or $x1957 (and r_2_ancX3 $x1976)))))
+ (= dec0_z $x1691)))))))))))
+(assert
+ (let (($x2031 (not r_2_ancX3)))
+ (let (($x1976 (not r_2_ancX1)))
+ (let (($x1987 (and $x2031 $x1976 r_2_ancX0)))
+ (let (($x2022 (not r_1_flagZ0)))
+ (let (($x1819 (or r_2_ancX1 r_2_ancX0 r_2_ancX3)))
+ (let (($x1990 (and $x1819 $x2022 (or $x1976 (not r_2_ancX2)) (or $x1976 (not r_2_ancX0) r_2_ancX3) (or r_2_ancX1 (not r_2_ancX0) $x2031) (or r_2_ancX0 $x1976 $x1987 $x2031))))
+ (= dec1_x $x1990))))))))
+(assert
+ (let (($x2022 (not r_1_flagZ0)))
+ (let (($x1957 (not r_2_ancX2)))
+ (let (($x1618 (and r_2_ancX3 $x1957 $x2022 r_2_ancX1)))
+ (= dec1_z $x1618)))))
+(assert
+ (let (($x1976 (not r_2_ancX1)))
+ (let (($x2038 (and r_2_ancX3 $x1976)))
+ (let (($x1957 (not r_2_ancX2)))
+ (let (($x2026 (not r_2_ancX0)))
+ (let (($x2031 (not r_2_ancX3)))
+ (let (($x2021 (and $x2031 r_2_ancX1)))
+ (let (($x2009 (not r_1_ancX0)))
+ (let (($x2022 (not r_1_flagZ0)))
+ (let (($x1974 (or r_2_ancX1 $x2022)))
+ (let (($x1988 (and (or r_2_ancX1 $x2009 r_2_ancX3) (or (and r_2_ancX1 $x2026) $x2022 r_2_ancX3) $x1974 (or $x1976 $x2031) (or $x2009 $x2021 $x2026 r_1_flagZ0) (or r_2_ancX0 $x1957 $x2038 r_1_flagZ0))))
+ (= dec2_x $x1988))))))))))))
+(assert
+ (let (($x2031 (not r_2_ancX3)))
+ (let (($x2026 (not r_2_ancX0)))
+ (let (($x1957 (not r_2_ancX2)))
+ (let (($x2025 (and $x2031 $x1957 $x2026 r_1_flagZ0)))
+ (let (($x1976 (not r_2_ancX1)))
+ (let (($x2013 (and r_2_ancX1 r_1_flagZ0)))
+ (let (($x2009 (not r_1_ancX0)))
+ (let (($x1998 (and r_2_ancX0 r_1_flagZ0)))
+ (let (($x1852 (and (or r_2_ancX2 $x1998 $x2009 $x2013) (or r_2_ancX0 $x1957 $x1976) (or r_2_ancX2 $x1976 $x2026) (or (not r_1_flagZ0) $x1957) (or r_2_ancX0 (and $x2031 r_2_ancX2 $x1976) $x2031) (or $x1976 $x2025 $x2031) (or r_2_ancX0 r_2_ancX1 r_2_ancX2))))
+ (= dec2_z $x1852)))))))))))
+(assert
+ (let (($x2026 (not r_2_ancX0)))
+ (let (($x2031 (not r_2_ancX3)))
+ (let (($x2044 (and $x2031 $x2026)))
+ (let (($x2009 (not r_1_ancX0)))
+ (let (($x2022 (not r_1_flagZ0)))
+ (let (($x1974 (or r_2_ancX1 $x2022)))
+ (let (($x2012 (and r_2_ancX2 r_2_ancX0)))
+ (let (($x1964 (and r_2_ancX1 r_2_ancX0 r_1_flagZ0)))
+ (let (($x1701 (and (or r_2_ancX1 $x1964 $x2009 $x2012 r_2_ancX3) $x1974 (or r_2_ancX2 $x2009 $x2044 r_1_flagZ0) (or $x2026 r_2_ancX3 r_1_flagZ0) (or r_2_ancX0 $x2022 r_2_ancX3) (or r_2_ancX0 (not r_2_ancX1) $x2031 r_1_flagZ0))))
+ (= dec3_x $x1701)))))))))))
+(assert
+ (let (($x2026 (not r_2_ancX0)))
+ (let (($x2031 (not r_2_ancX3)))
+ (let (($x2044 (and $x2031 $x2026)))
+ (let (($x1976 (not r_2_ancX1)))
+ (let (($x2012 (and r_2_ancX2 r_2_ancX0)))
+ (let (($x2009 (not r_1_ancX0)))
+ (let (($x1998 (and r_2_ancX0 r_1_flagZ0)))
+ (let (($x1615 (and (or r_2_ancX1 $x1998 $x2009 $x2012 r_2_ancX3) (or r_2_ancX0 r_2_ancX1 (not r_1_flagZ0)) (or r_2_ancX0 $x1976 $x2031) (or r_2_ancX2 $x1976 $x2044 r_1_flagZ0) (or (and (not r_2_ancX2) $x2026) r_2_ancX3 r_1_flagZ0))))
+ (= dec3_z $x1615))))))))))
+(assert
+ (let (($x2026 (not r_2_ancX0)))
+ (let (($x1976 (not r_2_ancX1)))
+ (let (($x2032 (and $x1976 $x2026)))
+ (let (($x1802 (and r_2_ancX2 $x2026)))
+ (let (($x1819 (or r_2_ancX1 r_2_ancX0 r_2_ancX3)))
+ (let (($x2013 (and r_2_ancX1 r_1_flagZ0)))
+ (let (($x2009 (not r_1_ancX0)))
+ (let (($x1998 (and r_2_ancX0 r_1_flagZ0)))
+ (let (($x1798 (and r_2_ancX2 r_1_flagZ0)))
+ (let (($x1932 (and (or $x1798 $x1998 $x2009 $x2013 r_2_ancX3) $x1819 (or $x1802 $x2032 r_1_flagZ0))))
+ (= dec4_x $x1932))))))))))))
+(assert
+ (let (($x2026 (not r_2_ancX0)))
+(let (($x2031 (not r_2_ancX3)))
+(let (($x2044 (and $x2031 $x2026)))
+(let (($x1802 (and r_2_ancX2 $x2026)))
+(let (($x1438 (or $x1802 $x2044)))
+(let (($x2022 (not r_1_flagZ0)))
+(let (($x1634 (and r_2_ancX1 $x2022 $x1438 (or (not r_2_ancX2) r_2_ancX3))))
+(= dec4_z $x1634)))))))))
+(check-sat)
+
+  [Timing] Path 3 decoder verify: 0.016s
+  [Timing] Path 3 decoder total: 1.824s
+Verified!
+
