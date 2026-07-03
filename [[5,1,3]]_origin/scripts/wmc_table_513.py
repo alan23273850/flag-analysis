@@ -59,10 +59,15 @@ def _p_token(p: float) -> str:
     return f"{p:.8g}".replace("+", "")
 
 
+def _backend_name() -> str:
+    import os
+    return (os.environ.get("DECODER_BACKEND", "cms") or "cms").lower()
+
+
 def _output_path(p_points: List[float], suffix_extra: str) -> Path:
     p_min = min(p_points)
     p_max = max(p_points)
-    suffix = f"_p{_p_token(p_min)}-p{_p_token(p_max)}{suffix_extra}"
+    suffix = f"_p{_p_token(p_min)}-p{_p_token(p_max)}{suffix_extra}_{_backend_name()}"
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     return OUT_DIR / f"wmc_table_513{suffix}.csv"
 
@@ -137,6 +142,21 @@ def _write_outputs(rows: List[PointRow], csv_path: Path) -> None:
             )
 
 
+def _parallel_job(args_tuple: tuple) -> PointRow:
+    """Top-level worker for ProcessPoolExecutor (must be picklable)."""
+    p, beta, gamma, max_faults, work_dir_str, keep_cnf = args_tuple
+    sub_dir = Path(work_dir_str)
+    sub_dir.mkdir(parents=True, exist_ok=True)
+    return _run_one_point(
+        p,
+        beta=beta,
+        gamma=gamma,
+        max_faults=max_faults,
+        work_dir=sub_dir,
+        keep_cnf=keep_cnf,
+    )
+
+
 def _parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser(
         description="WMC table generator for [[5,1,3]] (gpmc-based)"
@@ -179,11 +199,20 @@ def _parse_args() -> argparse.Namespace:
         action="store_true",
         help="Keep CNF files (default: drop after parsing).",
     )
+    ap.add_argument(
+        "--backend",
+        choices=("cms", "dnf", "cadet"),
+        default=None,
+        help="Decoder backend subdirectory (default: DECODER_BACKEND env or cms)",
+    )
     return ap.parse_args()
 
 
 def main() -> None:
     args = _parse_args()
+    if args.backend is not None:
+        import os
+        os.environ["DECODER_BACKEND"] = args.backend
     max_faults = None if args.no_max_faults else args.max_faults
     p_points: List[float] = list(args.p_points)
 
@@ -220,20 +249,21 @@ def main() -> None:
                 f"({paths_str}) elapsed={row.elapsed_sec:.2f}s"
             )
     else:
-        def _job(p: float) -> PointRow:
-            sub_dir = base_work_dir / f"p_{_p_token(p)}"
-            sub_dir.mkdir(parents=True, exist_ok=True)
-            return _run_one_point(
-                p,
-                beta=args.beta,
-                gamma=args.gamma,
-                max_faults=max_faults,
-                work_dir=sub_dir,
-                keep_cnf=args.keep_cnf,
-            )
-
         with cf.ProcessPoolExecutor(max_workers=args.processes) as ex:
-            futures = {ex.submit(_job, p): p for p in p_points}
+            futures = {
+                ex.submit(
+                    _parallel_job,
+                    (
+                        p,
+                        args.beta,
+                        args.gamma,
+                        max_faults,
+                        str(base_work_dir / f"p_{_p_token(p)}"),
+                        args.keep_cnf,
+                    ),
+                ): p
+                for p in p_points
+            }
             for fut in cf.as_completed(futures):
                 row = fut.result()
                 rows.append(row)

@@ -988,8 +988,8 @@ Syndrome equality constraint:
 ...
 
 4. Decoder learning (C backend: cms / dnf / cadet):
-  Decoder formulas loaded from /home/alan23273850/flag-analysis2/[[5,1,3]]_origin/decoder/path_4.txt
-  [Timing] Path 4 decoder learning: 1.424s
+  Decoder formulas loaded from /home/alan23273850/flag-analysis2/[[5,1,3]]_origin/decoder/cms/path_4.txt
+  [Timing] Path 4 decoder learning: 1.320s
 
 5. Verified SMT formula:
 ; benchmark generated from python API
@@ -1476,11 +1476,11 @@ Syndrome equality constraint:
 (assert
  (= fixed4_z (xor data4_z dec4_z)))
 (assert
- (let (($x1814 (xor (xor (xor (xor fixed0_z fixed1_z) fixed2_z) fixed3_z) fixed4_z)))
- (= commute_0 (not $x1814))))
+ (let (($x1756 (xor (xor (xor (xor fixed0_z fixed1_z) fixed2_z) fixed3_z) fixed4_z)))
+ (= commute_0 (not $x1756))))
 (assert
- (let (($x1744 (xor (xor (xor (xor fixed0_x fixed1_x) fixed2_x) fixed3_x) fixed4_x)))
- (= commute_1 (not $x1744))))
+ (let (($x1691 (xor (xor (xor (xor fixed0_x fixed1_x) fixed2_x) fixed3_x) fixed4_x)))
+ (= commute_1 (not $x1691))))
 (assert
  (= commute_2 (not (xor (xor (xor fixed0_z fixed1_x) fixed2_x) fixed3_z))))
 (assert
@@ -1490,8 +1490,8 @@ Syndrome equality constraint:
 (assert
  (= commute_5 (not (xor (xor (xor fixed0_x fixed1_z) fixed3_z) fixed4_x))))
 (assert
- (let (($x1494 (and commute_0 commute_1 commute_2 commute_3 commute_4 commute_5)))
- (= all_commute $x1494)))
+ (let (($x1612 (and commute_0 commute_1 commute_2 commute_3 commute_4 commute_5)))
+ (= all_commute $x1612)))
 (assert
  (let (($x26 (xor false r_0_faulty_gate1_z1)))
  (let (($x24 (xor (xor (xor (xor false false) r_0_faulty_gate0_z0) false) r_0_faulty_gate1_z0)))
@@ -1579,80 +1579,69 @@ Syndrome equality constraint:
 (assert
  (not all_commute))
 (assert
- (let (($x2012 (and r_1_ancX1 r_0_flagZ0)))
- (let (($x2007 (not r_1_ancX0)))
- (let (($x1998 (not r_1_ancX3)))
- (let (($x1980 (and $x1998 r_0_flagZ0)))
- (let (($x2037 (not r_1_ancX1)))
- (let (($x2173 (or r_0_flagZ0 $x2037)))
- (let (($x1645 (and (or r_1_ancX3 (and r_1_ancX0 r_0_flagZ0) r_1_ancX2) $x2173 (or r_1_ancX1 (and $x1998 r_1_ancX0 r_0_ancX0) (not r_0_flagZ0)) (or r_1_ancX3 $x2007 (and (not r_1_ancX2) r_0_flagZ0)) (or r_1_ancX0 $x2037) (or $x1980 $x2007 $x2012 r_1_ancX2))))
- (= dec0_x $x1645)))))))))
+ (let (($x2025 (and r_1_ancX1 r_0_flagZ0)))
+ (let (($x1981 (not r_0_ancX0)))
+ (let (($x1466 (not r_1_ancX0)))
+ (let (($x2004 (and r_1_ancX1 r_1_ancX0 r_0_flagZ0)))
+ (let (($x2086 (and (or r_1_ancX2 $x1981 $x2004 r_1_ancX3) (or r_1_ancX2 (and r_1_ancX1 r_1_ancX0) r_1_ancX3) (or r_0_flagZ0 (not r_1_ancX1)) (or r_1_ancX2 $x1466 $x1981 $x2025) (or $x1466 $x1981 $x2025 r_1_ancX3) (or r_1_ancX2 $x1466 r_1_ancX1) (or $x1466 r_1_ancX1 r_1_ancX3) (or (not r_1_ancX1) r_1_ancX0))))
+ (= dec0_x $x2086)))))))
 (assert
- (let (($x2009 (not r_0_flagZ0)))
- (let (($x2022 (or r_1_ancX1 $x2009)))
- (let (($x2037 (not r_1_ancX1)))
- (let (($x2173 (or r_0_flagZ0 $x2037)))
- (let (($x2163 (and r_1_ancX2 r_1_ancX0)))
- (let (($x2027 (and r_1_ancX1 r_1_ancX0 r_0_flagZ0)))
- (let (($x1594 (not r_0_ancX0)))
- (let (($x1455 (and r_1_ancX2 r_0_flagZ0)))
- (let (($x1591 (and (or $x1455 $x1594 $x2027 $x2163) $x2173 $x2022 (or r_1_ancX0 r_1_ancX2))))
- (= dec0_z $x1591)))))))))))
+ (let (($x2028 (not r_0_flagZ0)))
+ (let (($x2044 (or r_1_ancX1 $x2028)))
+ (let (($x2004 (and r_1_ancX1 r_1_ancX0 r_0_flagZ0)))
+ (let (($x1625 (and r_1_ancX2 r_1_ancX0)))
+ (let (($x1621 (and r_1_ancX2 r_0_flagZ0)))
+ (let (($x1821 (and (or $x1621 $x1625 $x2004) (or r_0_flagZ0 (not r_0_ancX0) (not r_1_ancX1)) $x2044)))
+ (= dec0_z $x1821))))))))
 (assert
- (let (($x2037 (not r_1_ancX1)))
- (let (($x1594 (not r_0_ancX0)))
- (let (($x1455 (and r_1_ancX2 r_0_flagZ0)))
- (let (($x1728 (and (or r_1_ancX0 $x1594 $x1455) (or r_1_ancX1 r_0_flagZ0 (not r_1_ancX3)) (or r_1_ancX3 (and r_1_ancX2 (not r_1_ancX0)) (not r_0_flagZ0)) (or $x1594 (not r_1_ancX2) (and (not r_1_ancX0) r_0_flagZ0)) (or $x1455 $x1594 r_1_ancX3 $x2037) (or r_1_ancX1 (not r_0_flagZ0) r_1_ancX0))))
- (= dec1_x $x1728))))))
+ (let (($x2188 (not r_1_ancX2)))
+ (let (($x2049 (and r_1_ancX3 $x2188)))
+ (let (($x2048 (not r_1_ancX1)))
+ (let (($x2034 (and $x2188 $x2048)))
+ (let (($x2002 (and (or r_1_ancX0 (and r_1_ancX2 r_0_flagZ0)) (or r_0_flagZ0 $x2034 $x2049) (or r_0_flagZ0 r_1_ancX1 (not r_1_ancX3)) (or (and r_1_ancX2 (not r_1_ancX0)) (not r_0_flagZ0) r_1_ancX3))))
+ (= dec1_x $x2002)))))))
 (assert
- (let (($x2000 (not r_1_ancX2)))
- (let (($x2036 (and $x2000 r_0_flagZ0)))
- (let (($x2007 (not r_1_ancX0)))
- (let (($x2004 (and r_1_ancX3 $x2000 r_1_ancX1)))
- (let (($x2037 (not r_1_ancX1)))
- (let (($x1961 (and r_1_ancX2 $x2037)))
- (let (($x1960 (and $x2037 r_1_ancX0)))
- (let (($x2040 (and r_1_ancX0 r_0_flagZ0)))
- (let (($x2024 (and r_1_ancX3 r_0_flagZ0)))
- (let (($x1594 (not r_0_ancX0)))
- (let (($x1479 (and (or r_1_ancX1 $x1594 $x2024 $x2040 r_1_ancX2) (or r_1_ancX3 $x1960 $x1961) (or r_1_ancX3 (and r_1_ancX2 $x2007) r_0_ancX0) (or $x2004 $x2007 $x2036))))
- (= dec1_z $x1479)))))))))))))
+ (let (($x1466 (not r_1_ancX0)))
+ (let (($x2188 (not r_1_ancX2)))
+ (let (($x2050 (and $x2188 $x1466)))
+ (let (($x2049 (and r_1_ancX3 $x2188)))
+ (let (($x2048 (not r_1_ancX1)))
+ (let (($x2017 (and $x2048 $x1466)))
+ (let (($x2180 (and (or r_1_ancX2 r_1_ancX1 (and r_1_ancX3 r_1_ancX0 r_0_flagZ0)) (or r_0_flagZ0 $x2017 $x2049 $x2050) (or $x1466 r_1_ancX3) (or r_1_ancX3 (and r_1_ancX2 $x2048)))))
+ (= dec1_z $x2180)))))))))
 (assert
- (let (($x1998 (not r_1_ancX3)))
- (let (($x1535 (or r_0_flagZ0 $x1998)))
- (let (($x1803 (and (or r_1_ancX1 (and r_1_ancX0 r_0_flagZ0)) (or r_1_ancX1 r_1_ancX2 $x1998) r_1_ancX0 $x1535)))
- (= dec2_x $x1803)))))
+ (let (($x1490 (and r_1_ancX0 r_0_flagZ0)))
+ (let (($x1904 (or r_1_ancX1 $x1490)))
+ (let (($x1647 (and $x1904 (or r_0_flagZ0 (not r_1_ancX3)) (or r_1_ancX2 r_1_ancX1 (not r_1_ancX3)) r_1_ancX0)))
+ (= dec2_x $x1647)))))
 (assert
- (let (($x1998 (not r_1_ancX3)))
- (let (($x1535 (or r_0_flagZ0 $x1998)))
- (let (($x1490 (or r_0_flagZ0 r_1_ancX2)))
- (let (($x1474 (and (or r_1_ancX1 (not r_0_ancX0) (and r_1_ancX3 r_0_flagZ0)) (or r_1_ancX0 r_1_ancX1 r_1_ancX3) (or (not r_1_ancX2) (and (not r_1_ancX1) r_0_flagZ0) r_1_ancX0) $x1490 (or r_1_ancX1 (not r_1_ancX2)) $x1535)))
- (= dec2_z $x1474))))))
+ (let (($x1513 (or r_0_flagZ0 r_1_ancX2)))
+ (let (($x1490 (and r_1_ancX0 r_0_flagZ0)))
+ (let (($x1904 (or r_1_ancX1 $x1490)))
+ (let (($x1891 (and $x1904 (or r_0_flagZ0 (not r_0_ancX0) (not r_1_ancX3)) (or r_1_ancX1 (not r_1_ancX2)) $x1513 (or r_1_ancX0 (not r_0_ancX0) (not r_1_ancX2)) (or r_1_ancX0 (not r_1_ancX2)))))
+ (= dec2_z $x1891))))))
 (assert
- (let (($x1490 (or r_0_flagZ0 r_1_ancX2)))
- (let (($x2007 (not r_1_ancX0)))
- (let (($x1594 (not r_0_ancX0)))
- (let (($x2037 (not r_1_ancX1)))
- (let (($x1978 (and $x2037 $x1594)))
- (let (($x1679 (and (or r_1_ancX1 $x1594 (and r_1_ancX3 r_0_flagZ0) r_1_ancX2) (or r_1_ancX1 r_1_ancX3 r_1_ancX0 r_1_ancX2) (or r_0_flagZ0 $x2007 (and r_1_ancX3 r_1_ancX1)) (or r_1_ancX3 $x1978 $x2007 r_1_ancX2) (or r_1_ancX0 (not r_0_flagZ0) $x2037 (not r_1_ancX2)) $x1490)))
- (= dec3_x $x1679))))))))
+ (let (($x1513 (or r_0_flagZ0 r_1_ancX2)))
+ (let (($x2161 (and (or r_1_ancX1 r_1_ancX2 (and r_1_ancX0 r_0_flagZ0)) (or (not r_1_ancX0) r_0_flagZ0 (not r_0_ancX0) r_1_ancX3) (or (not r_1_ancX0) r_0_flagZ0 r_1_ancX1 (not r_0_ancX0)) (or r_1_ancX2 (not r_1_ancX0) (not r_1_ancX1)) (or r_1_ancX0 (not r_0_flagZ0) (not r_1_ancX2)) $x1513)))
+ (= dec3_x $x2161))))
 (assert
- (let (($x2009 (not r_0_flagZ0)))
- (let (($x2022 (or r_1_ancX1 $x2009)))
- (let (($x2027 (and r_1_ancX1 r_1_ancX0 r_0_flagZ0)))
- (let (($x1694 (or (and r_1_ancX3 r_1_ancX0) $x2027)))
- (let (($x2053 (and $x1694 $x2022 (or r_0_flagZ0 r_1_ancX2 (not r_1_ancX1)) (or r_1_ancX1 r_0_flagZ0 (not r_1_ancX2)))))
- (= dec3_z $x2053)))))))
+ (let (($x2028 (not r_0_flagZ0)))
+ (let (($x2044 (or r_1_ancX1 $x2028)))
+ (let (($x2004 (and r_1_ancX1 r_1_ancX0 r_0_flagZ0)))
+ (let (($x1966 (and r_1_ancX3 r_1_ancX0)))
+ (let (($x1959 (and r_1_ancX3 r_1_ancX2)))
+ (let (($x1668 (and (or $x1959 $x1966 $x2004) (or r_0_flagZ0 r_1_ancX1 (not r_1_ancX2)) $x2044 (or r_1_ancX2 r_0_flagZ0 (not r_1_ancX1)))))
+ (= dec3_z $x1668))))))))
 (assert
  (= dec4_x false))
 (assert
- (let (($x2007 (not r_1_ancX0)))
-(let (($x1592 (and (or (not r_0_ancX0) (and r_1_ancX2 r_0_flagZ0)) $x2007 r_1_ancX2)))
-(= dec4_z $x1592))))
+ (let (($x1466 (not r_1_ancX0)))
+(let (($x1606 (and r_1_ancX2 r_0_flagZ0 $x1466)))
+(= dec4_z $x1606))))
 (check-sat)
 
   [Timing] Path 4 decoder verify: 0.017s
-  [Timing] Path 4 decoder total: 1.518s
+  [Timing] Path 4 decoder total: 1.422s
 Verified!
 
 ================================================================================

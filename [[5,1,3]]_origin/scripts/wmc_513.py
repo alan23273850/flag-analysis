@@ -67,7 +67,7 @@ from flag_analysis import (  # noqa: E402
     detect_qubit_groups,
     new_clean_circuit_state,
 )
-from decoder_commute_verify import decoder_dir, parse_decoder_c_file  # noqa: E402
+from decoder_commute_verify import decoder_path, parse_decoder_c_file  # noqa: E402
 
 ORIGIN_DIR = PROJECT_ROOT / "[[5,1,3]]_origin"
 FLAG_QASM = ORIGIN_DIR / "[[5,1,3]]_origin_flag_syndrome.qasm "

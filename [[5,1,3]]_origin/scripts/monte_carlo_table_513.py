@@ -59,10 +59,15 @@ def _p_token(p: float) -> str:
     return f"{p:.8g}".replace("+", "")
 
 
+def _backend_name() -> str:
+    import os
+    return (os.environ.get("DECODER_BACKEND", "cms") or "cms").lower()
+
+
 def _output_paths() -> tuple[Path, Path]:
     p_min = min(P_POINTS)
     p_max = max(P_POINTS)
-    suffix = f"_p{_p_token(p_min)}-p{_p_token(p_max)}"
+    suffix = f"_p{_p_token(p_min)}-p{_p_token(p_max)}_{_backend_name()}"
     return (
         OUT_DIR / f"mc_table_513{suffix}.csv",
         OUT_DIR / f"mc_table_513{suffix}.txt",
