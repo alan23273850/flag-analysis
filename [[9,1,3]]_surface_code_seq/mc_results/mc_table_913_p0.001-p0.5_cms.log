@@ -1,0 +1,116 @@
+[MC913] start p=0.5 (32 workers)
+[MC913] p=0.5 fail=100/800 pass=0 total=100 ratio=1
+[MC913] p=0.5 fail=200/800 pass=0 total=200 ratio=1
+[MC913] p=0.5 fail=300/800 pass=0 total=300 ratio=1
+[MC913] p=0.5 fail=400/800 pass=0 total=400 ratio=1
+[MC913] p=0.5 fail=500/800 pass=0 total=500 ratio=1
+[MC913] p=0.5 fail=600/800 pass=0 total=600 ratio=1
+[MC913] p=0.5 fail=700/800 pass=0 total=700 ratio=1
+[MC913] p=0.5 fail=800/800 pass=0 total=800 ratio=1
+[MC913] p=0.5 fail=900/800 pass=0 total=900 ratio=1
+[MC913] p=0.5 fail=1000/800 pass=0 total=1000 ratio=1
+[MC913] p=0.5 fail=1100/800 pass=0 total=1100 ratio=1
+[MC913] p=0.5 fail=1299/800 pass=1 total=1300 ratio=0.999231
+[MC913] p=0.5 fail=1399/800 pass=1 total=1400 ratio=0.999286
+[MC913] p=0.5 fail=1499/800 pass=1 total=1500 ratio=0.999333
+[MC913] p=0.5 fail=1599/800 pass=1 total=1600 ratio=0.999375
+[MC913] p=0.5 fail=1699/800 pass=1 total=1700 ratio=0.999412
+[MC913] p=0.5 fail=1799/800 pass=1 total=1800 ratio=0.999444
+[MC913] p=0.5 fail=1899/800 pass=1 total=1900 ratio=0.999474
+[MC913] p=0.5 fail=1999/800 pass=1 total=2000 ratio=0.9995
+[MC913] p=0.5 fail=2098/800 pass=2 total=2100 ratio=0.999048
+[MC913] p=0.5 fail=2198/800 pass=2 total=2200 ratio=0.999091
+[MC913] p=0.5 fail=2298/800 pass=2 total=2300 ratio=0.99913
+[MC913] p=0.5 fail=2397/800 pass=3 total=2400 ratio=0.99875
+[MC913] p=0.5 fail=2497/800 pass=3 total=2500 ratio=0.9988
+[MC913] p=0.5 fail=2597/800 pass=3 total=2600 ratio=0.998846
+[MC913] p=0.5 fail=2697/800 pass=3 total=2700 ratio=0.998889
+[MC913] p=0.5 fail=2797/800 pass=3 total=2800 ratio=0.998929
+[MC913] p=0.5 fail=2897/800 pass=3 total=2900 ratio=0.998966
+[MC913] p=0.5 fail=2996/800 pass=4 total=3000 ratio=0.998667
+[MC913] p=0.5 fail=3096/800 pass=4 total=3100 ratio=0.99871
+[MC913] p=0.5 fail=3196/800 pass=4 total=3200 ratio=0.99875
+[MC913] done p=0.5 ratio_fail=0.99875 ratio/p=1.9975 total=3200 elapsed=9.9s
+[MC913] start p=0.1 (32 workers)
+[MC913] p=0.1 fail=100/800 pass=0 total=100 ratio=1
+[MC913] p=0.1 fail=200/800 pass=0 total=200 ratio=1
+[MC913] p=0.1 fail=300/800 pass=0 total=300 ratio=1
+[MC913] p=0.1 fail=400/800 pass=0 total=400 ratio=1
+[MC913] p=0.1 fail=500/800 pass=0 total=500 ratio=1
+[MC913] p=0.1 fail=600/800 pass=0 total=600 ratio=1
+[MC913] p=0.1 fail=700/800 pass=0 total=700 ratio=1
+[MC913] p=0.1 fail=800/800 pass=0 total=800 ratio=1
+[MC913] p=0.1 fail=900/800 pass=0 total=900 ratio=1
+[MC913] p=0.1 fail=1000/800 pass=0 total=1000 ratio=1
+[MC913] p=0.1 fail=1100/800 pass=0 total=1100 ratio=1
+[MC913] p=0.1 fail=1200/800 pass=0 total=1200 ratio=1
+[MC913] p=0.1 fail=1300/800 pass=0 total=1300 ratio=1
+[MC913] p=0.1 fail=1400/800 pass=0 total=1400 ratio=1
+[MC913] p=0.1 fail=1500/800 pass=0 total=1500 ratio=1
+[MC913] p=0.1 fail=1600/800 pass=0 total=1600 ratio=1
+[MC913] p=0.1 fail=1798/800 pass=2 total=1800 ratio=0.998889
+[MC913] p=0.1 fail=1898/800 pass=2 total=1900 ratio=0.998947
+[MC913] p=0.1 fail=1998/800 pass=2 total=2000 ratio=0.999
+[MC913] p=0.1 fail=2098/800 pass=2 total=2100 ratio=0.999048
+[MC913] p=0.1 fail=2198/800 pass=2 total=2200 ratio=0.999091
+[MC913] p=0.1 fail=2298/800 pass=2 total=2300 ratio=0.99913
+[MC913] p=0.1 fail=2398/800 pass=2 total=2400 ratio=0.999167
+[MC913] p=0.1 fail=2498/800 pass=2 total=2500 ratio=0.9992
+[MC913] p=0.1 fail=2597/800 pass=3 total=2600 ratio=0.998846
+[MC913] p=0.1 fail=2696/800 pass=4 total=2700 ratio=0.998519
+[MC913] p=0.1 fail=2795/800 pass=5 total=2800 ratio=0.998214
+[MC913] p=0.1 fail=2895/800 pass=5 total=2900 ratio=0.998276
+[MC913] p=0.1 fail=2995/800 pass=5 total=3000 ratio=0.998333
+[MC913] p=0.1 fail=3095/800 pass=5 total=3100 ratio=0.998387
+[MC913] p=0.1 fail=3195/800 pass=5 total=3200 ratio=0.998437
+[MC913] done p=0.1 ratio_fail=0.9984375 ratio/p=9.98438 total=3200 elapsed=8.4s
+[MC913] start p=0.01 (32 workers)
+[MC913] p=0.01 fail=99/800 pass=1 total=100 ratio=0.99
+[MC913] p=0.01 fail=198/800 pass=2 total=200 ratio=0.99
+[MC913] p=0.01 fail=297/800 pass=3 total=300 ratio=0.99
+[MC913] p=0.01 fail=396/800 pass=4 total=400 ratio=0.99
+[MC913] p=0.01 fail=495/800 pass=5 total=500 ratio=0.99
+[MC913] p=0.01 fail=592/800 pass=8 total=600 ratio=0.986667
+[MC913] p=0.01 fail=692/800 pass=8 total=700 ratio=0.988571
+[MC913] p=0.01 fail=790/800 pass=10 total=800 ratio=0.9875
+[MC913] p=0.01 fail=888/800 pass=12 total=900 ratio=0.986667
+[MC913] p=0.01 fail=986/800 pass=14 total=1000 ratio=0.986
+[MC913] p=0.01 fail=1085/800 pass=15 total=1100 ratio=0.986364
+[MC913] p=0.01 fail=1185/800 pass=15 total=1200 ratio=0.9875
+[MC913] p=0.01 fail=1285/800 pass=15 total=1300 ratio=0.988462
+[MC913] p=0.01 fail=1385/800 pass=15 total=1400 ratio=0.989286
+[MC913] p=0.01 fail=1484/800 pass=16 total=1500 ratio=0.989333
+[MC913] p=0.01 fail=1584/800 pass=16 total=1600 ratio=0.99
+[MC913] p=0.01 fail=1682/800 pass=18 total=1700 ratio=0.989412
+[MC913] p=0.01 fail=1782/800 pass=18 total=1800 ratio=0.99
+[MC913] p=0.01 fail=1882/800 pass=18 total=1900 ratio=0.990526
+[MC913] p=0.01 fail=1981/800 pass=19 total=2000 ratio=0.9905
+[MC913] p=0.01 fail=2080/800 pass=20 total=2100 ratio=0.990476
+[MC913] p=0.01 fail=2179/800 pass=21 total=2200 ratio=0.990455
+[MC913] p=0.01 fail=2277/800 pass=23 total=2300 ratio=0.99
+[MC913] p=0.01 fail=2376/800 pass=24 total=2400 ratio=0.99
+[MC913] p=0.01 fail=2474/800 pass=26 total=2500 ratio=0.9896
+[MC913] p=0.01 fail=2572/800 pass=28 total=2600 ratio=0.989231
+[MC913] p=0.01 fail=2672/800 pass=28 total=2700 ratio=0.98963
+[MC913] p=0.01 fail=2771/800 pass=29 total=2800 ratio=0.989643
+[MC913] p=0.01 fail=2870/800 pass=30 total=2900 ratio=0.989655
+[MC913] p=0.01 fail=2969/800 pass=31 total=3000 ratio=0.989667
+[MC913] p=0.01 fail=3069/800 pass=31 total=3100 ratio=0.99
+[MC913] p=0.01 fail=3168/800 pass=32 total=3200 ratio=0.99
+[MC913] done p=0.01 ratio_fail=0.99 ratio/p=99 total=3200 elapsed=7.9s
+[MC913] start p=0.001 (32 workers)
+[MC913] p=0.001 fail=38/800 pass=62 total=100 ratio=0.38
+[MC913] p=0.001 fail=108/800 pass=192 total=300 ratio=0.36
+[MC913] p=0.001 fail=208/800 pass=392 total=600 ratio=0.346667
+[MC913] p=0.001 fail=325/800 pass=575 total=900 ratio=0.361111
+[MC913] p=0.001 fail=404/800 pass=696 total=1100 ratio=0.367273
+[MC913] p=0.001 fail=512/800 pass=888 total=1400 ratio=0.365714
+[MC913] p=0.001 fail=602/800 pass=1098 total=1700 ratio=0.354118
+[MC913] p=0.001 fail=709/800 pass=1291 total=2000 ratio=0.3545
+[MC913] p=0.001 fail=810/800 pass=1490 total=2300 ratio=0.352174
+[MC913] p=0.001 fail=924/800 pass=1676 total=2600 ratio=0.355385
+[MC913] p=0.001 fail=1027/800 pass=1873 total=2900 ratio=0.354138
+[MC913] p=0.001 fail=1125/800 pass=2075 total=3200 ratio=0.351562
+[MC913] done p=0.001 ratio_fail=0.3515625 ratio/p=351.562 total=3200 elapsed=9.0s
+[MC913] wrote: /home/alan23273850/flag-analysis2/[[9,1,3]]_surface_code_seq/mc_results/mc_table_913_p0.001-p0.5_cms.csv
+[MC913] wrote: /home/alan23273850/flag-analysis2/[[9,1,3]]_surface_code_seq/mc_results/mc_table_913_p0.001-p0.5_cms.txt

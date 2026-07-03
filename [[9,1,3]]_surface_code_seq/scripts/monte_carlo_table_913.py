@@ -223,6 +223,13 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--chunk-runs", type=int, default=DEFAULT_CHUNK_RUNS)
     parser.add_argument("--target-fails", type=int, default=TARGET_FAILS)
     parser.add_argument(
+        "--p-points",
+        type=float,
+        nargs="+",
+        default=None,
+        help="Physical error rates p to sweep (default: 1e-4, 1e-5, 1e-6)",
+    )
+    parser.add_argument(
         "--backend",
         choices=("cms", "dnf", "cadet"),
         default=None,
@@ -232,12 +239,14 @@ def _parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    global TARGET_FAILS
+    global TARGET_FAILS, P_POINTS
     args = _parse_args()
     if args.backend is not None:
         import os
         os.environ["DECODER_BACKEND"] = args.backend
     TARGET_FAILS = args.target_fails
+    if args.p_points is not None:
+        P_POINTS = sorted(args.p_points, reverse=True)
     if args.processes < 1:
         raise ValueError("--processes must be >= 1")
 
