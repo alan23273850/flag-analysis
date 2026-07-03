@@ -1,0 +1,10 @@
+Projected WMC (gpmc -mode=3) for [[9,1,3]]_surface_code_seq (Chris d=3)
+ratio_fail = sum_i P(fail | path_i) — logical error rate
+path_k_fail uses decoder/<backend>/path_k.txt
+beta=1, gamma=1
+
+p,beta,gamma,max_faults,ratio_fail,path_0_fail,path_1_fail,path_2_fail,path_3_fail,total_vars,total_clauses,elapsed_sec
+1e-05,1,1,2,0.0025284079,4.4174549e-06,6.9064143e-06,4.4269086e-05,0.0024728149,38116,106231,15174.357
+2e-05,1,1,2,0.0051232505,1.7484322e-05,2.7155819e-05,0.00017406474,0.0049045457,38116,106231,15115.040
+5e-05,1,1,2,0.01325327,0.00010587137,0.00016121051,0.001033335,0.011952854,38116,106231,14112.587
+0.0001,1,1,2,0.02766561,0.0004017173,0.00059183759,0.0037935886,0.022878467,38116,106231,14227.825

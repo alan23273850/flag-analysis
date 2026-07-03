@@ -1,0 +1,6 @@
+[WMC] [[9,1,3]]_surface_code_seq
+  path_0: P(fail)=4.96262e-08  vars=6459  clauses=16730  elapsed=433.80s
+  path_1: P(fail)=6.62923e-08  vars=10227  clauses=25255  elapsed=644.34s
+  path_2: P(fail)=3.77772e-07  vars=10543  clauses=27595  elapsed=3296.20s
+  path_3: P(fail)=0.000249116  vars=10468  clauses=26949  elapsed=2345.92s
+  ratio_fail (logical error rate) = 0.00024960941

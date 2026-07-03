@@ -1,0 +1,10 @@
+Monte Carlo table for [[9,1,3]] Chris d=3 protocol
+Target fails per point: 800
+beta=1.0, gamma=1.0
+ratio_fail = decoder_fail / total_runs
+ratio_over_p = ratio_fail / p  (compare to PWMC ~249)
+
+p,beta,gamma,target_fails,decoder_pass,decoder_fail,ratio_fail,ratio_over_p,total_runs,elapsed_sec
+0.0001,1,1,800,31088,912,0.0285,285,32000,35.840
+1e-05,1,1,800,312791,809,0.0025797194,257.97194,313600,288.948
+1e-06,1,1,800,3109599,801,0.00025752315,257.52315,3110400,2881.314

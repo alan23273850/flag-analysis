@@ -1,0 +1,7 @@
+[WMC] done p=5e-05 ratio_fail=0.0130625
+[WMC] done p=1e-05 ratio_fail=0.00252022
+[WMC] done p=0.0001 ratio_fail=0.0269666
+[WMC] done p=2e-05 ratio_fail=0.00509107
+[WMC] wrote: /home/alan23273850/flag-analysis2/[[9,1,3]]_surface_code_seq/wmc_results/wmc_table_913_p1e-05-p0.0001_K2.csv
+[WMC] wrote: /home/alan23273850/flag-analysis2/[[9,1,3]]_surface_code_seq/wmc_results/wmc_table_913_p1e-05-p0.0001_K2.txt
+[WMC] total wall: 6859.45s

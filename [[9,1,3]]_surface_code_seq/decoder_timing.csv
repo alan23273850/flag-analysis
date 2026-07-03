@@ -1,0 +1,13 @@
+backend,path,learning_sec,verify_sec,total_sec,verified
+dnf,0,1.560,0.043,1.842,yes
+cadet,0,1.773,0.404,3.202,yes
+cms,0,8.497,0.034,8.716,yes
+dnf,1,1.859,0.069,2.325,yes
+cadet,1,2.971,0.502,4.912,yes
+cms,1,10.871,0.043,11.229,yes
+dnf,2,6.019,0.229,6.654,yes
+cadet,2,4.984,0.802,14.963,yes
+cms,2,37.440,0.151,37.931,yes
+dnf,3,4.880,0.191,5.435,yes
+cadet,3,14.427,0.766,20.309,yes
+cms,3,11.395,0.131,11.818,yes

@@ -1,0 +1,36 @@
+[MC913] start p=0.0001 (64 workers)
+[MC913] p=0.0001 fail=1/800 pass=99 total=100 ratio=0.01
+[MC913] p=0.0001 fail=106/800 pass=3594 total=3700 ratio=0.0286486
+[MC913] p=0.0001 fail=203/800 pass=6397 total=6600 ratio=0.0307576
+[MC913] p=0.0001 fail=302/800 pass=9798 total=10100 ratio=0.029901
+[MC913] p=0.0001 fail=403/800 pass=13297 total=13700 ratio=0.0294161
+[MC913] p=0.0001 fail=500/800 pass=16300 total=16800 ratio=0.0297619
+[MC913] p=0.0001 fail=603/800 pass=19597 total=20200 ratio=0.0298515
+[MC913] p=0.0001 fail=701/800 pass=22799 total=23500 ratio=0.0298298
+[MC913] p=0.0001 fail=803/800 pass=26697 total=27500 ratio=0.0292
+[MC913] p=0.0001 fail=901/800 pass=30599 total=31500 ratio=0.0286032
+[MC913] done p=0.0001 ratio_fail=0.0285 ratio/p=285 total=32000 elapsed=35.8s
+[MC913] start p=1e-05 (64 workers)
+[MC913] p=1e-05 fail=0/800 pass=100 total=100 ratio=0
+[MC913] p=1e-05 fail=100/800 pass=40500 total=40600 ratio=0.00246305
+[MC913] p=1e-05 fail=200/800 pass=77600 total=77800 ratio=0.00257069
+[MC913] p=1e-05 fail=300/800 pass=117600 total=117900 ratio=0.00254453
+[MC913] p=1e-05 fail=400/800 pass=157100 total=157500 ratio=0.00253968
+[MC913] p=1e-05 fail=500/800 pass=201500 total=202000 ratio=0.00247525
+[MC913] p=1e-05 fail=600/800 pass=239300 total=239900 ratio=0.00250104
+[MC913] p=1e-05 fail=700/800 pass=273700 total=274400 ratio=0.00255102
+[MC913] p=1e-05 fail=800/800 pass=309400 total=310200 ratio=0.00257898
+[MC913] done p=1e-05 ratio_fail=0.0025797194 ratio/p=257.972 total=313600 elapsed=288.9s
+[MC913] start p=1e-06 (64 workers)
+[MC913] p=1e-06 fail=0/800 pass=100 total=100 ratio=0
+[MC913] p=1e-06 fail=100/800 pass=403900 total=404000 ratio=0.000247525
+[MC913] p=1e-06 fail=200/800 pass=838500 total=838700 ratio=0.000238464
+[MC913] p=1e-06 fail=300/800 pass=1160700 total=1161000 ratio=0.000258398
+[MC913] p=1e-06 fail=400/800 pass=1611700 total=1612100 ratio=0.000248124
+[MC913] p=1e-06 fail=500/800 pass=2007900 total=2008400 ratio=0.000248954
+[MC913] p=1e-06 fail=600/800 pass=2418400 total=2419000 ratio=0.000248036
+[MC913] p=1e-06 fail=700/800 pass=2782600 total=2783300 ratio=0.0002515
+[MC913] p=1e-06 fail=800/800 pass=3103700 total=3104500 ratio=0.00025769
+[MC913] done p=1e-06 ratio_fail=0.00025752315 ratio/p=257.523 total=3110400 elapsed=2881.3s
+[MC913] wrote: /home/alan23273850/flag-analysis2/[[9,1,3]]_surface_code_seq/mc_results/mc_table_913_p1e-06-p0.0001.csv
+[MC913] wrote: /home/alan23273850/flag-analysis2/[[9,1,3]]_surface_code_seq/mc_results/mc_table_913_p1e-06-p0.0001.txt
